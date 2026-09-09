@@ -92,6 +92,11 @@ export function applyHiddenLotGridColumnsVisibility(
   grid.columnOption(HIDDEN_LOT_NAMES_FIELD, 'visible', showNames);
   grid.columnOption(HIDDEN_LOT_NAMES_FIELD, 'showInColumnChooser', showNamesInChooser);
 
+  if (mode === HiddenLotDisplayMode.ExtendedWithoutNames) {
+    grid.endUpdate();
+    return mode;
+  }
+
   for (const dataField of params.extendedFields) {
     grid.columnOption(dataField, 'visible', showExtended);
   }
