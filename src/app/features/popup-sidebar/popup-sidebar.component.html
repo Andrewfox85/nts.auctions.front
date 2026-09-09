@@ -1,0 +1,1896 @@
+<dx-popup
+  contentTemplate="contentTempl"
+  [(visible)]="isVisible"
+  [wrapperAttr]="{ class: isEditSaveRequestPending ? 'popup-pending' : '' }"
+  [hideOnOutsideClick]="false"
+  [showTitle]="true"
+  titleTemplate="titleTemplate"
+  [minWidth]="900"
+  [width]="900"
+  maxWidth="99vw"
+  height="auto"
+  minHeight="99vh"
+  [position]=""
+  [shading]="
+    type === POPUP_SIDEBAR_TYPE.EDIT_OFFER ||
+    type === POPUP_SIDEBAR_TYPE.RULES_FOR_EDITING ||
+    type === POPUP_SIDEBAR_TYPE.EDIT_DEAL ||
+    type === POPUP_SIDEBAR_TYPE.VIEW_DEAL ||
+    type === POPUP_SIDEBAR_TYPE.SUBMIT_COUNTER_OFFERS ||
+    type === POPUP_SIDEBAR_TYPE.ANALOG_LIST ||
+    (type === POPUP_SIDEBAR_TYPE.COUNTER_OFFERS && (!isFilterCounter ||
+      (isMine &&
+      (dataForReq().idSessionPeriod === IdSessionPeriods.offersAdjustment
+       && dataForReq().isActive))))
+  "
+  [restorePosition]="false"
+  [resizeEnabled]="true"
+  [showCloseButton]="true"
+  dragAndResizeArea="false"
+  (onHidden)="onHiddenPopup()"
+  >
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+  <dxo-position my="top right" at="right top" of="" offset="0 0"></dxo-position>
+  <div
+    *dxTemplate="let data of 'titleTemplate'"
+    class="flexContent24 center"
+    [ngClass]="{
+      withoutBottomBorder:
+        type === POPUP_SIDEBAR_TYPE.VIEW_OFFER_FROM_OFFERS ||
+        type === POPUP_SIDEBAR_TYPE.VIEW_OFFER_FROM_AUCTIONS ||
+        type === POPUP_SIDEBAR_TYPE.SUBMIT_BID_TO_BUY ||
+        type === POPUP_SIDEBAR_TYPE.RULES_FOR_EDITING ||
+        type === POPUP_SIDEBAR_TYPE.COMPARE_OFFER ||
+        type === POPUP_SIDEBAR_TYPE.EDIT_DEAL
+    }"
+  >
+    <span
+      *ngIf="
+        type !== POPUP_SIDEBAR_TYPE.VIEW_OFFER_FROM_OFFERS &&
+        type !== POPUP_SIDEBAR_TYPE.VIEW_OFFER_FROM_AUCTIONS &&
+        type !== POPUP_SIDEBAR_TYPE.SUBMIT_BID_TO_BUY &&
+        type !== POPUP_SIDEBAR_TYPE.RULES_FOR_EDITING &&
+        type !== POPUP_SIDEBAR_TYPE.EDIT_OFFER &&
+        type !== POPUP_SIDEBAR_TYPE.SUBMIT_COUNTER_OFFERS &&
+        type !== POPUP_SIDEBAR_TYPE.COMPARE_OFFER &&
+        type !== POPUP_SIDEBAR_TYPE.EDIT_DEAL
+      "
+      >{{ dataForReq().name }}</span
+    >
+
+    @if (type === POPUP_SIDEBAR_TYPE.EDIT_OFFER) {
+      <span class="font-s20 l-h24 font-w500">{{ dataForReq().name }}</span>
+    }
+
+    @if (type === POPUP_SIDEBAR_TYPE.VIEW_OFFER_FROM_OFFERS ||
+         type === POPUP_SIDEBAR_TYPE.VIEW_OFFER_FROM_AUCTIONS ||
+         type === POPUP_SIDEBAR_TYPE.SUBMIT_BID_TO_BUY ||
+         type === POPUP_SIDEBAR_TYPE.SUBMIT_COUNTER_OFFERS) {
+    <div class="session pb-0 pt-0 pl-3 pr-0 flexContent16 w-100 ai-c jc-sb">
+      <div class="head flexContent8 center">
+        @if (type === POPUP_SIDEBAR_TYPE.SUBMIT_COUNTER_OFFERS) {
+          <h2 class="font-s24 mr-1 mb-0">
+            {{ "counterOffers.counterOffersTitle" | translate }}:
+          </h2>
+        }
+
+        <h2 class="font-s24 mr-1 mb-0">
+          {{ "trading.offersTable.lot" | translate }} №
+          {{ fullInfo().generalInfo?.lotNumber }}
+        </h2>
+
+        @if (type !== POPUP_SIDEBAR_TYPE.SUBMIT_COUNTER_OFFERS && !directSession) {
+          <span class="status default font-s12">{{
+            fullInfo().generalInfo?.directionId == 1
+              ? ("btns.buy" | translate)
+              : ("btns.sell" | translate)
+          }}</span>
+        }
+        @if (type === POPUP_SIDEBAR_TYPE.VIEW_OFFER_FROM_OFFERS && directSession) {
+          <span class="status default font-s12">{{
+            "trading.directOffersTab.directOfferSale" | translate
+          }}</span>
+        }
+        @if (type !== POPUP_SIDEBAR_TYPE.SUBMIT_COUNTER_OFFERS) {
+          <span class="status default font-s12">{{
+            fullInfo().generalInfo?.statusName
+          }}</span>
+        }
+      </div>
+
+      <div class="buttons flexContent12 center">
+        <button
+          class="btn btn-inherit jc-fl-st p-0 h-24px"
+          id="observed"
+          [disabled]="isVisibleToast"
+          (click)="onClickObserve()"
+        >
+          @if (fullInfo().generalInfo?.isWatched) {
+            <div class="greenObserveOfferBigger" [class.disabled]="isVisibleToast"></div>
+          } @else {
+            <div class="observeOffer" [class.disabled]="isVisibleToast"></div>
+          }
+
+          <dx-tooltip
+            target="#observed"
+            [showEvent]="{ name: 'mouseover', delay: 500 }"
+            hideEvent="mouseleave"
+          >
+            <div *dxTemplate="let data = data; of: 'content'">
+              {{
+                fullInfo().generalInfo?.isWatched
+                  ? ("trading.offersTable.deleteFromObserved" | translate)
+                  : ("trading.offersTable.addToObserved" | translate)
+              }}
+            </div>
+          </dx-tooltip>
+        </button>
+
+        @if (this.dataForReq().idSessionPeriod !== IdSessionPeriods.direct) {
+          <button
+            class="btn btn-inherit jc-fl-st p-0 h-24px"
+            id="changes"
+            [disabled]="!fullInfo().generalInfo?.idDemandOfferParent"
+            (click)="
+              onOpenCompareOffer(
+                fullInfo().generalInfo?.idDemandOffer,
+                fullInfo().generalInfo?.directionId
+              )
+            "
+          >
+            <div
+              class="changesOffer"
+              [class.disabled]="!fullInfo().generalInfo?.idDemandOfferParent"
+            ></div>
+            <dx-tooltip
+              target="#changes"
+              [showEvent]="{ name: 'mouseover', delay: 500 }"
+              hideEvent="mouseleave"
+            >
+              <div *dxTemplate="let data = data; of: 'content'">
+                {{ "trading.offersTable.showChanges" | translate }}
+              </div>
+            </dx-tooltip>
+          </button>
+        }
+        @if (user?.IsWorker) {
+          <button
+            class="btn btn-inherit jc-fl-st p-0 h-32px"
+            id="progress"
+            (click)="
+              onOpenProgress(
+                !directSession
+                  ? fullInfo().generalInfo?.idDemandOffer
+                  : fullInfo().generalInfo?.idOffer,
+                fullInfo().generalInfo?.lotNumber
+              )
+            "
+          >
+            <div class="tradingProgress"></div>
+            <dx-tooltip
+              target="#progress"
+              [showEvent]="{ name: 'mouseover', delay: 500 }"
+              hideEvent="mouseleave"
+            >
+              <div *dxTemplate="let data = data; of: 'content'">
+                {{ "trading.offersTable.viewProgress" | translate }}
+              </div>
+            </dx-tooltip>
+          </button>
+        }
+        @if (type !== POPUP_SIDEBAR_TYPE.SUBMIT_BID_TO_BUY && type !== POPUP_SIDEBAR_TYPE.SUBMIT_COUNTER_OFFERS &&
+               dataForReq().idSessionPeriod !== IdSessionPeriods.direct) {
+          <button
+            class="btn btn-inherit jc-fl-st p-0 h-32px"
+            id="deposit"
+            [disabled]="!fullInfo().generalInfo?.isCanCalculateDeposit"
+            (click)="onOpenDepositOffer()"
+          >
+            <div
+              class="depositOffer"
+              [class.disabled]="!fullInfo().generalInfo?.isCanCalculateDeposit"
+            ></div>
+            <dx-tooltip
+              target="#deposit"
+              [showEvent]="{ name: 'mouseover', delay: 500 }"
+              hideEvent="mouseleave"
+            >
+              <div *dxTemplate="let data = data; of: 'content'">
+                {{ "trading.offersTable.viewDeposit" | translate }}
+              </div>
+            </dx-tooltip>
+          </button>
+        }
+        @if (dataForReq().idSessionPeriod !== IdSessionPeriods.direct) {
+        <button
+          class="btn btn-inherit jc-fl-st p-0 h-32px"
+          id="register"
+          [disabled]="!fullInfo().generalInfo?.isExistCounterOffer"
+          (click)="
+            onOpenCounterOffer(
+              fullInfo().generalInfo?.idDemandOffer,
+              fullInfo().generalInfo?.directionId
+            )
+          "
+        >
+          <div
+            class="register"
+            [class.disabled]="!fullInfo().generalInfo?.isExistCounterOffer"
+          ></div>
+          <dx-tooltip
+            target="#register"
+            [showEvent]="{ name: 'mouseover', delay: 500 }"
+            hideEvent="mouseleave"
+          >
+            <div *dxTemplate="let data = data; of: 'content'">
+              {{ "trading.auctionsTab.register" | translate }}
+            </div>
+          </dx-tooltip>
+        </button>
+        }
+        @if (user?.IsWorker) {
+          <button class="btn btn-inherit jc-fl-st p-0 h-32px" id="message">
+            <div class="blackChat" (click)="goToChat()"></div>
+            <dx-tooltip
+              target="#message"
+              [showEvent]="{ name: 'mouseover', delay: 500 }"
+              hideEvent="mouseleave"
+            >
+              <div *dxTemplate="let data = data; of: 'content'">
+                {{ "btns.writeToSeller" | translate }}
+              </div>
+            </dx-tooltip>
+          </button>
+        }
+
+        <div class="line"></div>
+
+        <div class="close" (click)="onHiddenPopup()"></div>
+      </div>
+    </div>
+    }
+
+    <div
+      *ngIf="type === POPUP_SIDEBAR_TYPE.RULES_FOR_EDITING"
+      class="session pb-0 pt-0 pl-3 pr-0 flexContent16 w-100 ai-c jc-sb"
+    >
+      <div class="head flexContent8 center">
+        <div class="greyColor">
+          {{ "trading.offersTable.lot" | translate }} №
+          {{ fullInfo().demandOfferInfo?.lotNumber }}
+        </div>
+        <span class="status default font-s12">{{
+          fullInfo().directionId == 1
+            ? ("btns.buy" | translate)
+            : ("btns.sell" | translate)
+        }}</span>
+        <span class="status default font-s12">{{
+          "general.active" | translate
+        }}</span>
+      </div>
+    </div>
+
+    @if (type === POPUP_SIDEBAR_TYPE.COUNTER_OFFERS) {
+      <div class="session w-100 flexContent8 jc-sb">
+        <div class="head flexContent8 flex-start">
+          <h2 class="font-s24 mr-1 mb-0">
+            {{ "counterOffers.counterOffers" | translate }}:
+            {{ "trading.offersTable.lot" | translate }} №
+            {{ fullInfo().generalInfo?.lotNumber }}
+          </h2>
+        </div>
+
+        @if (
+          isMine &&
+          dataForReq()?.idAuctionType === auctionType.simpleBuyerAuction
+        ) {
+          <button
+            class="btn btn-outline-primary submit h-32px"
+            (click)="onViewInSingleCurrency()"
+          >
+            {{ "btns.viewInSingleCurrency" | translate }}
+          </button>
+        }
+      </div>
+    }
+
+    @if (type === POPUP_SIDEBAR_TYPE.COMPARE_OFFER) {
+      <div class="session w-100">
+        <div class="head flexContent8 flex-start">
+          <h2 class="font-s24 mr-1 mb-0">
+            {{ "compareOffer.compareOffer" | translate }}:
+            {{ "trading.offersTable.lot" | translate }} №
+            {{ fullInfo().generalInfo?.lotNumber }}
+          </h2>
+        </div>
+      </div>
+    }
+    @if (type === POPUP_SIDEBAR_TYPE.ANALOG_LIST) {
+      <div class="session w-100">
+        <div class="head flexContent8 flex-start">
+          <h2 class="font-s24 mr-1 mb-0">
+            {{ "analogsList.analogsList" | translate }}:
+            {{ "trading.offersTable.lot" | translate }} №
+            {{ fullInfo().generalInfo?.lotNumber }}
+          </h2>
+        </div>
+      </div>
+    }
+
+    <div
+      *ngIf="type === POPUP_SIDEBAR_TYPE.VIEW_DEAL"
+      class="session p-0 flexContent16 w-100 ai-c jc-sb"
+    >
+      <div class="head flexContent8 center">
+        <h2 class="font-s24 mr-1 mb-0">
+          {{ "viewDeal.deal" | translate }} №
+          {{
+            fullInfo()?.transactionGeneral?.transactionInfo?.transactionNumber
+          }}
+        </h2>
+        <span class="status default font-s12">{{
+          fullInfo()?.transactionGeneral?.dateTerminate == null
+            ? ("viewDeal.fixed" | translate)
+            : ("viewDeal.denied" | translate)
+        }}</span>
+      </div>
+
+      <div class="buttons flexContent12 center">
+        <button class="btn btn-inherit jc-fl-st p-0 h-24px" id="observed">
+          <div
+            *ngIf="fullInfo()?.transactionGeneral?.isWatched"
+            class="greenObserveOfferBigger"
+          ></div>
+          <div
+            *ngIf="!fullInfo()?.transactionGeneral?.isWatched"
+            class="observeOffer"
+          ></div>
+          <!-- <dx-tooltip target="#observed"
+            [showEvent]="{ name: 'mouseover', delay: 500 }"
+                        hideEvent="mouseleave">
+              <div *dxTemplate="let data = data; of: 'content'">
+                {{ fullInfo().generalInfo?.isWatched ? ('trading.offersTable.deleteFromObserved' | translate) : ('trading.offersTable.addToObserved' | translate) }}
+              </div>
+          </dx-tooltip> -->
+        </button>
+
+        <button
+          class="btn btn-inherit jc-fl-st p-0 h-32px"
+          id="generate"
+          (click)="
+            downloadRegister(fullInfo()?.transactionGeneral?.idTransaction)
+          "
+          [disabled]="!isDisabledDownloadRegister"
+          [class.disabled_register]="!isDisabledDownloadRegister"
+        >
+          <div class="register"></div>
+          <dx-tooltip
+            target="#generate"
+            [showEvent]="{ name: 'mouseover', delay: 500 }"
+            hideEvent="mouseleave"
+          >
+            <div *dxTemplate="let data = data; of: 'content'">
+              {{ "trading.dealsTab.generate" | translate }}
+            </div>
+          </dx-tooltip>
+        </button>
+
+        <button
+          *ngIf="user?.IsWorker"
+          class="btn btn-inherit jc-fl-st p-0 h-32px"
+          id="progress"
+          (click)="
+            onOpenProgress(
+              fullInfo()?.transactionGeneral?.idDemandOffer,
+              fullInfo()?.transactionGeneral?.lotNumber
+            )
+          "
+        >
+          <div class="tradingProgress"></div>
+          <dx-tooltip
+            target="#progress"
+            [showEvent]="{ name: 'mouseover', delay: 500 }"
+            hideEvent="mouseleave"
+          >
+            <div *dxTemplate="let data = data; of: 'content'">
+              {{ "trading.offersTable.viewProgress" | translate }}
+            </div>
+          </dx-tooltip>
+        </button>
+
+        <div class="line"></div>
+      </div>
+    </div>
+
+    @if (type === POPUP_SIDEBAR_TYPE.EDIT_DEAL) {
+      <div class="session w-100">
+        <div class="head flexContent8 flex-start">
+          <h2 class="font-s24 mr-1 mb-0">
+            {{ "viewDeal.editDealTitle" | translate }} №
+            {{
+              fullInfo()?.transactionGeneral?.transactionInfo?.transactionNumber
+            }}
+          </h2>
+        </div>
+      </div>
+    }
+
+    <div
+      *ngIf="
+        type !== POPUP_SIDEBAR_TYPE.VIEW_OFFER_FROM_OFFERS &&
+        type !== POPUP_SIDEBAR_TYPE.VIEW_OFFER_FROM_AUCTIONS &&
+        type !== POPUP_SIDEBAR_TYPE.SUBMIT_BID_TO_BUY &&
+        type !== POPUP_SIDEBAR_TYPE.SUBMIT_COUNTER_OFFERS
+      "
+      class="close"
+      (click)="onHiddenPopup()"
+    ></div>
+  </div>
+  <div *dxTemplate="let data of 'contentTempl'">
+    @if (isLoading) {
+    <div [class.loading]="true"></div>
+    } @else {
+    <!-- просмотр заявки -->
+    <div
+      *ngIf="type === POPUP_SIDEBAR_TYPE.VIEW_OFFER_FROM_OFFERS || type === POPUP_SIDEBAR_TYPE.VIEW_OFFER_FROM_AUCTIONS"
+      class="content mt--32px pr-0"
+    >
+      <div class="main-content" *ngIf="fullInfo()">
+        <div class="tabs w-100 mt-2">
+          <dx-tab-panel [(selectedIndex)]="tabIndex">
+            <!-- Общая инф-ция -->
+            <dxi-item id="info" title="{{ 'viewOffer.mainInfo' | translate }}">
+              <div *dxTemplate class="tab-content flexContentColumn8">
+                <ng-container *ngTemplateOutlet="info"></ng-container>
+              </div>
+            </dxi-item>
+
+            <!-- Базисы -->
+            <dxi-item
+              id="deliveryBases"
+              title="{{ 'viewOffer.deliveryBases' | translate }}"
+              *ngIf="fullInfo().deliveryConditions?.length > 0"
+            >
+              <div *dxTemplate class="tab-content flexContentColumn8">
+                <ng-container *ngTemplateOutlet="deliveryBases"></ng-container>
+              </div>
+            </dxi-item>
+
+            <!-- График поставки -->
+            @if (fullInfo().generalInfo.idDeliveryScheduleType) {
+              <dxi-item
+                id="deliverySchedule"
+                title="{{ 'viewOffer.deliverySchedule' | translate }}"
+              >
+                <div *dxTemplate class="tab-content flexContentColumn8">
+                  <ng-container
+                    *ngTemplateOutlet="deliverySchedule"
+                  ></ng-container>
+                </div>
+              </dxi-item>
+            }
+
+            <!-- Грузоотправители/Грузополучатели -->
+            @if (isViewScopeTab) {
+              <dxi-item
+                id="consignors"
+                title="{{
+                fullInfo()?.generalInfo?.directionId === IdDirection.sale
+                  ? ('viewOffer.consignors' | translate)
+                  : ('viewOffer.consignees' | translate)
+              }}"
+              >
+                <div *dxTemplate class="tab-content flexContentColumn8">
+                  <ng-container *ngTemplateOutlet="consignors"></ng-container>
+                </div>
+              </dxi-item>
+            }
+
+            <ng-template #info>
+              <div class="mt-3">
+                <app-main-info
+                  [sessionInfo]="{
+                    idSessionPeriod: this.dataForReq().idSessionPeriod,
+                    isActive: this.dataForReq().isActive,
+                    sessionInfo: this.dataForReq()
+                  }"
+                  [sessionIds]="{
+                    sectionId: this.dataForReq().sectionId,
+                    sessionId: this.dataForReq().sessionId
+                  }"
+                  [generalInfo]="fullInfo().generalInfo"
+                  [goods]="fullInfo().goods"
+                  [documents]="fullInfo().documents"
+                  [uniqueDeliveryScopes]="uniqueDeliveryScopes"
+                  [deliveryConditions]="fullInfo().deliveryConditions"
+                  (totalBlockData)="getTotalBlockData($event)"
+                  [isMine]="isMine"
+                  [idDirectionRole]="idDirectionRole"
+                  [isAllowAnalog]="isAllowAnalog"
+                />
+              </div>
+            </ng-template>
+
+            <ng-template #deliveryBases>
+              <div class="mt-3">
+                <app-basis-info
+                  [deliveryBases]="fullInfo().deliveryConditions"
+                  [goods]="fullInfo().goods"
+                  [pricingTypeId]="fullInfo().generalInfo.pricingTypeId"
+                  [isMine]="isMine"
+                ></app-basis-info>
+              </div>
+            </ng-template>
+
+            <ng-template #deliverySchedule>
+              <div class="mt-3">
+                <app-delivery-schedule-info
+                  [deliverySch]="delivSchPeriods()"
+                  [goods]="fullInfo().goods"
+                  [concatedStringDeliveryTerm]="
+                    this.fullInfo().generalInfo.concatedDeliveryPeriod
+                  "
+                  [isDeliveryScheduleGraded]="fullInfo().delivSchPeriodsGraded.length > 0"
+                ></app-delivery-schedule-info>
+              </div>
+            </ng-template>
+
+            <ng-template #consignors>
+              <div class="mt-3">
+                <app-delivery-scope
+                  [deliveryScopes]="deliveryScopes()"
+                  [goods]="fullInfo().goods"
+                  [isDeliveryScopeGraded]="fullInfo().generalInfo.isDeliveryScopeGraded"
+                ></app-delivery-scope>
+              </div>
+            </ng-template>
+          </dx-tab-panel>
+
+          @if(fullInfo()?.generalInfo?.directionId === IdDirection.buy && isAllowAnalog && isAvailableAnalogList) {
+            <button class="view-analogs-btn" (click)="openAnalogs()">
+              {{ "analogsList.viewList" | translate }}
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!--      подача ставки-->
+    <div *ngIf="type === POPUP_SIDEBAR_TYPE.SUBMIT_BID_TO_BUY" class="content mt--32px pr-0">
+      <div class="main-content" *ngIf="fullInfo()">
+        <div class="tabs w-100 mt-2">
+          <dx-tab-panel [(selectedIndex)]="tabIndex">
+            <!-- Общая инф-ция -->
+            <dxi-item
+              id="infoBidToBuy"
+              title="{{ 'viewOffer.mainInfo' | translate }}"
+            >
+              <div *dxTemplate class="tab-content flexContentColumn8">
+                <ng-container *ngTemplateOutlet="infoBidToBuy"></ng-container>
+              </div>
+            </dxi-item>
+
+            <!-- Базисы -->
+            <dxi-item
+              id="deliveryBasesBidToBuy"
+              title="{{ 'viewOffer.deliveryBases' | translate }}"
+              *ngIf="fullInfo().deliveryConditions?.length > 0"
+            >
+              <div *dxTemplate class="tab-content flexContentColumn8">
+                <ng-container
+                  *ngTemplateOutlet="deliveryBasesBidToBuy"
+                ></ng-container>
+              </div>
+            </dxi-item>
+
+            <!-- График поставки -->
+            @if (fullInfo().generalInfo.idDeliveryScheduleType) {
+              <dxi-item
+                id="deliveryScheduleBidToBuy"
+                title="{{ 'viewOffer.deliverySchedule' | translate }}"
+              >
+                <div *dxTemplate class="tab-content flexContentColumn8">
+                  <ng-container
+                    *ngTemplateOutlet="deliverySchedule"
+                  ></ng-container>
+                </div>
+              </dxi-item>
+            }
+
+            <!-- Грузоотправители/Грузополучатели -->
+            @if (isViewScopeTab) {
+              <dxi-item
+                id="consignorsBidToBuy"
+                title="{{
+                fullInfo()?.generalInfo?.directionId === IdDirection.sale
+                  ? ('viewOffer.consignors' | translate)
+                  : ('viewOffer.consignees' | translate)
+              }}"
+              >
+                <div *dxTemplate class="tab-content flexContentColumn8">
+                  <ng-container *ngTemplateOutlet="consignors"></ng-container>
+                </div>
+              </dxi-item>
+            }
+
+            <ng-template #infoBidToBuy>
+              <div class="mt-3">
+                <app-submitting-bet
+                  [fullInfo]="fullInfo()"
+                  [idOffer]="this.idOffer"
+                  [sessionIds]="{
+                    sectionId: this.dataForReq().sectionId,
+                    sessionId: this.dataForReq().sessionId,
+                    session: this.dataForReq()
+                  }"
+                  [idDemandOffer]="idDemandOffer"
+                  [isAllowAnalog]="isAllowAnalog"
+                  [isAvailableAnalogList]="isAvailableAnalogList"
+                  (onClose)="onCloseSubmit($event)"
+                ></app-submitting-bet>
+              </div>
+            </ng-template>
+
+            <ng-template #deliveryBasesBidToBuy>
+              <div class="mt-3">
+                <app-basis-info
+                  [deliveryBases]="fullInfo().deliveryConditions"
+                  [goods]="fullInfo().goods"
+                  [pricingTypeId]="fullInfo().generalInfo.pricingTypeId"
+                ></app-basis-info>
+              </div>
+            </ng-template>
+
+            <ng-template #deliverySchedule>
+              <div class="mt-3">
+                <app-delivery-schedule-info
+                  [deliverySch]="delivSchPeriods()"
+                  [goods]="fullInfo().goods"
+                  [concatedStringDeliveryTerm]="
+                    this.fullInfo().generalInfo.concatedDeliveryPeriod
+                  "
+                  [isDeliveryScheduleGraded]="fullInfo().delivSchPeriodsGraded.length > 0"
+                ></app-delivery-schedule-info>
+              </div>
+            </ng-template>
+
+            <ng-template #consignors>
+              <div class="mt-3">
+                <app-delivery-scope
+                  [deliveryScopes]="deliveryScopes()"
+                  [goods]="fullInfo().goods"
+                  [isDeliveryScopeGraded]="fullInfo().generalInfo.isDeliveryScopeGraded"
+                ></app-delivery-scope>
+              </div>
+            </ng-template>
+          </dx-tab-panel>
+        </div>
+      </div>
+    </div>
+
+    <!--     редактирование заявок    -->
+    <div *ngIf="type === POPUP_SIDEBAR_TYPE.EDIT_OFFER" class="content mt--32px pr-0">
+      <div
+        class="main-content"
+        *ngIf="
+          fullInfo() &&
+          this.dataForModel &&
+          this.editRulesIntersections?.length > 0
+        "
+      >
+        <div class="tabs w-100 mt-2">
+          <dx-tab-panel [(selectedIndex)]="tabIndex">
+            <!-- Общая инф-ция -->
+            <dxi-item
+              id="infoEditOffer"
+              title="{{ 'viewOffer.mainInfo' | translate }}"
+            >
+              <div *dxTemplate class="tab-content flexContentColumn8">
+                <ng-container *ngTemplateOutlet="infoEditOffer"></ng-container>
+              </div>
+            </dxi-item>
+
+            <!-- Базисы -->
+            @if (fullInfo().deliveryConditions?.length > 0) {
+              <dxi-item
+                id="deliveryBasesEditOffer"
+                tabTemplate="tabBasis"
+                template="itemBasis"
+              >
+              </dxi-item>
+            }
+
+            <div *dxTemplate="let item of 'tabBasis'" class="flexContent4 ai-c">
+              <div style="height: 17px; margin-top: 1px">
+                {{ "viewOffer.deliveryBases" | translate }}
+              </div>
+              <div
+                *ngIf="isNeedChangeBasis"
+                class="redWarningErorr size16"
+              ></div>
+            </div>
+
+            <div
+              *dxTemplate="let item of 'itemBasis'"
+              class="tab-content flexContentColumn8"
+            >
+              <ng-container
+                *ngTemplateOutlet="deliveryBasesEditOffer"
+              ></ng-container>
+            </div>
+
+            <!-- График поставки -->
+            <!--отображаем график поставки, если в модели есть поле корректируемая цена-->
+            <dxi-item
+              id="deliveryScheduleEditOffer"
+              tabTemplate="tabSchedule"
+              template="itemSchedule"
+              *ngIf="
+                fullInfo().delivSchPeriods?.length > 0 ||
+                getGoodsSpecifications(
+                  fullInfo().goods[0].goodsSpecifications,
+                  47
+                )
+              "
+            >
+            </dxi-item>
+            <div
+              *dxTemplate="let item of 'tabSchedule'"
+              class="flexContent4 ai-c"
+            >
+              <div style="height: 17px; margin-top: 1px">
+                {{ "viewOffer.deliverySchedule" | translate }}
+              </div>
+              <div
+                *ngIf="isNeedChangeSchedule"
+                class="redWarningErorr size16"
+              ></div>
+            </div>
+
+            <div
+              *dxTemplate="let item of 'itemSchedule'"
+              class="tab-content flexContentColumn8"
+            >
+              <ng-container
+                *ngTemplateOutlet="deliveryScheduleEditOffer"
+              ></ng-container>
+            </div>
+
+            <!-- Грузоотправители/Грузополучатели-->
+            @if (deliveryScopes()?.length > 1) {
+              <dxi-item
+                id="consignorsEditOffer"
+                tabTemplate="tabConsignors"
+                template="itemConsignors"
+                class="d-flex flex-end"
+              ></dxi-item>
+            }
+
+            <div
+              *dxTemplate="let item of 'tabConsignors'"
+              class="flexContent4 ai-c"
+            >
+              <div style="height: 17px; margin-top: 1px">
+                {{
+                  fullInfo()?.generalInfo?.directionId === IdDirection.sale
+                    ? ("viewOffer.consignors" | translate)
+                    : ("viewOffer.consignees" | translate)
+                }}
+              </div>
+              <div
+                *ngIf="isNeedChangeScope"
+                class="redWarningErorr size16"
+              ></div>
+            </div>
+
+            <div
+              *dxTemplate="let item of 'itemConsignors'"
+              class="tab-content flexContentColumn8"
+            >
+              <ng-container
+                *ngTemplateOutlet="consignorsEditOffer"
+              ></ng-container>
+            </div>
+
+            <ng-template #infoEditOffer>
+              <div class="mt-3">
+                @if (fullInfo().generalInfo?.directionId === IdDirection.buy) {
+                  <app-edit-purchase-offer
+                    [sessionIds]="{
+                    sectionId: this.dataForReq().sectionId,
+                    sessionId: this.dataForReq().sessionId,
+                    idSessionPeriod: this.dataForReq().idSessionPeriod,
+                    session: this.dataForReq()
+                  }"
+                    [generalInfo]="fullInfo().generalInfo"
+                    [goods]="fullInfo().goods"
+                    [documents]="fullInfo().documents"
+                    [uniqueDeliveryScopes]="uniqueDeliveryScopes"
+                    [deliveryConditions]="fullInfo().deliveryConditions"
+                    [dataForModel]="this.dataForModel"
+                    [deliveryTerm]="deliveryTerm"
+                    [termsConditionsPayment]="termsConditionsPayment"
+                    [deliveryPeriod]="fullInfo().deliveryPeriod"
+                    [paymentCond]="fullInfo().paymentCond"
+                    [goodsOriginal]="this.goodsOriginal"
+                    [editRulesIntersections]="this.editRulesIntersections"
+                    [delivSchPeriods]="fullInfo().delivSchPeriods"
+                    [scheduleData]="this.scheduleData"
+                    [deliveryBasisCommon]="deliveryBasisCommon"
+                    [deliveryScopes]="deliveryScopes()"
+                    [currencyIntersections]="currencyIntersections"
+                    [VatIntersections]="VatIntersections"
+                    [financeSourceIntersections]="financeSourceIntersections"
+                    [adjustablePriceIntersections]="adjustablePriceIntersections"
+                    [editRulesForSession]="editRulesForSession"
+                    (requestDataBasis)="getRedFlagsBasis($event)"
+                    (requestDataSchedule)="getRedFlagsSchedule($event)"
+                    (requestDataScope)="getRedFlagsScope($event)"
+                    (onRedFlag)="
+                    this.fullInfo().generalInfo.idDeliveryScheduleType = 0;
+                    onRedFlag()
+                  "
+                    (onHideRedFlag)="this.isNeedChangeSchedule = false"
+                    (saveRequestPendingChange)="onEditSavePendingChange($event)"
+                    (onClose)="
+                    $event ? (this.type = null) : null; this.onHiddenPopup()
+                  ">
+                  </app-edit-purchase-offer>
+                }
+                @else {
+                <app-edit-offer
+                  [sessionIds]="{
+                    sectionId: this.dataForReq().sectionId,
+                    sessionId: this.dataForReq().sessionId,
+                    idSessionPeriod: this.dataForReq().idSessionPeriod,
+                    session: this.dataForReq()
+                  }"
+                  [generalInfo]="fullInfo().generalInfo"
+                  [goods]="fullInfo().goods"
+                  [documents]="fullInfo().documents"
+                  [uniqueDeliveryScopes]="uniqueDeliveryScopes"
+                  [deliveryConditions]="fullInfo().deliveryConditions"
+                  [dataForModel]="this.dataForModel"
+                  [deliveryTerm]="deliveryTerm"
+                  [termsConditionsPayment]="termsConditionsPayment"
+                  [deliveryPeriod]="fullInfo().deliveryPeriod"
+                  [paymentCond]="fullInfo().paymentCond"
+                  [goodsOriginal]="this.goodsOriginal"
+                  [editRulesIntersections]="this.editRulesIntersections"
+                  [delivSchPeriods]="fullInfo().delivSchPeriods"
+                  [scheduleData]="this.scheduleData"
+                  [deliveryBasisCommon]="deliveryBasisCommon"
+                  [deliveryScopes]="deliveryScopes()"
+                  [currencyIntersections]="currencyIntersections"
+                  [VatIntersections]="VatIntersections"
+                  [financeSourceIntersections]="financeSourceIntersections"
+                  [adjustablePriceIntersections]="adjustablePriceIntersections"
+                  [isSameGradedSaleOffer]="isSameGradedSaleOffer"
+                  [deliveryScopeGraded]="deliveryScopeGraded"
+                  (requestDataBasis)="getRedFlagsBasis($event)"
+                  (requestDataSchedule)="getRedFlagsSchedule($event)"
+                  (requestDataScope)="getRedFlagsScope($event)"
+                  (onRedFlag)="
+                    this.fullInfo().generalInfo.idDeliveryScheduleType = 0;
+                    onRedFlag()
+                  "
+                  (onHideRedFlag)="this.isNeedChangeSchedule = false"
+                  (saveRequestPendingChange)="onEditSavePendingChange($event)"
+                  (onClose)="
+                    $event ? (this.type = null) : null; this.onHiddenPopup()
+                  "
+                ></app-edit-offer>
+                }
+              </div>
+            </ng-template>
+
+            <ng-template #deliveryBasesEditOffer>
+              <div class="mt-3">
+                <app-basis-edit
+                  [idSessionPeriod]="this.dataForReq().idSessionPeriod"
+                  [generalInfo]="fullInfo().generalInfo"
+                  [sessionIds]="{
+                    sectionId: this.dataForReq().sectionId,
+                    sessionId: this.dataForReq().sessionId,
+                    idSessionPeriod: this.dataForReq().idSessionPeriod,
+                    idAuctionType: this.dataForReq().idAuctionType,
+                    marketTypesIds: dataForModel.marketTypeIds
+                  }"
+                  [deliveryBasis]="fullInfo().deliveryConditions"
+                  [deliveryBasisCommon]="deliveryBasisCommon"
+                  [goods]="fullInfo().goods"
+                  [pricingTypeId]="fullInfo().generalInfo.pricingTypeId"
+                  [deliveryConditions]="this.deliveryConditions"
+                  [editRulesIntersections]="this.editRulesIntersections"
+                  [goodsOriginal]="this.goodsOriginal"
+                  (onHideRedFlag)="isNeedChangeBasis = false"
+                  (onRedFlag)="isNeedChangeBasis = true"
+                ></app-basis-edit>
+              </div>
+            </ng-template>
+
+            <ng-template #deliveryScheduleEditOffer>
+              <div class="mt-3">
+                <app-delivery-schedule-edit
+                  [idSessionPeriod]="this.dataForReq().idSessionPeriod"
+                  [deliveryScheduleList]="deliverySchedule"
+                  [delivSchPeriods]="fullInfo().delivSchPeriods"
+                  [goods]="fullInfo().goods"
+                  [idDeliveryScheduleType]="
+                    this.fullInfo().generalInfo.idDeliveryScheduleType
+                  "
+                  [concatedStringDeliveryTerm]="
+                    this.fullInfo().generalInfo.concatedDeliveryPeriod
+                  "
+                  [typeDeliverySchedule]="
+                    this.fullInfo().deliveryPeriod.idDeliveryType.toString()
+                  "
+                  [deliveryStartDate]="this.dateBegin"
+                  [deliveryPeriodInDays]="
+                    this.fullInfo().deliveryPeriod.idDeliveryType == 3
+                      ? this.dateEnd
+                      : this.fullInfo().deliveryPeriod.periodTypeValue
+                  "
+                  [editRulesIntersections]="this.editRulesIntersections"
+                  [scheduleData]="this.scheduleData"
+                  [isSameGradedSaleOffer]="isSameGradedSaleOffer"
+                  (onHideRedFlag)="isNeedChangeSchedule = false"
+                  (onRedFlag)="isNeedChangeSchedule = true"
+                ></app-delivery-schedule-edit>
+              </div>
+            </ng-template>
+
+            <ng-template #consignorsEditOffer>
+              <div class="mt-3">
+                <app-delivery-scope-edit
+                  [type]="type"
+                  [idSessionPeriod]="dataForReq().idSessionPeriod"
+                  [idAuctionType]="dataForReq().idAuctionType"
+                  [deliveryScopes]="deliveryScopes()"
+                  [goods]="fullInfo().goods"
+                  [direction]="fullInfo().generalInfo?.directionId"
+                  [editRulesIntersections]="this.editRulesIntersections"
+                  [isSameGradedSaleOffer]="isSameGradedSaleOffer"
+                  [deliveryScopeGraded]="deliveryScopeGraded"
+                  (onHideRedFlag)="isNeedChangeScope = false"
+                  (onRedFlag)="isNeedChangeScope = true"
+                ></app-delivery-scope-edit>
+              </div>
+            </ng-template>
+          </dx-tab-panel>
+        </div>
+      </div>
+    </div>
+
+    <!--      просмотр сделки-->
+    <div *ngIf="type === POPUP_SIDEBAR_TYPE.VIEW_DEAL" class="content mt--32px pr-0">
+      <div class="main-content" *ngIf="fullInfo()">
+        <div class="tabs w-100 mt-2">
+          <dx-tab-panel [(selectedIndex)]="tabIndex">
+            <!-- Общая инф-ция -->
+            <dxi-item
+              id="infoDeal"
+              title="{{ 'viewOffer.mainInfo' | translate }}"
+            >
+              <div *dxTemplate class="tab-content flexContentColumn8">
+                <ng-container *ngTemplateOutlet="infoDeal"></ng-container>
+              </div>
+            </dxi-item>
+
+            <!-- Базисы -->
+            <dxi-item
+              id="deliveryBasesDeal"
+              title="{{ 'viewOffer.deliveryBases' | translate }}"
+              *ngIf="fullInfo().deliveryConditions?.length > 0"
+            >
+              <div *dxTemplate class="tab-content flexContentColumn8">
+                <ng-container
+                  *ngTemplateOutlet="deliveryBasesDeal"
+                ></ng-container>
+              </div>
+            </dxi-item>
+
+            <!-- График поставки -->
+            @if (fullInfo().transactionGeneral.isDeliveryScheduleAvailable) {
+              <dxi-item
+                id="deliveryScheduleDeal"
+                title="{{ 'viewOffer.deliverySchedule' | translate }}"
+              >
+                <div *dxTemplate class="tab-content flexContentColumn8">
+                  <ng-container
+                    *ngTemplateOutlet="deliverySchedule"
+                  ></ng-container>
+                </div>
+              </dxi-item>
+            }
+
+            <!-- Грузоотправители/Грузополучатели -->
+            @if (isViewScopeTab) {
+              <dxi-item
+                id="consignorsDeal"
+                title="{{
+                dataForReq()?.idAuctionType === auctionType.simpleSellerAuction
+                  ? ('viewOffer.consignors' | translate)
+                  : ('viewOffer.consignees' | translate)
+              }}"
+              >
+                <div *dxTemplate class="tab-content flexContentColumn8">
+                  <ng-container *ngTemplateOutlet="consignors"></ng-container>
+                </div>
+              </dxi-item>
+            }
+
+            <ng-template #infoDeal>
+              <div class="mt-3">
+                <app-view-deal
+                  [fullInfo]="fullInfo()"
+                  [sessionIds]="{
+                    sectionId: this.dataForReq().sectionId,
+                    sessionId: this.dataForReq().sessionId
+                  }"
+                  (onHeddienMainPopup)="onHiddenPopup()"
+                ></app-view-deal>
+              </div>
+            </ng-template>
+
+            <ng-template #deliveryBasesDeal>
+              <div class="mt-3">
+                <app-basis-info
+                  [deliveryBases]="fullInfo().deliveryConditions"
+                  [goods]="fullInfo().goods"
+                  [pricingTypeId]="fullInfo()?.transactionGeneral.pricingTypeId"
+                ></app-basis-info>
+              </div>
+            </ng-template>
+
+            <ng-template #deliverySchedule>
+              <div class="mt-3">
+                <app-delivery-schedule-info
+                  [deliverySch]="delivSchPeriods()"
+                  [goods]="fullInfo().goods"
+                  [concatedStringDeliveryTerm]="
+                    this.fullInfo()?.transactionGeneral.transactionCond
+                      .conditionsDeliveryPeriod
+                  "
+                  [isDeliveryScheduleGraded]="fullInfo().delivSchPeriodsGraded.length > 0"
+                ></app-delivery-schedule-info>
+              </div>
+            </ng-template>
+
+            <ng-template #consignors>
+              <div class="mt-3">
+                <app-delivery-scope
+                  [deliveryScopes]="deliveryScopes()"
+                  [goods]="fullInfo().goods"
+                  [isDeliveryScopeGraded]="fullInfo().transactionGeneral.isDeliveryScopeGraded"
+                ></app-delivery-scope>
+              </div>
+            </ng-template>
+          </dx-tab-panel>
+        </div>
+      </div>
+    </div>
+
+    <!--      редактирование сделки-->
+    <div *ngIf="type === POPUP_SIDEBAR_TYPE.EDIT_DEAL" class="content mt--32px pr-0">
+      <div class="main-content" *ngIf="fullInfo()">
+        <div class="tabs w-100 mt-2">
+          <dx-tab-panel [(selectedIndex)]="tabIndex">
+            <!-- Общая инф-ция -->
+            <dxi-item
+              id="infoDeal"
+              title="{{ 'viewOffer.mainInfo' | translate }}"
+            >
+              <div *dxTemplate class="tab-content flexContentColumn8">
+                <ng-container *ngTemplateOutlet="infoDeal"></ng-container>
+              </div>
+            </dxi-item>
+
+            <!-- График поставки -->
+            @if (fullInfo().transactionGeneral.isDeliveryScheduleAvailable) {
+              <dxi-item
+                id="deliveryScheduleDeal"
+                title="{{ 'viewOffer.deliverySchedule' | translate }}"
+              >
+                <div *dxTemplate class="tab-content flexContentColumn8">
+                  <ng-container
+                    *ngTemplateOutlet="deliverySchedule"
+                  ></ng-container>
+                </div>
+              </dxi-item>
+            }
+
+            <!-- Грузоотправители/Грузополучатели -->
+            @if (deliveryScopes()?.length > 1) {
+              <dxi-item
+                id="consignorsDeal"
+                title="{{
+                dataForReq()?.idAuctionType === auctionType.simpleSellerAuction
+                  ? ('viewOffer.consignors' | translate)
+                  : ('viewOffer.consignees' | translate)
+              }}"
+              >
+                <div *dxTemplate class="tab-content flexContentColumn8">
+                  <ng-container *ngTemplateOutlet="consignors"></ng-container>
+                </div>
+              </dxi-item>
+            }
+
+            <ng-template #infoDeal>
+              <div class="mt-3">
+                <app-edit-deal
+                  [sessionIds]="{
+                    sectionId: this.dataForReq().sectionId,
+                    sessionId: this.dataForReq().sessionId
+                  }"
+                  (onClose)="
+                    $event ? (this.type = null) : null; this.onHiddenPopup()
+                  "
+                ></app-edit-deal>
+              </div>
+            </ng-template>
+
+            <ng-template #deliverySchedule>
+              <div class="mt-3">
+                <app-delivery-schedule-info
+                  [deliverySch]="delivSchPeriods()"
+                  [goods]="fullInfo().goods"
+                  [concatedStringDeliveryTerm]="
+                    this.fullInfo()?.transactionGeneral.transactionCond
+                      .conditionsDeliveryPeriod
+                  "
+                  [isDeliveryScheduleGraded]="fullInfo().delivSchPeriodsGraded.length > 0"
+                ></app-delivery-schedule-info>
+              </div>
+            </ng-template>
+
+            <ng-template #consignors>
+              <div class="mt-3">
+                <app-delivery-scope
+                  [deliveryScopes]="deliveryScopes()"
+                  [goods]="fullInfo().goods"
+                  [isDeliveryScopeGraded]="fullInfo().transactionGeneral.isDeliveryScopeGraded"
+                ></app-delivery-scope>
+              </div>
+            </ng-template>
+          </dx-tab-panel>
+        </div>
+      </div>
+    </div>
+
+    <!--   Правила редактирования модели заявки-->
+    @if (type === POPUP_SIDEBAR_TYPE.RULES_FOR_EDITING) {
+      <div class="content mt--32px pr-0">
+        <app-rules-for-editing
+          [fullInfo]="this.fullInfo()"
+          [dataForReq]="this.dataForReq()"
+          (onClose)="$event ? (this.type = null) : null; this.onHiddenPopup()"
+        ></app-rules-for-editing>
+      </div>
+    }
+
+    <!-- Подача встречного предложения-->
+    @if (type === POPUP_SIDEBAR_TYPE.SUBMIT_COUNTER_OFFERS) {
+    <div class="content mt--32px pr-0">
+      @if (fullInfo() && this.dataForModel &&
+      this.editRulesIntersections?.length > 0) {
+      <div class="main-content">
+        <div class="tabs w-100 mt-2">
+          <dx-tab-panel [(selectedIndex)]="tabIndex">
+            <!-- Общая инф-ция -->
+            <dxi-item
+              id="infoCounterOffer"
+              title="{{ 'viewOffer.mainInfo' | translate }}"
+            >
+              <div *dxTemplate class="tab-content flexContentColumn8">
+                <ng-container
+                  *ngTemplateOutlet="infoCounterOffer"
+                ></ng-container>
+              </div>
+            </dxi-item>
+
+            <!-- Базисы -->
+            <dxi-item
+              id="deliveryBasesCounter"
+              title="{{ 'viewOffer.deliveryBases' | translate }}"
+              *ngIf="fullInfo().deliveryConditions?.length > 0"
+            >
+              <div *dxTemplate class="tab-content flexContentColumn8">
+                <ng-container
+                  *ngTemplateOutlet="deliveryBasesCounter"
+                ></ng-container>
+              </div>
+            </dxi-item>
+
+            <!-- График поставки -->
+            @if (fullInfo().generalInfo.idDeliveryScheduleType) {
+              <dxi-item
+                id="deliveryScheduleCounter"
+                title="{{ 'viewOffer.deliverySchedule' | translate }}"
+              >
+                <div *dxTemplate class="tab-content flexContentColumn8">
+                  <ng-container
+                    *ngTemplateOutlet="deliveryScheduleCounter"
+                  ></ng-container>
+                </div>
+              </dxi-item>
+            }
+
+            <!-- Грузоотправители/Грузополучатели -->
+            @if (dataForReq()?.idAuctionType === auctionType.simpleSellerAuction
+            && deliveryScopes()?.length > 1) {
+              <dxi-item
+                id="consignorsCounter"
+                title="{{ 'viewOffer.consignors' | translate }}"
+              >
+                <div *dxTemplate class="tab-content flexContentColumn8">
+                  <ng-container
+                    *ngTemplateOutlet="consignorsCounter"
+                  ></ng-container>
+                </div>
+              </dxi-item>
+            }
+
+            <ng-template #infoCounterOffer>
+              <div class="mt-3">
+                @if(fullInfo()?.generalInfo?.directionId === IdDirection.sale) {
+                  <app-submitting-counter-offer
+                    [fullInfo]="fullInfo()"
+                    [fullInfoCopy]="fullInfoCopy"
+                    [deliveryScopes]="deliveryScopes()"
+                    [idOffer]="idOffer"
+                    [idDemandOffer]="idDemandOffer"
+                    [deliveryTerm]="deliveryTerm"
+                    [termsConditionsPayment]="termsConditionsPayment"
+                    [deliveryConditions]="this.deliveryConditions"
+                    [goodsOriginal]="this.goodsOriginal"
+                    [editRulesIntersections]="this.editRulesIntersections"
+                    [sessionIds]="{
+                      sectionId: this.dataForReq().sectionId,
+                      sessionId: this.dataForReq().sessionId,
+                      session: this.dataForReq(),
+                      marketTypesIds: dataForModel.marketTypeIds
+                    }"
+                    (onClose)="onCloseSubmit($event)"
+                  ></app-submitting-counter-offer>
+                }
+
+                @if(fullInfo()?.generalInfo?.directionId === IdDirection.buy) {
+                  <app-submitting-counter-demand
+                  [fullInfo]="fullInfo()"
+                  [fullInfoCopy]="fullInfoCopy"
+                  [idOffer]="idOffer"
+                  [idDemandOffer]="idDemandOffer"
+                  [deliveryTerm]="deliveryTerm"
+                  [termsConditionsPayment]="termsConditionsPayment"
+                  [deliveryConditions]="this.deliveryConditions"
+                  [goodsOriginal]="this.goodsOriginal"
+                  [isAllowAnalog]="isAllowAnalog"
+                  [editRulesIntersections]="this.editRulesIntersections"
+                  [sessionIds]="{
+                    sectionId: this.dataForReq().sectionId,
+                    sessionId: this.dataForReq().sessionId,
+                    session: this.dataForReq()
+                  }"
+                  (onClose)="onCloseSubmit($event)"
+                  [currencyIntersections]="currencyIntersections"
+                  [vatIntersections]="VatIntersections"
+                  [dataForModel]="dataForModel"
+                  [editRulesForSession]="editRulesForSession"
+                ></app-submitting-counter-demand>
+                }
+
+              </div>
+            </ng-template>
+
+            <ng-template #deliveryBasesCounter>
+              <div class="mt-3">
+                <!-- 24/11/2025 - BA обсудили и утвердили концепцию, что вкладка базисы при подаче встречки НИКАК не изменяется (написаному верить)-->
+                <app-basis-info
+                  [deliveryBases]="fullInfo()?.deliveryConditions"
+                  [goods]="fullInfo().goods"
+                  [pricingTypeId]="fullInfo().generalInfo.pricingTypeId"
+                ></app-basis-info>
+              </div>
+            </ng-template>
+
+            <ng-template #deliveryScheduleCounter>
+              <div class="mt-3">
+                <app-delivery-schedule-info
+                  [deliverySch]="delivSchPeriods()"
+                  [goods]="fullInfo().goods"
+                  [concatedStringDeliveryTerm]="
+                    this.fullInfo().generalInfo.concatedDeliveryPeriod
+                  "
+                  [isDeliveryScheduleGraded]="fullInfo().delivSchPeriodsGraded.length > 0"
+                ></app-delivery-schedule-info>
+              </div>
+            </ng-template>
+
+            <ng-template #consignorsCounter>
+              <div class="mt-3">
+               <!-- если сборность по сорту (deliveryScopesGraded) - то используем компоненту просмотра, иначе - редактирование -->
+                @if (fullInfo()?.generalInfo?.directionId === IdDirection.sale && fullInfo()?.deliveryScopesGraded?.length > 0) {
+                  <app-delivery-scope
+                    [deliveryScopes]="deliveryScopes()"
+                    [goods]="fullInfo().goods"
+                    [isDeliveryScopeGraded]="fullInfo().generalInfo.isDeliveryScopeGraded"
+                  ></app-delivery-scope>
+                } @else {
+                  <app-delivery-scope-edit
+                    [type]="type"
+                    [idSessionPeriod]="dataForReq().idSessionPeriod"
+                    [idAuctionType]="dataForReq().idAuctionType"
+                    [deliveryScopes]="deliveryScopes()"
+                    [goods]="fullInfo().goods"
+                    [direction]="fullInfo().generalInfo?.directionId"
+                    [editRulesIntersections]="this.editRulesIntersections"
+                  ></app-delivery-scope-edit>
+                }
+              </div>
+            </ng-template>
+          </dx-tab-panel>
+        </div>
+      </div>
+      }
+    </div>
+    }
+
+    <!--      Просмотр реестра встречных предложений-->
+    <div *ngIf="type === POPUP_SIDEBAR_TYPE.COUNTER_OFFERS" class="content mt--32px pr-0">
+      <div class="main-content" *ngIf="fullInfo()">
+        <div class="tabs w-100 mt-2">
+          <!-- работник/покупатель/продавец период торгов -->
+          @if (!isMine) {
+            <app-view-counter-offer
+              [fullInfo]="fullInfo()"
+              [tabIndex]="tabIndex"
+              [isMine]="isMine"
+              [idOffer]="idOffer"
+              [deliveryConditions]="deliveryConditions"
+              [goodsOriginal]="goodsOriginal"
+              [editRulesIntersections]="editRulesIntersections"
+              [uniqueDeliveryScopes]="uniqueDeliveryScopes"
+              [idDemandOffer]="idDemandOffer"
+              [isAllowAnalog]="isAllowAnalog"
+              [deletedScope]="deletedScope"
+              [dataForReq]="dataForReq()"
+            ></app-view-counter-offer>
+          }
+          <!-- продавец СВОЯ заявка период корректировки - принятие встречки -->
+          <div *ngIf="this.dataForModel">
+            @if (fullInfo()?.generalInfo?.directionId === IdDirection.buy && isAllowAnalog && isAvailableAnalogList) {
+              <button class="view-analogs-btn" (click)="openAnalogs()">
+                {{ "analogsList.viewList" | translate }}
+              </button>
+            }
+            <dx-tab-panel [(selectedIndex)]="tabIndex" *ngIf="this.isMine">
+              <!-- Общая инф-ция -->
+              <dxi-item
+                id="registerCounterOfferEdit"
+                title="{{ 'viewOffer.mainInfo' | translate }}"
+              >
+                <div *dxTemplate class="tab-content flexContentColumn8">
+                  <ng-container
+                    *ngTemplateOutlet="registerCounterOfferEdit"
+                  ></ng-container>
+                </div>
+              </dxi-item>
+
+              <!-- Базисы -->
+              @if (fullInfo().deliveryConditions?.length > 0) {
+                <dxi-item
+                    id="deliveryRegisterBasesCounterEdit"
+                    tabTemplate="tabBasisCounterEdit"
+                    template="itemBasisCounterEdit"
+                  >
+                  </dxi-item>
+              }
+
+              <div
+                *dxTemplate="let item of 'tabBasisCounterEdit'"
+                class="flexContent4 ai-c"
+              >
+                <div style="height: 17px; margin-top: 1px">
+                  {{ "viewOffer.deliveryBases" | translate }}
+                </div>
+                <div
+                  *ngIf="isNeedChangeBasis"
+                  class="redWarningErorr size16"
+                ></div>
+              </div>
+
+              <div
+                *dxTemplate="let item of 'itemBasisCounterEdit'"
+                class="tab-content flexContentColumn8"
+              >
+                <ng-container
+                  *ngTemplateOutlet="deliveryRegisterBasesCounterEdit"
+                ></ng-container>
+              </div>
+
+              <!--  &lt;!&ndash; График поставки &ndash;&gt;
+                <dxi-item id="deliveryScheduleRegisterCounterEdit" title="{{ 'viewOffer.deliverySchedule' | translate }}" *ngIf="fullInfo().delivSchPeriods?.length > 0">
+                  <div *dxTemplate class="tab-content flexContentColumn8">
+                    <ng-container *ngTemplateOutlet="deliveryScheduleRegisterCounterEdit"></ng-container>
+                  </div>
+                </dxi-item>-->
+              <!-- График поставки -->
+              <!--отображаем график поставки, если в модели есть поле корректируемая цена-->
+              <dxi-item
+                id="deliveryScheduleRegisterCounterEdit"
+                tabTemplate="tabScheduleCounterEdit"
+                template="itemScheduleCounterEdit"
+                *ngIf="
+                  fullInfo().delivSchPeriods?.length > 0 ||
+                  getGoodsSpecifications(
+                    fullInfo().goods[0].goodsSpecifications,
+                    47
+                  )
+                "
+              >
+              </dxi-item>
+              <div
+                *dxTemplate="let item of 'tabScheduleCounterEdit'"
+                class="flexContent4 ai-c"
+              >
+                <div style="height: 17px; margin-top: 1px">
+                  {{ "viewOffer.deliverySchedule" | translate }}
+                </div>
+                <div
+                  *ngIf="isNeedChangeSchedule"
+                  class="redWarningErorr size16"
+                ></div>
+              </div>
+
+              <div
+                *dxTemplate="let item of 'itemScheduleCounterEdit'"
+                class="tab-content flexContentColumn8"
+              >
+                <ng-container
+                  *ngTemplateOutlet="deliveryScheduleRegisterCounterEdit"
+                ></ng-container>
+              </div>
+
+              <!-- Грузоотправители/Грузополучатели-->
+              @if (deliveryScopes()?.length > 1) {
+                <dxi-item
+                  id="consignorsRegisterCounterEdit"
+                  tabTemplate="tabConsignorsCounterEdit"
+                  template="itemConsignorsCounterEdit"
+                  class="d-flex flex-end"
+                ></dxi-item>
+              }
+
+              <div
+                *dxTemplate="let item of 'tabConsignorsCounterEdit'"
+                class="flexContent4 ai-c"
+              >
+                <div style="height: 17px; margin-top: 1px">
+                  {{
+                    fullInfo()?.generalInfo?.directionId === IdDirection.sale
+                      ? ("viewOffer.consignors" | translate)
+                      : ("viewOffer.consignees" | translate)
+                  }}
+                </div>
+                <div
+                  *ngIf="isNeedChangeScope"
+                  class="redWarningErorr size16"
+                ></div>
+              </div>
+
+              <div
+                *dxTemplate="let item of 'itemConsignorsCounterEdit'"
+                class="tab-content flexContentColumn8"
+              >
+                <ng-container
+                  *ngTemplateOutlet="consignorsRegisterCounterEdit"
+                ></ng-container>
+              </div>
+
+              <ng-template #registerCounterOfferEdit>
+                <div class="mt-3">
+                  @if(fullInfo().generalInfo?.directionId === IdDirection.buy){
+                    <app-accept-counteroffer-to-sell
+                      [fullInfo]="fullInfo()"
+                      [isMine]="isMine"
+                      [idOffer]="idOffer"
+                      [deliveryTerm]="deliveryTerm"
+                      [termsConditionsPayment]="termsConditionsPayment"
+                      [deliveryConditions]="deliveryConditions"
+                      [goodsOriginal]="goodsOriginal"
+                      [editRulesIntersections]="editRulesIntersections"
+                      [uniqueDeliveryScopes]="uniqueDeliveryScopes"
+                      [scheduleData]="scheduleData"
+                      [deliveryBasisCommon]="deliveryBasisCommon"
+                      [deliveryScopes]="deliveryScopes()"
+                      [dataForReq]="dataForReq()"
+                      [isAllowAnalog]="isAllowAnalog"
+                      [dataForModel]="dataForModel"
+                      [currencyIntersections]="currencyIntersections"
+                      [VatIntersections]="VatIntersections"
+                      [financeSourceIntersections]="financeSourceIntersections"
+                      [editRulesForSession]="editRulesForSession"
+                      [sessionIds]="{
+                    sectionId: this.dataForReq().sectionId,
+                    sessionId: this.dataForReq().sessionId,
+                    session: this.dataForReq()
+                      }"
+                      (onRedFlag)="
+                      this.fullInfo().generalInfo.idDeliveryScheduleType = 0;
+                      onRedFlag()
+                      "
+                      (onHideRedFlag)="this.isNeedChangeSchedule = false"
+                      (requestDataBasis)="getRedFlagsBasis($event)"
+                      (requestDataSchedule)="getRedFlagsSchedule($event)"
+                      (requestDataScope)="getRedFlagsScope($event)"
+                      (counterInfo)="this.conterInfo = $event"
+                      (saveRequestPendingChange)="onEditSavePendingChange($event)"
+                    >
+                    </app-accept-counteroffer-to-sell>
+                  }
+                  @else {
+                  <app-counte-offer-edit
+                    [fullInfo]="fullInfo()"
+                    [isMine]="isMine"
+                    [idOffer]="this.idOffer"
+                    [deliveryTerm]="deliveryTerm"
+                    [termsConditionsPayment]="termsConditionsPayment"
+                    [deliveryConditions]="this.deliveryConditions"
+                    [goodsOriginal]="this.goodsOriginal"
+                    [editRulesIntersections]="this.editRulesIntersections"
+                    [uniqueDeliveryScopes]="uniqueDeliveryScopes"
+                    [scheduleData]="this.scheduleData"
+                    [deliveryBasisCommon]="deliveryBasisCommon"
+                    [deliveryScopes]="deliveryScopes()"
+                    [deliveryScopeGraded]="deliveryScopeGraded"
+                    [dataForReq]="dataForReq()"
+                    [dataForModel]="this.dataForModel"
+                    [currencyIntersections]="currencyIntersections"
+                    [VatIntersections]="VatIntersections"
+                    [financeSourceIntersections]="financeSourceIntersections"
+                    [sessionIds]="{
+                      sectionId: this.dataForReq().sectionId,
+                      sessionId: this.dataForReq().sessionId,
+                      session: this.dataForReq()
+                    }"
+                    [isSameGradedSaleOffer]="isSameGradedSaleOffer"
+                    (onRedFlag)="
+                      this.fullInfo().generalInfo.idDeliveryScheduleType = 0;
+                      onRedFlag()
+                    "
+                    (onHideRedFlag)="this.isNeedChangeSchedule = false"
+                    (requestDataBasis)="getRedFlagsBasis($event)"
+                    (requestDataSchedule)="getRedFlagsSchedule($event)"
+                    (requestDataScope)="getRedFlagsScope($event)"
+                    (counterInfo)="this.conterInfo = $event"
+                    (saveRequestPendingChange)="onEditSavePendingChange($event)"
+                  ></app-counte-offer-edit>
+                  }
+                </div>
+              </ng-template>
+
+              <ng-template #deliveryRegisterBasesCounterEdit>
+                <div class="mt-3">
+                  <app-basis-edit
+                    [idSessionPeriod]="this.dataForReq().idSessionPeriod"
+                    [generalInfo]="fullInfo().generalInfo"
+                    [sessionIds]="{
+                      sectionId: this.dataForReq().sectionId,
+                      sessionId: this.dataForReq().sessionId,
+                      idSessionPeriod: this.dataForReq().idSessionPeriod,
+                      idAuctionType: this.dataForReq().idAuctionType,
+                      marketTypesIds: dataForModel.marketTypeIds
+                    }"
+                    [deliveryBasis]="fullInfo().deliveryConditions"
+                    [deliveryBasisCommon]="deliveryBasisCommon"
+                    [goods]="fullInfo().goods"
+                    [pricingTypeId]="fullInfo().generalInfo.pricingTypeId"
+                    [deliveryConditions]="this.deliveryConditions"
+                    [editRulesIntersections]="this.editRulesIntersections"
+                    [goodsOriginal]="this.goodsOriginal"
+                    (onHideRedFlag)="isNeedChangeBasis = false"
+                    (onRedFlag)="isNeedChangeBasis = true"
+                  ></app-basis-edit>
+                </div>
+              </ng-template>
+
+              <ng-template #deliveryScheduleRegisterCounterEdit>
+                <div class="mt-3">
+                  <app-delivery-schedule-edit
+                    [idSessionPeriod]="this.dataForReq().idSessionPeriod"
+                    [deliveryScheduleList]="deliverySchedule"
+                    [delivSchPeriods]="fullInfo().delivSchPeriods"
+                    [goods]="fullInfo().goods"
+                    [idDeliveryScheduleType]="
+                      this.fullInfo().generalInfo.idDeliveryScheduleType
+                    "
+                    [concatedStringDeliveryTerm]="
+                      this.fullInfo().generalInfo.concatedDeliveryPeriod
+                    "
+                    [typeDeliverySchedule]="
+                      this.fullInfo().deliveryPeriod.idDeliveryType.toString()
+                    "
+                    [deliveryStartDate]="this.dateBegin"
+                    [deliveryPeriodInDays]="
+                      this.fullInfo().deliveryPeriod.idDeliveryType == 3
+                        ? this.dateEnd
+                        : this.fullInfo().deliveryPeriod.periodTypeValue
+                    "
+                    [editRulesIntersections]="this.editRulesIntersections"
+                    [scheduleData]="this.scheduleData"
+                    [isSameGradedSaleOffer]="isSameGradedSaleOffer"
+                    (onHideRedFlag)="isNeedChangeSchedule = false"
+                    (onRedFlag)="isNeedChangeSchedule = true"
+                  ></app-delivery-schedule-edit>
+                </div>
+              </ng-template>
+
+              <ng-template #consignorsRegisterCounterEdit>
+                <div class="mt-3">
+                  <app-delivery-scope-edit
+                    [type]="type"
+                    [idSessionPeriod]="dataForReq().idSessionPeriod"
+                    [idAuctionType]="dataForReq().idAuctionType"
+                    [deliveryScopes]="deliveryScopes()"
+                    [isSameGradedSaleOffer]="isSameGradedSaleOffer"
+                    [deliveryScopeGraded]="deliveryScopeGraded"
+                    [goods]="fullInfo().goods"
+                    [direction]="fullInfo().generalInfo?.directionId"
+                    [idSection]="dataForReq().sectionId"
+                    [conterGoodsInfo]="conterInfo.goods"
+                    [editRulesIntersections]="this.editRulesIntersections"
+                    [counterScope]="counterScope || null"
+                    (onHideRedFlag)="isNeedChangeScope = false"
+                    (onRedFlag)="isNeedChangeScope = true"
+                  ></app-delivery-scope-edit>
+                </div>
+              </ng-template>
+            </dx-tab-panel>
+          </div>
+
+          @if(fullInfo()?.generalInfo?.directionId === IdDirection.buy && isAllowAnalog && isAvailableAnalogList) {
+            <button class="view-analogs-btn" (click)="openAnalogs()">
+              {{ "analogsList.viewList" | translate }}
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Сравнение версий заявки -->
+    <div *ngIf="type === POPUP_SIDEBAR_TYPE.COMPARE_OFFER" class="content mt--16px pr-0">
+      <dx-tab-panel [(selectedIndex)]="tabIndex">
+        <!-- Общая инф-ция -->
+        <dxi-item
+          id="compareMainInfo"
+          title="{{ 'viewOffer.mainInfo' | translate }}"
+        >
+          <div *dxTemplate class="tab-content flexContentColumn8">
+            <ng-container *ngTemplateOutlet="compareMainInfo"></ng-container>
+          </div>
+        </dxi-item>
+
+        <!-- Базисы -->
+        <dxi-item
+          id="compareDeliveryBases"
+          title="{{ 'viewOffer.deliveryBases' | translate }}"
+          *ngIf="fullInfo().deliveryConditions?.length > 0"
+        >
+          <div *dxTemplate class="tab-content flexContentColumn8">
+            <ng-container
+              *ngTemplateOutlet="compareDeliveryBases"
+            ></ng-container>
+          </div>
+        </dxi-item>
+
+        <!-- График поставки -->
+        @if (
+          fullInfo().generalInfo.idDeliveryScheduleType ||
+          fullInfoParent?.generalInfo.idDeliveryScheduleType
+        ) {
+          <dxi-item
+            id="compareDeliverySchedule"
+            title="{{ 'viewOffer.deliverySchedule' | translate }}"
+          >
+            <div *dxTemplate class="tab-content flexContentColumn8">
+              <ng-container
+                *ngTemplateOutlet="compareDeliverySchedule"
+              ></ng-container>
+            </div>
+          </dxi-item>
+        }
+
+        <!-- Грузоотправители/Грузополучатели -->
+        @if (deliveryScopes()?.length > 1) {
+          <dxi-item
+            id="compareConsignors"
+            title="{{
+            fullInfo()?.generalInfo?.directionId === IdDirection.sale
+              ? ('viewOffer.consignors' | translate)
+              : ('viewOffer.consignees' | translate)
+          }}"
+          >
+            <div *dxTemplate class="tab-content flexContentColumn8">
+              <ng-container *ngTemplateOutlet="compareConsignors"></ng-container>
+            </div>
+          </dxi-item>
+        }
+
+        <ng-template #compareMainInfo>
+          <div class="mt-3">
+            <app-compare-main-info
+              [fullInfo]="fullInfo()"
+              [fullInfoParent]="fullInfoParent"
+              [idOffer]="this.idOffer"
+              [uniqueDeliveryScopes]="uniqueDeliveryScopes"
+              [sessionIds]="{
+                sectionId: this.dataForReq().sectionId,
+                sessionId: this.dataForReq().sessionId,
+                session: this.dataForReq()
+              }"
+            ></app-compare-main-info>
+          </div>
+        </ng-template>
+
+        <ng-template #compareDeliveryBases>
+          <div class="mt-3">
+            <app-basis-info
+              [type]="POPUP_SIDEBAR_TYPE.COMPARE_OFFER"
+              [delivCond]="delivCond"
+              [deliveryBasesParent]="fullInfoParent?.deliveryConditions"
+              [deliveryBases]="fullInfo().deliveryConditions"
+              [goods]="fullInfo().goods"
+              [pricingTypeId]="fullInfo().generalInfo.pricingTypeId"
+              [isMine]="isMine"
+            ></app-basis-info>
+          </div>
+        </ng-template>
+
+        <ng-template #compareDeliverySchedule>
+          <div class="mt-3">
+            <app-delivery-schedule-info
+              [type]="POPUP_SIDEBAR_TYPE.COMPARE_OFFER"
+              [deliverySch]="delivSchPeriods()"
+              [deliverySchParent]="deliverySchPeriodsParent"
+              [goods]="fullInfo().goods"
+              [concatedStringDeliveryTerm]="
+                this.fullInfo().generalInfo.concatedDeliveryPeriod
+              "
+              [isDeliveryScheduleGraded]="fullInfo().delivSchPeriodsGraded.length > 0"
+            ></app-delivery-schedule-info>
+          </div>
+        </ng-template>
+
+        <ng-template #compareConsignors>
+          <div class="mt-3">
+            <app-delivery-scope
+              [type]="POPUP_SIDEBAR_TYPE.COMPARE_OFFER"
+              [deliveryScopesParent]="deliveryScopesParent"
+              [deletedScope]="deletedScope"
+              [deliveryScopes]="deliveryScopes()"
+              [goods]="fullInfo().goods"
+              [isDeliveryScopeGraded]="fullInfo().generalInfo.isDeliveryScopeGraded"
+            ></app-delivery-scope>
+          </div>
+        </ng-template>
+      </dx-tab-panel>
+    </div>
+
+    <!-- Просмотр списка товаров-аналогов -->
+    @if (type === POPUP_SIDEBAR_TYPE.ANALOG_LIST && analogList) {
+      <div class="content mt--32px pr-0">
+        <app-analogs-list
+          [fullInfo]="fullInfo()"
+          [analogs]="analogList?.analogues"
+          [sessionIds]="{
+            sectionId: this.dataForReq().sectionId,
+            sessionId: this.dataForReq().sessionId,
+            session: this.dataForReq()
+          }"
+          [idDemand]="idOffer"
+          [isMine]="isMine"
+          [roleToAction]="roleToAction"
+          [isAvailableAnalogListIcon]="isAvailableAnalogList"
+          (availableAnalogListChanged)="analogListChanged($event)"
+        />
+      </div>
+    }
+  }
+  </div>
+</dx-popup>
+
+<app-deposit-popup
+  [depositPopup]="depositPopup"
+  [depositRowData]="depositRowData"
+  [isAdmissionFinished]="dataForReq().isAdmissionFinished"
+  (close)="closeDepositPopup($event)"
+></app-deposit-popup>
+
+<dx-toast
+  [(visible)]="isVisibleToast"
+  type="info"
+  width="auto"
+  height="auto"
+  [displayTime]="4000"
+>
+  <div *dxTemplate="let data of 'content'">
+    <div class="flexContent8 center">
+      <div class="checkIcon"></div>
+      <div>{{ messageToast }}</div>
+    </div>
+  </div>
+  <dxo-position
+    my="top right"
+    at="right top"
+    of="window"
+    offset="-23 50"
+  ></dxo-position>
+</dx-toast>
+
+<dx-popup
+  contentTemplate="saveFormPopup"
+  [hideOnOutsideClick]="false"
+  [visible]="isSaveForm"
+  [showTitle]="false"
+  width="455"
+  height="auto"
+  [showCloseButton]="false"
+  (onHiding)="closeSaveForm()"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+  <div *dxTemplate="let data of 'saveFormPopup'" class="flexContentColumn24">
+    @if (type === POPUP_SIDEBAR_TYPE.ANALOG_LIST && !isAvailableAnalogList) {
+    <div class="flexContentColumn4">
+      {{ "analogsList.closeAnalogList" | translate }}
+    </div>
+    } @else {
+    <div class="flexContentColumn4">
+      {{ "general.wantExitWithoutSaving" | translate }}
+    </div>
+    }
+
+    <div class="buttonsClass flexContent20 mt-3">
+      @if (type === POPUP_SIDEBAR_TYPE.ANALOG_LIST && !isAvailableAnalogList) {
+      <button class="btn btn-primary submit w-50" (click)="onClosePopup(); closeSaveForm()">
+        {{ "btns.continue" | translate }}
+      </button>
+      } @else {
+      <button
+        class="btn btn-primary submit w-50"
+        (click)="onClosePopup(); closeSaveForm()"
+      >
+        {{ "btns.yes" | translate }}
+      </button>
+      }
+      <button
+        class="btn btn-outline-primary btn-inherit w-50"
+        (click)="isSaveForm = false"
+      >
+        {{ "btns.cancel" | translate }}
+      </button>
+    </div>
+  </div>
+</dx-popup>
+
+@if (viewInSingleCurrencyPopup) {
+  <app-view-counter-offer-popup
+    [fullInfo]="fullInfo()"
+    [tabIndex]="tabIndex"
+    [isMine]="isMine"
+    [idOffer]="idOffer"
+    [deliveryConditions]="deliveryBasisCommon"
+    [goodsOriginal]="goodsOriginal"
+    [editRulesIntersections]="editRulesIntersections"
+    [uniqueDeliveryScopes]="uniqueDeliveryScopes"
+    [idDemandOffer]="idDemandOffer"
+    [isAllowAnalog]="isAllowAnalog"
+    [dataForReq]="dataForReq()"
+    (viewInSingleCurrencyPopup)="viewInSingleCurrencyPopup = $event"
+  >
+  </app-view-counter-offer-popup>
+}

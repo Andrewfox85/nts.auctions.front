@@ -1,0 +1,28 @@
+<div class="flexContent16 w-100">
+  <div class="form-group w-50">
+    <label>{{ 'trading.offersTable.VAT' | translate }} (%)</label>
+    <dx-select-box [dataSource]="vatDataSource"
+                   valueExpr="id" displayExpr="name"
+                   height="40px" placeholder="{{'filters.selection' | translate}}"
+                   [(value)]="vatValue"
+                   [searchEnabled]="true"
+                   [minSearchLength]="3"
+                   [showDataBeforeSearch]="true"
+                   [showClearButton]="false"
+                   (onValueChanged)="onChangedSelect(vatValue, 'vatValue')"
+    >
+      <dx-validator>
+        <dxi-validation-rule type="required"/>
+      </dx-validator>
+    </dx-select-box>
+  </div>
+
+  <div class="form-group w-50">
+    <label>{{ 'trading.offersTable.amountVAT' | translate }}</label>
+    <dx-text-box
+      height="40px"
+      [value]="vatValue ? amountVAT : null"
+      [class.disabled]="true"
+    />
+  </div>
+</div>

@@ -1,0 +1,1586 @@
+<main class="offers">
+  <div class="main_component">
+    <div class="content">
+      <div class="toolbarTable flexContent8">
+        <div>
+          <button
+            class="btn h-32px secondary-btn w-280px"
+            id="updateGrid"
+            [disabled]="!offers"
+            (click)="directSession ? getDirectData() : getData()"
+          >
+            <div class="flexContent8 ai-c blackColor">
+              <div class="toolbar update"></div>
+              {{ "filters.updatedIn" | translate }}
+              <div class="date-roboto-mono font-s12">
+                {{ this.currentTimeDate | date : "HH:mm dd.MM.yyyy" : "+0300" }}
+              </div>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <div class="mt-25">
+        <app-filters
+          [filtersOn]="
+            directSession
+              ? user?.IsWorker
+                ? {
+                    idAuctionType: sessionInfo?.idAuctionType,
+                    hideFilters: 'hideFilters',
+                    statusDirectOffers: 'statusDirectOffers',
+                    displayCurrency: 'displayCurrency',
+                    internal: 'internal',
+                    external: 'external',
+                    export: 'export',
+                    import: 'import',
+                    observed: 'observed',
+                    priceAdjustment: 'priceAdjustment',
+                    simpleLot: 'simpleLot',
+                    compositeLot: 'compositeLot'
+                  }
+                : {
+                    idAuctionType: sessionInfo?.idAuctionType,
+                    hideFilters: 'hideFilters',
+                    statusDirectOffersTr: 'statusDirectOffersTr',
+                    displayCurrency: 'displayCurrency',
+                    internal: 'internal',
+                    external: 'external',
+                    export: 'export',
+                    import: 'import',
+                    observed: 'observed',
+                    priceAdjustment: 'priceAdjustment',
+                    simpleLot: 'simpleLot',
+                    compositeLot: 'compositeLot'
+                  }
+              : user?.IsWorker
+              ? {
+                  idAuctionType: sessionInfo?.idAuctionType,
+                  hideFilters: 'hideFilters',
+                  directionOffers: 'directionOffers',
+                  statusOffers: 'statusOffers',
+                  displayCurrency: 'displayCurrency',
+                  internal: 'internal',
+                  external: 'external',
+                  export: 'export',
+                  import: 'import',
+                  observed: 'observed',
+                  corrected: 'corrected',
+                  priceAdjustment: 'priceAdjustment',
+                  multibasis: 'multibasis',
+                  simpleLot: 'simpleLot',
+                  compositeLot: 'compositeLot',
+                  individualPriceStep: 'individualPriceStep'
+                }
+              : {
+                  idAuctionType: sessionInfo?.idAuctionType,
+                  hideFilters: 'hideFilters',
+                  directionOffers: 'directionOffers',
+                  displayCurrency: 'displayCurrency',
+                  internal: 'internal',
+                  external: 'external',
+                  export: 'export',
+                  import: 'import',
+                  observed: 'observed',
+                  corrected: 'corrected',
+                  priceAdjustment: 'priceAdjustment',
+                  multibasis: 'multibasis',
+                  simpleLot: 'simpleLot',
+                  compositeLot: 'compositeLot'
+                }
+          "
+          (componentData)="getFilterData($event)"
+          [nameOfCachePage]="'offers'"
+        >
+        </app-filters>
+      </div>
+
+      @if (offers) {
+      <div class="body">
+        <div class="offers-body-wrapper">
+          <div class="body_content">
+            <dx-data-grid
+              #dataGridRef
+              [dataSource]="displayOffers"
+              [showBorders]="false"
+              [showColumnLines]="true"
+              [allowColumnResizing]="true"
+              [allowColumnReordering]="true"
+              [showRowLines]="true"
+              [width]="100 + '%'"
+              [keyExpr]="
+                !directSession
+                  ? TableDataField.DemandOfferInfoLotNumber
+                  : TableDataField.OfferInfoLotNumber
+              "
+              [focusedRowEnabled]="true"
+              [focusedRowKey]="focusedRowKey"
+              (onFocusedRowChanged)="onFocusedRowChanged($event)"
+              (onSelectionChanged)="onSelectionChanged($event)"
+              (onContextMenuPreparing)="onContextMenuPreparing($event)"
+              (onCellPrepared)="onCellPrepared($event)"
+              (onOptionChanged)="onGridOptionChanged($event)"
+              (onContentReady)="onGridContentReady()"
+              [filterValue]="boundGridFilterValue"
+              appLocalizeContextMenu
+            >
+              <dxo-toolbar>
+                <dxi-item
+                  name="columnChooserButton"
+                  location="after"
+                />
+
+                <dxi-item
+                  name="approveOffers"
+                  location="after"
+                  [visible]="user?.IsWorker && directSession"
+                >
+                  <div id="approvalBtn">
+                    <button
+                      class="btn h-36px secondaronOpenApproveOffery-btn"
+                      (click)="onOpenApproveOffer()"
+                      [class.disabled]="
+                        directFilterId !== statusDirectOffersFilters.reviewed ||
+                        !sessionInfo.isPaused ||
+                        (selectedRows?.length > 0 &&
+                          chooseOffers?.length != displayOffers?.length)
+                      "
+                      [disabled]="
+                        directFilterId !== statusDirectOffersFilters.reviewed ||
+                        !sessionInfo.isPaused ||
+                        (selectedRows?.length > 0 &&
+                          chooseOffers?.length != displayOffers?.length)
+                      "
+                    >
+                      <i class="approveOffers mr-2"></i>
+                      <span>{{
+                          "trading.directOffersTab.approveOffers" | translate
+                        }}</span>
+                    </button>
+                    <dx-tooltip
+                      target="#approvalBtn"
+                      hideEvent="mouseleave"
+                      [showEvent]="{ name: 'mouseover', delay: 500 }"
+                    >
+                      <div *dxTemplate="let data = data; of: 'content'">
+                        Одобрение доступно только в приостановленном периоде
+                      </div>
+                    </dx-tooltip>
+                  </div>
+                </dxi-item>
+
+                <dxi-item
+                  name="permittedVolume"
+                  location="after"
+                  [visible]="permittedVolume"
+                >
+                  <button
+                    class="btn h-36px secondary-btn"
+                    (click)="checkVolumeType()"
+                  >
+                    {{ "trading.directOffersTab.permittedVolume" | translate }}
+                  </button>
+                </dxi-item>
+
+                <dxi-item
+                  name="recalcPriceStep"
+                  location="after"
+                  [visible]="showRecalcPriceStepButton"
+                >
+                  <button
+                    class="btn h-36px secondary-btn"
+                    [disabled]="!privileges"
+                    (click)="recalcPriceStep()"
+                  >
+                    {{ "trading.auctionsTab.recalcPriceStep" | translate }}
+                  </button>
+                </dxi-item>
+
+                <dxi-item
+                  name="hideLots"
+                  location="after"
+                  [visible]="isHiddenLotCheckboxVisible"
+                >
+                  <app-check-box
+                    [value]="isHiddenLot"
+                    [text]="'trading.auctionsTab.hideCheckbox' | translate"
+                    [disabled]="false"
+                    (valueChange)="hideCompositeLot($event)"
+                  />
+                </dxi-item>
+
+                <dxi-item name="searchPanel" location="after" />
+              </dxo-toolbar>
+
+              <dxo-filter-panel [visible]="true" />
+
+              <dxo-header-filter [visible]="true" [allowSearch]="true" />
+
+              <dxo-column-chooser
+                [enabled]="tabIndex === 'offers' || directSession"
+                title="{{ 'general.columnChooser' | translate }}"
+                mode="select"
+                sortOrder="asc"
+                container="body"
+                [position]="columnChooserPosition"
+              />
+
+              <dxo-column-fixing [enabled]="true" />
+
+              <dxo-keyboard-navigation [enabled]="true" />
+
+              <dxo-search-panel
+                [visible]="true"
+                [width]="320"
+                placeholder="{{ 'filters.searchLabel' | translate }}"
+              />
+
+              <dxo-state-storing
+                [enabled]="stateStoringEnabled"
+                type="custom"
+                [customLoad]="loadGridState"
+                [customSave]="saveGridState"
+              />
+
+              <dxo-scrolling mode="standard" [scrollByContent]="true" showScrollbar="always" />
+
+              <dxo-selection
+                mode="multiple"
+                showCheckBoxesMode="always"
+                selectAllMode="allPages"
+              />
+
+              <dxo-paging [pageSize]="numberEntriesPage[1]" />
+
+              <dxo-pager
+                [visible]="true"
+                [allowedPageSizes]="numberEntriesPage"
+                displayMode="compact"
+                [showPageSizeSelector]="true"
+                [showInfo]="true"
+                [infoText]="infoText"
+              />
+
+              <!-- Лот -->
+              @if (!directSession) {
+                <dxi-column
+                  caption="{{ 'trading.offersTable.lot' | translate }}"
+                  [dataField]="TableDataField.DemandOfferInfoLotNumber"
+                  cssClass="column date-roboto-mono myCellFixShadowLeft text-align-left"
+                  width="80"
+                  [allowHiding]="false"
+                  alignment="left"
+                  [allowFiltering]="true"
+                  [fixed]="true"
+                  [allowFixing]="false"
+                  cellTemplate="cellTemplateLot"
+                >
+                </dxi-column>
+              }
+
+              <div *dxTemplate="let data of 'cellTemplateLot'">
+                <div class="flexContent4 flex-d-c">
+                  <div
+                    class="lotNumber d-flex ai-c"
+                    (click)="
+                      this.isOpenedView = true;
+                      onOpenViewOffer(
+                        data.data.idDemandOffer,
+                        data.data.directionId,
+                        data.data.demoffOwner.idTrader
+                      )
+                    "
+                  >
+                    {{ data.data.demandOfferInfo.lotNumber }}
+                  </div>
+                  @if (data.data.isEditedRemains ) {
+                  <div class="edited-remains">
+                    {{ "general.new" | translate }}
+                  </div>
+                  }
+                </div>
+              </div>
+
+              <!-- Лот АДРЕСНЫЕ -->
+              @if (directSession) {
+                <dxi-column
+                caption="{{ 'trading.offersTable.lot' | translate }}"
+                [dataField]="TableDataField.OfferInfoLotNumber"
+                cssClass="column date-roboto-mono myCellFixShadowLeft text-align-left"
+                width="80"
+                [allowHiding]="false"
+                alignment="left"
+                [allowFiltering]="true"
+                [fixed]="true"
+                [allowFixing]="false"
+                cellTemplate="cellTemplateLotDirect"
+              >
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplateLotDirect'">
+                <div class="flexContent4">
+                  <div
+                    class="lotNumber d-flex ai-c"
+                    (click)="
+                      this.isOpenedView = true;
+                      onOpenViewOffer(
+                        data.data.idOffer,
+                        data.data.directionId,
+                        data.data.offerOwner.sellerIdTrader
+                      )
+                    "
+                  >
+                    {{ data.data.offerInfo.lotNumber }}
+                  </div>
+                </div>
+              </div>
+              }
+
+
+              <!-- значки заявки -->
+              <dxi-column
+                caption=""
+                cssClass="column date-roboto-mono text-align-left"
+                width="100"
+                [allowHiding]="true"
+                alignment="left"
+                [allowFiltering]="false"
+                [allowFixing]="false"
+                cellTemplate="cellTemplateIcons"
+              >
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplateIcons'">
+                <div class="flexContent4">
+                  @if (data.data.goodInfo.isMultibasis) {
+                    <div class="multibasisLot"></div>
+                  }
+                  @if (data.data.goodInfo.isComposite) {
+                    <div class="lot"></div>
+                  }
+                  @if (data.data.isEditedInTrading) {
+                    <div class="corrected"></div>
+                  }
+                  @if (data.data.isWatched) {
+                    <div class="greenObserveOffer"></div>
+                  }
+                </div>
+              </div>
+
+              <!-- Аналоги -->
+              @if (sessionInfo?.idAuctionType === auctionType.simpleBuyerAuction) {
+                <dxi-column
+                  caption="{{ 'trading.offersTable.analogs' | translate }}"
+                  [dataField]="TableDataField.IsAllowAnalogs"
+                  cssClass="column date-roboto-mono  text-align-left"
+                  width="100"
+                  [allowHiding]="true"
+                  alignment="left"
+                  [allowFiltering]="true"
+                  cellTemplate="cellTemplateAnalog"
+                >
+                </dxi-column>
+
+                <div *dxTemplate="let data of 'cellTemplateAnalog'">
+                  @if (data.data.isAllowAnalogs) {
+                    <div>
+                      {{ "btns.yes" | translate }}
+                    </div>
+                  }
+                </div>
+              }
+
+              <!-- Направление-->
+              <dxi-column
+                caption="{{ 'trading.offersTable.direction' | translate }}"
+                [dataField]="TableDataField.DirectionName"
+                width="130"
+                cssClass="column text-align-left"
+                [allowHiding]="true"
+                alignment="left"
+                [allowFiltering]="false"
+                [visible]="false"
+              >
+              </dxi-column>
+
+              <!-- Статус заявки-->
+              <dxi-column
+                caption="{{
+                  'trading.offersTable.applicationStatus' | translate
+                }}"
+                [dataField]="TableDataField.StatusName"
+                width="130"
+                cssClass="column text-align-left"
+                [allowHiding]="true"
+                alignment="left"
+                [allowFiltering]="true"
+                [visible]="true"
+                cellTemplate="cellTemplateStatus"
+              >
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplateStatus'">
+                <span [class.redColor]="data.data.statusId | isRejectedOffer : user?.IsWorker">{{ data.data.statusName }}</span>
+              </div>
+
+              <!-- Наименование -->
+              <dxi-column
+                caption="{{ 'general.name' | translate }}"
+                [dataField]="TableDataField.MainName"
+                cssClass="column text-align-left"
+                width="330"
+                alignment="left"
+                [allowFiltering]="true"
+                cellTemplate="cellTemplateMainName"
+              >
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplateMainName'">
+                <div>
+                  <span
+                    class="twostrings"
+                    id="lotMainNameOffers{{ data.row.rowIndex }}"
+                    >{{ data.data.mainName }}</span>
+                  <dx-tooltip
+                    target="#lotMainNameOffers{{ data.row.rowIndex }}"
+                    hideEvent="mouseleave"
+                    [showEvent]="{ name: 'mouseover', delay: 500 }"
+                  >
+                    <div *dxTemplate="let tooltipData; of: 'content'">
+                      {{ data.data.mainName }}
+                    </div>
+                  </dx-tooltip>
+                </div>
+              </div>
+
+              <!-- Наименование товара/услуги-->
+              <dxi-column
+                caption="{{ 'trading.offersTable.nameProduct' | translate }}"
+                [dataField]="TableDataField.Names"
+                cssClass="column p-0 text-align-left"
+                width="330"
+                alignment="left"
+                [allowFiltering]="true"
+                [visible]="hiddenLotDisplayMode === HiddenLotDisplayMode.Extended"
+                [showInColumnChooser]="isHiddenLotCheckboxVisible"
+                cellTemplate="cellTemplateName"
+                [calculateFilterExpression]="calculateFilterExpression"
+              >
+                <dxo-header-filter [dataSource]="orderHeaderFilterName">
+                  <!--  <dxo-search [searchExpr]="'text'"></dxo-search> -->
+                </dxo-header-filter>
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplateName'">
+                <table class="main">
+                  @for (good of data.data.goods; track good?.idGood; let i = $index) {
+                    <tr>
+                      <span
+                        class="twostrings"
+                        id="goodName{{
+                          !directSession ? good.idDemandOffer : good.idOffer
+                        }}_{{ i }}"
+                        >{{ good.goodName }}</span
+                      >
+                      <dx-tooltip
+                        target="#goodName{{
+                          !directSession ? good.idDemandOffer : good.idOffer
+                        }}_{{ i }}"
+                        hideEvent="mouseleave"
+                        [showEvent]="{ name: 'mouseover', delay: 500 }"
+                      >
+                        <div *dxTemplate="let data = data; of: 'content'">
+                          {{ good.goodName }}
+                        </div>
+                      </dx-tooltip>
+                    </tr>
+                  }
+                </table>
+              </div>
+
+              <!-- Краткое описание -->
+              <dxi-column
+                caption="{{ 'trading.offersTable.shortDesc' | translate }}"
+                cssClass="column p-0 text-align-left"
+                [dataField]="TableDataField.Desc"
+                width="330"
+                alignment="left"
+                [allowFiltering]="true"
+                cellTemplate="cellTemplateDesc"
+                [calculateFilterExpression]="calculateFilterExpressionDesc"
+              >
+                <dxo-header-filter
+                  [dataSource]="orderHeaderFilterDesc"
+                ></dxo-header-filter>
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplateDesc'">
+                <table class="main">
+                  @for (good of data.data.goods; track good?.idGood; let i = $index) {
+                    <tr>
+                      <span
+                        class="twostrings"
+                        id="good{{
+                          !directSession ? good.idDemandOffer : good.idOffer
+                        }}_{{ i }}"
+                        >{{ good.goodDescription }}</span
+                      >
+                      <dx-tooltip
+                        target="#good{{
+                          !directSession ? good.idDemandOffer : good.idOffer
+                        }}_{{ i }}"
+                        [showEvent]="{ name: 'mouseover', delay: 500 }"
+                        hideEvent="mouseleave"
+                      >
+                        <div *dxTemplate="let data = data; of: 'content'">
+                          {{ good.goodDescription }}
+                        </div>
+                      </dx-tooltip>
+                    </tr>
+                   }
+                </table>
+              </div>
+
+              <!-- ДИНАМИКА -->
+              @for (i of dynamicFields; track $index) {
+                <dxi-column
+                  caption="{{ i.showName }}"
+                  dataField="{{ i.fieldName }}"
+                  cssClass="column p-0 text-align-left"
+                  width="180"
+                  cellTemplate="cellTemplate"
+                  [visible]="
+                    hiddenLotDisplayMode === HiddenLotDisplayMode.Extended ||
+                    hiddenLotDisplayMode === HiddenLotDisplayMode.ExtendedWithoutNames
+                  "
+                  [calculateFilterExpression]="calculateFilterExpressionDynamic"
+                >
+                  <dxo-header-filter
+                    [dataSource]="getDataSourceDynFilter(i.fieldName)"
+                  >
+                  </dxo-header-filter>
+                </dxi-column>
+             }
+
+              <div *dxTemplate="let data of 'cellTemplate'">
+                @for (i of dynamicFields; track $index) {
+                <div>
+                  <table class="main">
+                    @for (fields of data.data.goods; track fields.idGood) {
+                      <!--Для  фактических размеров отдельно данные получаем-->
+                      @if (i.fieldName === data.column.dataField) {
+                        <tr>
+                          <span class="twostrings">{{
+                            isActualSizeField(i.fieldName) && fields.dynamicFields[i.fieldName.toString()]
+                              ? (fields.dynamicFields[i.fieldName.toString()]
+                                | actualDimensions)
+                              : fields.dynamicFields[i.fieldName.toString()]
+                          }}</span>
+                        </tr>
+                      }
+                    }
+                  </table>
+                </div>
+               }
+              </div>
+
+              <!-- Кол-во -->
+              <dxi-column
+                caption="{{ 'trading.offersTable.volume' | translate }}"
+                [dataField]="TableDataField.Vol"
+                cssClass="column date-roboto-mono p-0 text-align-right"
+                width="130"
+                alignment="right"
+                [allowFiltering]="true"
+                cellTemplate="cellTemplateVol"
+                [calculateFilterExpression]="calculateFilterExpression"
+              >
+                <dxo-header-filter
+                  [dataSource]="orderHeaderFilterVol"
+                ></dxo-header-filter>
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplateVol'">
+                <table class="main">
+                  @for (good of data.data.goods; track good.idGood) {
+                    <tr>
+                      {{
+                        good.goodVolume | toNumber | ruNumberFormat
+                        : VOLUME_PRECISION
+                        : VOLUME_PRECISION
+                      }}
+                    </tr>
+                   }
+                </table>
+              </div>
+
+              <!-- Общее кол-во -->
+              <dxi-column
+                caption="{{ 'trading.offersTable.totalVolume' | translate }}"
+                [dataField]="TableDataField.GoodsLotSummaryVolume"
+                cssClass="column date-roboto-mono text-align-right"
+                width="130"
+                alignment="right"
+                [allowFiltering]="true"
+                cellTemplate="cellTemplateTotalVol"
+              >
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplateTotalVol'">
+                @if (data.data.goods[0].lotSummaryVolume > 0) {
+                  <div>
+                    {{
+                      data.data.goods[0].lotSummaryVolume
+                        | toNumber
+                        | ruNumberFormat
+                        : VOLUME_PRECISION
+                        : VOLUME_PRECISION
+                    }}
+                  </div>
+                }
+              </div>
+
+              <!-- Единица измерения -->
+              <dxi-column
+                caption="{{ 'trading.auctionsTab.unit' | translate }}"
+                [dataField]="TableDataField.Units"
+                cssClass="column p-0 date-roboto-mono text-align-right"
+                width="130"
+                alignment="right"
+                [allowFiltering]="true"
+                cellTemplate="cellTemplateTotalVolUnit"
+                [calculateFilterExpression]="calculateFilterExpression"
+              >
+                <dxo-header-filter
+                  [dataSource]="orderHeaderFilterUnits"
+                ></dxo-header-filter>
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplateTotalVolUnit'">
+                <table class="main">
+                  @for (good of data.data.goods; track good.idGood) {
+                    <tr>
+                      {{
+                        good.goodUnitName
+                      }}
+                    </tr>
+                  }
+                </table>
+              </div>
+
+              <!-- Валюта-->
+              <dxi-column
+                caption="{{ 'filters.currency' | translate }}"
+                [dataField]="TableDataField.PriceParamsCurrencyName"
+                cssClass="column date-roboto-mono text-align-right"
+                width="130"
+                alignment="right"
+                [allowFiltering]="true"
+              >
+              </dxi-column>
+
+               <!--  Шаг цены  -->
+               @if (user?.IsWorker) {
+                <dxi-column
+                  caption="{{
+                    'trading.priceStep' | translate
+                  }}"
+                  [dataField]="TableDataField.PriceSteps"
+                  cssClass="column p-0 date-roboto-mono text-align-right"
+                  width="140"
+                  alignment="right"
+                  [allowFiltering]="true"
+                  cellTemplate="cellTemplatePriceStep"
+                  [calculateFilterExpression]="calculateFilterExpression"
+                >
+                  <dxo-header-filter
+                    [dataSource]="orderHeaderFilterPriceStep"
+                  ></dxo-header-filter>
+                </dxi-column>
+
+                <div *dxTemplate="let data of 'cellTemplatePriceStep'">
+                  <table class="main">
+                    @for (good of data.data.goods; track good) {
+                    <tr class="price">
+                      {{
+                        good.priceStep
+                          | toNumber
+                          | ruNumberFormat
+                            : data.data.priceParams.currencyPrecision
+                            : data.data.priceParams.currencyPrecision
+                      }}
+                    </tr>
+                    }
+                  </table>
+                </div>
+               }
+
+              <!-- Поправка проверка на тип торгов. Если 1 по цене, то колонка скрывается -->
+              @if (sessionInfo?.idPricingType !== pricingType.price) {
+                <dxi-column
+                  caption="{{ 'trading.offersTable.amendment' | translate }}"
+                  [dataField]="TableDataField.Amendment"
+                  cssClass="column date-roboto-mono  p-0 text-align-right"
+                  width="95"
+                  alignment="right"
+                  [allowFiltering]="true"
+                  cellTemplate="cellTemplateAmendment"
+                  [calculateFilterExpression]="calculateFilterExpression"
+                >
+                  <dxo-header-filter
+                    [dataSource]="orderHeaderFilterAmendment"
+                  ></dxo-header-filter>
+                </dxi-column>
+             }
+
+              <div *dxTemplate="let data of 'cellTemplateAmendment'">
+                <table class="main">
+                  @for (good of data.data.goods; track good.idGood) {
+                    @if (data.data.priceParams.idPriceAdjustment === PRICE_ADJUSTMENT_TYPE.absoluteType) {
+                      <tr>
+                        {{
+                          good.priceAdjustment
+                            | toNumber
+                            | ruNumberFormat
+                              : data.data.priceParams.currencyPrecision
+                              : data.data.priceParams.currencyPrecision
+                        }}
+                        {{
+                          data.data.priceParams.currencyName
+                        }}
+                      </tr>
+                   }
+
+                   @if (data.data.priceParams.idPriceAdjustment === PRICE_ADJUSTMENT_TYPE.relativeType) {
+                      <tr>
+                        {{
+                          good.priceAdjustment
+                        }}
+                        %
+                      </tr>
+                   }
+                  }
+                </table>
+              </div>
+
+              <!-- Котировка-->
+              @if (sessionInfo?.idPricingType === pricingType.formulaWithQuotation) {
+                <dxi-column
+                  caption="{{ 'trading.offersTable.quotation' | translate }}"
+                  [dataField]="TableDataField.Quotation"
+                  cssClass="column date-roboto-mono  p-0 text-align-right"
+                  width="110"
+                  alignment="right"
+                  [allowFiltering]="true"
+                  cellTemplate="cellTemplateQuotation"
+                  [calculateFilterExpression]="calculateFilterExpression"
+                >
+                  <dxo-header-filter
+                    [dataSource]="orderHeaderFilterQuotation"
+                  ></dxo-header-filter>
+                </dxi-column>
+             }
+
+              <div *dxTemplate="let data of 'cellTemplateQuotation'">
+                <table class="main">
+                  @for (good of data.data.goods; track good.idGood) {
+                    @if (good.quotationValue > 0) {
+                      <tr>
+                        {{
+                          good.quotationValue
+                            | toNumber
+                            | ruNumberFormat
+                              : good.quotationCurrencyPrecision
+                              : good.quotationCurrencyPrecision
+                        }}
+                        {{
+                          good.quotationCurrencyName
+                        }}
+                      </tr>
+                   }
+                 }
+                </table>
+              </div>
+
+              <!--  Текущая цена (без НДС)  -->
+              <dxi-column
+                caption="{{
+                  'trading.offersTable.priceWithoutVAT' | translate
+                }}"
+                [dataField]="TableDataField.Prices"
+                cssClass="column p-0 date-roboto-mono text-align-right"
+                width="140"
+                alignment="right"
+                [allowFiltering]="true"
+                cellTemplate="cellTemplatePrice"
+                [calculateFilterExpression]="calculateFilterExpression"
+              >
+                <dxo-header-filter
+                  [dataSource]="orderHeaderFilterPrice"
+                ></dxo-header-filter>
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplatePrice'">
+                <table class="main">
+                  @for (good of data.data.goods; track good) {
+                  <tr class="price">
+                    @if (data.data.goodInfo.isPriceAdjusted == true) {
+                    <div class="trendUp"></div>
+                    }
+                    {{
+                      good.priceWithoutVat
+                        | toNumber
+                        | ruNumberFormat
+                          : data.data.priceParams.currencyPrecision
+                          : data.data.priceParams.currencyPrecision
+                    }}
+                  </tr>
+                  }
+                </table>
+              </div>
+
+              <!-- Ставка НДС-->
+              <dxi-column
+                caption="{{ 'trading.offersTable.VAT' | translate }}"
+                [dataField]="TableDataField.PriceParamsVatPercent"
+                cssClass="column date-roboto-mono text-align-right"
+                width="110"
+                alignment="right"
+                [allowFiltering]="true"
+                [visible]="false"
+                cellTemplate="cellTemplateVatPercent"
+              >
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplateVatPercent'">
+                <div>
+                  {{
+                    data.data.priceParams.vatPercent != null
+                      ? data.data.priceParams.vatPercent + "%"
+                      : ("general.withoutVAT" | translate)
+                  }}
+                </div>
+              </div>
+
+              <!-- Сумма НДС-->
+              <dxi-column
+                caption="{{ 'trading.offersTable.amountVAT' | translate }}"
+                [dataField]="TableDataField.AmountVAT"
+                cssClass="column p-0 date-roboto-mono text-align-right"
+                width="150"
+                alignment="right"
+                [allowFiltering]="true"
+                cellTemplate="cellTemplateAmountVAT"
+                [calculateFilterExpression]="calculateFilterExpression"
+              >
+                <dxo-header-filter
+                  [dataSource]="orderHeaderFilterAmountVAT"
+                ></dxo-header-filter>
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplateAmountVAT'">
+                <table class="main">
+                  @for (good of data.data.goods; track good) {
+                    <tr>
+                      {{
+                        good.vatAmount
+                          | toNumber
+                          | ruNumberFormat
+                            : data.data.priceParams.currencyPrecision
+                            : data.data.priceParams.currencyPrecision
+                      }}
+                    </tr>
+                  }
+                </table>
+              </div>
+
+              <!-- Общая сумма НДС-->
+              <dxi-column
+                caption="{{ 'trading.offersTable.totalAmountVAT' | translate }}"
+                [dataField]="TableDataField.GoodsLotSummaryVatAmount"
+                cssClass="column date-roboto-mono text-align-right"
+                width="150"
+                alignment="right"
+                [allowFiltering]="true"
+                [visible]="false"
+                cellTemplate="cellTemplateTotalAmountVAT"
+              >
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplateTotalAmountVAT'">
+                <div>
+                  {{
+                    data.data.goods[0].lotSummaryVatAmount
+                      | toNumber
+                      | ruNumberFormat
+                        : data.data.priceParams.currencyPrecision
+                        : data.data.priceParams.currencyPrecision
+                  }}
+                </div>
+              </div>
+
+              <!-- Стоимость с НДС -->
+              <dxi-column
+                caption="{{ 'trading.offersTable.costVAT' | translate }}"
+                [dataField]="TableDataField.TotalAmount"
+                cssClass="column date-roboto-mono p-0 text-align-right"
+                width="160"
+                [allowSorting]="true"
+                alignment="right"
+                [allowFiltering]="true"
+                cellTemplate="cellTemplateCostVAT"
+                [calculateFilterExpression]="calculateFilterExpression"
+              >
+                <dxo-header-filter
+                  [dataSource]="orderHeaderFilterTotalAmount"
+                ></dxo-header-filter>
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplateCostVAT'">
+                <table class="main">
+                  @for (good of data.data.goods; track good) {
+                    <tr>
+                      {{
+                        good.totalAmount
+                          | toNumber
+                          | ruNumberFormat
+                            : data.data.priceParams.currencyPrecision
+                            : data.data.priceParams.currencyPrecision
+                      }}
+                    </tr>
+                  }
+                </table>
+              </div>
+
+              <!-- Общая стоимость по заявке с НДС -->
+              <dxi-column
+                [dataField]="TableDataField.GoodsLotSummaryTotalAmount"
+                caption="{{ 'trading.offersTable.totalCostVAT' | translate }}"
+                cssClass="column date-roboto-mono text-align-right"
+                width="160"
+                alignment="right"
+                [allowFiltering]="true"
+                cellTemplate="cellTemplateTotalCostVAT"
+              >
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplateTotalCostVAT'">
+                <div>
+                  {{
+                    data.data.goods[0].lotSummaryTotalAmount
+                      | toNumber
+                      | ruNumberFormat
+                        : data.data.priceParams.currencyPrecision
+                        : data.data.priceParams.currencyPrecision
+                  }}
+                </div>
+              </div>
+
+              <!-- Тип рынка -->
+              <dxi-column
+                caption="{{ 'filters.marketType' | translate }}"
+                [dataField]="TableDataField.ModelMarketTypes"
+                cssClass="column  text-align-left"
+                width="240"
+                alignment="left"
+                [allowSorting]="true"
+                [allowFiltering]="true"
+                [visible]="false"
+              >
+              </dxi-column>
+
+              <!-- Условия поставки-->
+              @if (!directSession) {
+                <dxi-column
+                  caption="{{
+                    'trading.offersTable.termsDeliveryTime' | translate
+                  }}"
+                  [dataField]="TableDataField.DemandOfferInfoConditionsDelivery"
+                  cssClass="column  text-align-left"
+                  width="240"
+                  alignment="left"
+                  [allowSorting]="true"
+                  [allowFiltering]="true"
+                  [visible]="true"
+                  cellTemplate="cellTemplateTermsDeliveryTime"
+                >
+                </dxi-column>
+              }
+
+              <div *dxTemplate="let data of 'cellTemplateTermsDeliveryTime'">
+                <div class="flexContent4">
+                  @if (data.data.goodInfo.isMultibasis) {
+                    <div class="multibasis"></div>
+                  }
+
+                  <div class="d-flex ai-c">
+                    {{ data.data.demandOfferInfo.conditionsDelivery }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Условия поставки АДРЕСНЫЕ-->
+              @if (directSession) {
+                <dxi-column
+                  caption="{{
+                    'trading.offersTable.termsDeliveryTime' | translate
+                  }}"
+                  [dataField]="TableDataField.OfferInfoConditionsDelivery"
+                  cssClass="column  text-align-left"
+                  width="240"
+                  alignment="left"
+                  [allowSorting]="true"
+                  [allowFiltering]="true"
+                  [visible]="true"
+                  cellTemplate="cellTemplateTermsDeliveryTimeDirect"
+                >
+                </dxi-column>
+              }
+
+              <div
+                *dxTemplate="let data of 'cellTemplateTermsDeliveryTimeDirect'"
+              >
+                <div class="flexContent4">
+                  @if (data.data.goodInfo.isMultibasis) {
+                    <div class="multibasis"></div>
+                  }
+                  <div class="d-flex ai-c">
+                    {{ data.data.offerInfo.conditionsDelivery }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Срок поставки-->
+                <dxi-column
+                  caption="{{ 'trading.offersTable.deliveryTime' | translate }}"
+                  [dataField]="directSession
+                      ? TableDataField.OfferInfoConditionsDeliveryPeriod
+                      : TableDataField.DemandOfferInfoConditionsDeliveryPeriod
+                  "
+                  cssClass="column text-align-left"
+                  alignment="left"
+                  width="200"
+                  [allowSorting]="true"
+                  [allowFiltering]="true"
+                  [visible]="true"
+                >
+                </dxi-column>
+
+
+              <!-- Условия оплаты-->
+                <dxi-column
+                  caption="{{ 'trading.offersTable.termsPayment' | translate }}"
+                  [dataField]="directSession
+                      ? TableDataField.OfferInfoConditionsPayment
+                      : TableDataField.DemandOfferInfoConditionsPayment
+                  "
+                  cssClass="column text-align-left"
+                  width="230"
+                  alignment="left"
+                  [allowSorting]="true"
+                  [allowFiltering]="true"
+                  [visible]="true"
+                >
+                </dxi-column>
+
+              <!-- Участник только работник-->
+              @if (user?.IsWorker && !directSession) {
+                <dxi-column
+                  caption="{{ 'trading.tradersTable.participant' | translate }}"
+                  [dataField]="TableDataField.DemoffOwnerConcatedFirmName"
+                  cssClass="column text-align-left"
+                  width="140"
+                  alignment="left"
+                  [allowFiltering]="true"
+                  [visible]="true"
+                >
+                </dxi-column>
+              }
+
+              <!-- Тип договора -->
+              @if (!directSession) {
+                <dxi-column
+                  caption="{{ 'general.contractType' | translate }}"
+                  [dataField]="TableDataField.DemoffOwnerClientContractType"
+                  cssClass="column text-align-left"
+                  width="140"
+                  alignment="left"
+                  [allowFiltering]="true"
+                  [visible]="true"
+                  cellTemplate="cellTemplateClientContractType"
+                  [calculateFilterExpression]="calculateFilterExpressionContract"
+                >
+                  <dxo-header-filter
+                    [dataSource]="orderHeaderFilterContractType"
+                  ></dxo-header-filter>
+                </dxi-column>
+              }
+
+              <div *dxTemplate="let data of 'cellTemplateClientContractType'">
+                <div>
+                  {{
+                    data.data.demoffOwner.clientContractType === AgreementType.Commission
+                      ? ("general.commissionAgreement" | translate)
+                      : data.data.demoffOwner.clientContractType === AgreementType.Agency
+                      ? ("general.agencyAgreement" | translate)
+                      : ""
+                  }}
+                </div>
+              </div>
+
+              <!-- Клиент брокера -->
+              @if (!directSession) {
+                <dxi-column
+                  caption="{{ 'filters.brokerClient' | translate }}"
+                  [dataField]="TableDataField.DemoffOwnerConcatedClientName"
+                  cssClass="column text-align-left"
+                  width="140"
+                  alignment="left"
+                  [allowFiltering]="true"
+                  cellTemplate="cellTemplateClient"
+                  [visible]="true"
+                >
+                </dxi-column>
+              }
+
+              <div *dxTemplate="let item of 'cellTemplateClient'">
+                <span
+                  class="twostrings"
+                  id="offerClient{{ item.data.idDemandOffer }}"
+                  >{{ item.data.demoffOwner.concatedClientName }}</span
+                >
+                <dx-tooltip
+                  target="#offerClient{{ item.data.idDemandOffer }}"
+                  [showEvent]="{ name: 'mouseover', delay: 500 }"
+                  hideEvent="mouseleave"
+                >
+                  <div *dxTemplate="let data = data; of: 'content'">
+                    {{ item.data.demoffOwner.concatedClientName }}
+                  </div>
+                </dx-tooltip>
+              </div>
+
+              <!-- Стр подразделение -->
+              @if (!directSession) {
+                <dxi-column
+                  caption="{{ 'filters.listBranchs' | translate }}"
+                  [dataField]="TableDataField.DemoffOwnerBranchName"
+                  cssClass="column text-align-left"
+                  width="140"
+                  alignment="left"
+                  [allowFiltering]="true"
+                  cellTemplate="cellTemplateBranch"
+                  [visible]="true"
+                >
+                </dxi-column>
+              }
+
+              <div *dxTemplate="let item of 'cellTemplateBranch'">
+                <span
+                  class="twostrings"
+                  id="offerBranch{{ item.data.idDemandOffer }}"
+                  >{{ item.data.demoffOwner.branchName }}</span
+                >
+                <dx-tooltip
+                  target="#offerBranch{{ item.data.idDemandOffer }}"
+                  [showEvent]="{ name: 'mouseover', delay: 500 }"
+                  hideEvent="mouseleave"
+                >
+                  <div *dxTemplate="let data = data; of: 'content'">
+                    {{ item.data.demoffOwner.branchName }}
+                  </div>
+                </dx-tooltip>
+              </div>
+
+              <!-- Трейдер -->
+              @if (!directSession) {
+                <dxi-column
+                  caption="{{ 'trading.tradersTable.trader' | translate }}"
+                  [dataField]="TableDataField.DemoffOwnerTraderName"
+                  cssClass="column text-align-left"
+                  width="140"
+                  alignment="left"
+                  [allowFiltering]="true"
+                  [visible]="true"
+                >
+                </dxi-column>
+              }
+
+              <!-- Продавец Адресные -->
+              @if (directSession) {
+                <dxi-column
+                  caption="{{ 'trading.dealsTab.seller' | translate }}"
+                  cssClass="column"
+                  width="800"
+                >
+                  <!-- Участник-->
+                  <dxi-column
+                    caption="{{ 'trading.tradersTable.participant' | translate }}"
+                    [dataField]="TableDataField.OfferOwnerSellerConcatedFirmName"
+                    cssClass="column text-align-left"
+                    width="120"
+                    alignment="left"
+                    [allowFiltering]="true"
+                    [visible]="true"
+                  >
+                  </dxi-column>
+
+                  <!-- Тип договора -->
+                  <dxi-column
+                    caption="{{ 'general.contractType' | translate }}"
+                    [dataField]="TableDataField.OfferOwnerSellerContractTypeId"
+                    cssClass="column text-align-left"
+                    width="120"
+                    alignment="left"
+                    [allowFiltering]="true"
+                    [visible]="true"
+                    cellTemplate="cellTemplateClientContractTypeSeller"
+                  >
+                  </dxi-column>
+
+                  <div
+                    *dxTemplate="
+                      let data of 'cellTemplateClientContractTypeSeller'
+                    "
+                  >
+                    <div>
+                      {{
+                        data.data.offerOwner.sellerContractTypeId === AgreementType.Commission
+                          ? ('general.commissionAgreement' | translate)
+                          : data.data.offerOwner.sellerContractTypeId === AgreementType.Agency
+                          ? ('general.agencyAgreement' | translate)
+                          : ""
+                      }}
+                    </div>
+                  </div>
+
+                  <!-- Клиент брокера -->
+                  <dxi-column
+                    caption="{{ 'filters.brokerClient' | translate }}"
+                    [dataField]="TableDataField.OfferOwnerSellerConcatedClientName"
+                    cssClass="column text-align-left"
+                    width="120"
+                    alignment="left"
+                    [allowFiltering]="true"
+                    cellTemplate="cellTemplateClientSeller"
+                    [visible]="true"
+                  >
+                  </dxi-column>
+
+                  <div *dxTemplate="let item of 'cellTemplateClientSeller'">
+                    <span
+                      class="twostrings"
+                      id="offerClientSeller{{ item.data.idOffer }}"
+                      >{{ item.data.offerOwner.sellerConcatedClientName }}</span
+                    >
+                    <dx-tooltip
+                      target="#offerClientSeller{{ item.data.idOffer }}"
+                      [showEvent]="{ name: 'mouseover', delay: 500 }"
+                      hideEvent="mouseleave"
+                    >
+                      <div *dxTemplate="let data = data; of: 'content'">
+                        {{ item.data.offerOwner.sellerConcatedClientName }}
+                      </div>
+                    </dx-tooltip>
+                  </div>
+
+                  <!-- Стр подразделение -->
+                  <dxi-column
+                    caption="{{ 'filters.listBranchs' | translate }}"
+                    [dataField]="TableDataField.OfferOwnerSellerBranchName"
+                    cssClass="column text-align-left"
+                    width="120"
+                    alignment="left"
+                    [allowFiltering]="true"
+                    cellTemplate="cellTemplateBranchSeller"
+                    [visible]="true"
+                  >
+                  </dxi-column>
+
+                  <div *dxTemplate="let item of 'cellTemplateBranchSeller'">
+                    <span
+                      class="twostrings"
+                      id="offerBranchSeller{{ item.data.idOffer }}"
+                      >{{ item.data.offerOwner.sellerBranchName }}</span
+                    >
+                    <dx-tooltip
+                      target="#offerBranchSeller{{ item.data.idTransaction }}"
+                      [showEvent]="{ name: 'mouseover', delay: 500 }"
+                      hideEvent="mouseleave"
+                    >
+                      <div *dxTemplate="let data = data; of: 'content'">
+                        {{ item.data.offerOwner.sellerBranchName }}
+                      </div>
+                    </dx-tooltip>
+                  </div>
+
+                  <!-- Трейдер -->
+                  <dxi-column
+                    caption="{{ 'trading.tradersTable.trader' | translate }}"
+                    [dataField]="TableDataField.OfferOwnerSellerTraderName"
+                    cssClass="column text-align-left"
+                    width="120"
+                    alignment="left"
+                    [allowFiltering]="true"
+                    [visible]="true"
+                  >
+                  </dxi-column>
+                </dxi-column>
+              }
+
+              <!-- Покупатель Адресные -->
+              @if (directSession) {
+                <dxi-column
+                  caption="{{ 'trading.dealsTab.buyer' | translate }}"
+                  cssClass="column"
+                  width="800"
+                >
+                  <!-- Участник-->
+                  <dxi-column
+                    caption="{{ 'trading.tradersTable.participant' | translate }}"
+                    [dataField]="TableDataField.OfferBuyerBuyerConcatedFirmName"
+                    cssClass="column text-align-left"
+                    width="120"
+                    alignment="left"
+                    [allowFiltering]="true"
+                    [visible]="true"
+                  >
+                  </dxi-column>
+
+                  <!-- Тип договора -->
+                  <dxi-column
+                    caption="{{ 'general.contractType' | translate }}"
+                    [dataField]="TableDataField.OfferBuyerBuyerContractTypeId"
+                    cssClass="column text-align-left"
+                    width="120"
+                    alignment="left"
+                    [allowFiltering]="true"
+                    [visible]="true"
+                    cellTemplate="cellTemplateClientContractTypeBuyer"
+                  >
+                  </dxi-column>
+
+                  <div
+                    *dxTemplate="
+                      let data of 'cellTemplateClientContractTypeBuyer'
+                    "
+                  >
+                    <div>
+                      {{
+                        data.data.offerBuyer.buyerContractTypeId === AgreementType.Commission
+                          ? ("general.commissionAgreement" | translate)
+                          : data.data.offerBuyer.buyerContractTypeId === AgreementType.Agency
+                          ? ("general.agencyAgreement" | translate)
+                          : ""
+                      }}
+                    </div>
+                  </div>
+
+                  <!-- Клиент брокера -->
+                  <dxi-column
+                    caption="{{ 'filters.brokerClient' | translate }}"
+                    [dataField]="TableDataField.OfferBuyerBuyerConcatedClientName"
+                    cssClass="column text-align-left"
+                    width="120"
+                    alignment="left"
+                    [allowFiltering]="true"
+                    cellTemplate="cellTemplateClientBuyer"
+                    [visible]="true"
+                  >
+                  </dxi-column>
+
+                  <div *dxTemplate="let item of 'cellTemplateClientBuyer'">
+                    <span
+                      class="twostrings"
+                      id="offerClientBuyer{{ item.data.idOffer }}"
+                      >{{ item.data.offerBuyer.buyerConcatedClientName }}</span
+                    >
+                    <dx-tooltip
+                      target="#offerClientBuyer{{ item.data.idOffer }}"
+                      [showEvent]="{ name: 'mouseover', delay: 500 }"
+                      hideEvent="mouseleave"
+                    >
+                      <div *dxTemplate="let data = data; of: 'content'">
+                        {{ item.data.offerBuyer.buyerConcatedClientName }}
+                      </div>
+                    </dx-tooltip>
+                  </div>
+
+                  <!-- Стр подразделение -->
+                  <dxi-column
+                    caption="{{ 'filters.listBranchs' | translate }}"
+                    [dataField]="TableDataField.OfferBuyerBuyerBranchName"
+                    cssClass="column text-align-left"
+                    width="120"
+                    alignment="left"
+                    [allowFiltering]="true"
+                    cellTemplate="cellTemplateBranchBuyer"
+                    [visible]="true"
+                  >
+                  </dxi-column>
+
+                  <div *dxTemplate="let item of 'cellTemplateBranchBuyer'">
+                    <span
+                      class="twostrings"
+                      id="offerBranchBuyer{{ item.data.idOffer }}"
+                      >{{ item.data.offerBuyer.buyerBranchName }}</span
+                    >
+                    <dx-tooltip
+                      target="#offerBranchBuyer{{ item.data.idOffer }}"
+                      [showEvent]="{ name: 'mouseover', delay: 500 }"
+                      hideEvent="mouseleave"
+                    >
+                      <div *dxTemplate="let data = data; of: 'content'">
+                        {{ item.data.offerBuyer.buyerBranchName }}
+                      </div>
+                    </dx-tooltip>
+                  </div>
+                </dxi-column>
+              }
+
+              <!-- Дата отклонения заявки-->
+              @if (!user?.IsWorker || cache?.filters?.statusOffers === statusOffersFilters.rejectedBeforeBid) {
+              <dxi-column
+                caption="{{ 'trading.regsTable.rejectedDate' | translate }}"
+                [dataField]="TableDataField.RejectionDateString"
+                cssClass="column text-align-right"
+                width="130"
+                [allowSorting]="true"
+                [allowFiltering]="true"
+                [visible]="true"
+              />
+              } @if (!user?.IsWorker || cache?.filters?.statusOffers === statusOffersFilters.rejectedBeforeBid)
+              {
+              <dxi-column
+                caption="{{ 'trading.regsTable.rejectedReason' | translate }}"
+                [dataField]="TableDataField.RejectionReason"
+                cssClass="column text-align-left"
+                width="160"
+                alignment="left"
+                [allowFiltering]="true"
+                [visible]="true"
+              />
+              }
+            </dx-data-grid>
+          </div>
+        </div>
+      </div>
+     }
+    </div>
+  </div>
+</main>
+
+<!--Дополнительное предупреждение при переносе заявок при проверке текущего состояния режима активации заявок в связке с торговым периодом-->
+@if (popupIsActivatedTransferToBids) {
+  <app-check-activation-mode
+    [tradeTypeId]="sessionInfo?.idAuctionType"
+    [title]="'trading.offersTable.restoreApplication' | translate"
+    (onContinue)="
+      $event ? checkAdmissionProcessed('restore') : null;
+      popupIsActivatedTransferToBids = false
+    "
+  >
+  </app-check-activation-mode>
+}
+
+
+<!-- задаток по заявке -->
+<app-deposit-popup
+  [depositPopup]="depositPopup"
+  [depositRowData]="depositRowData"
+  [isAdmissionFinished]="sessionInfo?.isAdmissionFinished"
+  (close)="closeDepositPopup($event)"
+></app-deposit-popup>
+
+<!-- модалка с результатом действия -->
+<app-result-popup
+  [resultPopup]="resultPopup"
+  [resultPopupType]="'activate'"
+  [resultData]="resultData"
+  [choosenOffers]="chooseOffers"
+  [sessionsParam]="sessionsParam"
+  (close)="resultPopup = false"
+></app-result-popup>
+
+<!-- отклонение заявок -->
+<app-rejection-offer-popup
+  [rejectionPopup]="rejectionPopup"
+  [choosenOffers]="chooseOffers"
+  [sessionIds]="sessionIds"
+  [sessionInfo]="sessionInfo"
+  [directSession]="directSession"
+  (close)="closeRejectionPopup($event)"
+></app-rejection-offer-popup>
+
+<!-- восстановление заявок -->
+<app-restore-offer-popup
+  [restorePopup]="restorePopup"
+  [restorePopupType]="restorePopupType"
+  [choosenOffers]="chooseOffers"
+  [sessionIds]="sessionIds"
+  [admissionOptions]="admissionOptions"
+  [sessionInfo]="sessionInfo"
+  (close)="closeRestorePopup($event)"
+></app-restore-offer-popup>
+
+<!-- индивидуальный шаг цены -->
+<app-edit-price-step-popup
+  [sessionIds]="sessionIds"
+  [editPriceStepPopup]="editPriceStepPopup"
+  [data]="infoForPriceStep"
+  (close)="closeEditPriceStepPopup($event)"
+></app-edit-price-step-popup>
+
+<!-- одобрение заявок АДРЕСНЫЕ -->
+<app-approve-offer-popup
+  [approvePopup]="approvePopup"
+  [choosenOffers]="displayOffers?.length"
+  [sessionIds]="sessionIds"
+  (close)="closeApprovePopup($event)"
+></app-approve-offer-popup>
+
+<!-- удаление заявки АДРЕСНЫЕ -->
+<app-delete-offer-popup
+  [deletePopup]="deletePopup"
+  [choosenOffer]="chooseOffers"
+  [sessionIds]="sessionIds"
+  (close)="closeDeletePopup($event)"
+></app-delete-offer-popup>
+
+<!-- разрешенный объем АДРЕСНЫЕ -->
+<app-volume-popup
+  [volumePopup]="volumePopup"
+  [volumeType]="volumeType"
+  [volumeData]="volumeData"
+  [dynamicFields]="volumeDynamicFields ? volumeDynamicFields : []"
+  [sessionIds]="sessionIds"
+  (close)="closeVolumePopup($event)"
+/>
+
+<!-- уведомления тостер -->
+<dx-toast
+  [(visible)]="isVisibleToast"
+  type="info"
+  width="auto"
+  height="auto"
+  [displayTime]="5000"
+>
+  <div *dxTemplate="let data of 'content'">
+    <div class="flexContent8 center">
+      <div class="checkIcon"></div>
+      <div>{{ message }}</div>
+    </div>
+  </div>
+
+  <dxo-position my="top right" at="right top" of="window" offset="-23 50" />
+</dx-toast>
+
+<dx-load-panel
+  shadingColor="rgba(0,0,0,0.4)"
+  [(visible)]="loadingVisible"
+  [showIndicator]="true"
+  [showPane]="true"
+  [shading]="true"
+  [hideOnOutsideClick]="false"
+  (onShown)="onShown()"
+/>

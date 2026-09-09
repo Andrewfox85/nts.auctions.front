@@ -1,0 +1,125 @@
+@import "../../../../../assets/scss/constants";
+
+.label {
+  width: 210px;
+  color: $secondTextColor;
+}
+
+.info {
+  width: calc(100% - 210px);
+}
+
+.text {
+  width: calc(100% - 210px);
+  .name {
+    overflow: hidden;
+    display: inherit;
+    max-height: 78px;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    transition: max-height 0.3s ease-out;
+
+    &.opened {
+      height: auto;
+      max-height: 2000px;
+      margin-bottom: 0px;
+      overflow: hidden;
+      display: inherit;
+    }
+  }
+}
+
+.wrapper {
+  padding: 12px;
+  border-radius: 2px;
+  width: 100%;
+}
+
+::ng-deep.dx-scrollview-bottom-pocket {
+  display: none !important;
+}
+
+.buttons {
+  position: sticky;
+  bottom: 0;
+  background-color: $white;
+}
+
+.flexContentColumn12.pending {
+  cursor: progress;
+}
+
+.btn.pending,
+.btn.pending:hover {
+  cursor: not-allowed !important;
+  color: $headerTopColor !important;
+  background-color: $lightGrayBackgroundColorButton !important;
+  border-color: $lightGrayBackgroundColorButton !important;
+}
+
+table {
+  .viewRow {
+    background-color: $layerHoverTable;
+  }
+
+  .viewGoodInfo {
+    padding: 16px;
+    background: $layerHoverTable;
+    color: $mainTextColor;
+
+    .name {
+      display: flex;
+      flex-direction: row;
+      gap: 16px;
+      justify-content: space-between;
+
+      label {
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 20px;
+      }
+    }
+
+    .description {
+      font-size: 14px;
+      line-height: 20px;
+
+      .propName {
+        font-size: 14px;
+        color: $headerTopColor;
+      }
+    }
+  }
+}
+
+.expandTableBtn {
+  background-color: $sectionForestBackground;
+  color: $mainActiveColor;
+}
+
+.stringConcated {
+  display: flex;
+  padding: 8px 16px;
+  align-items: flex-start;
+  gap: 10px;
+  align-self: stretch;
+  border-radius: 2px;
+  background-color: $layerHoverTable;
+
+  font-size: 14px;
+  line-height: 20px;
+  color: $secondTextColor;
+}
+
+.errorValue {
+  ::ng-deep.dx-widget input {
+    background-color: $backgroundColorError;
+    color: $colorError;
+  }
+}
+.greenValue {
+  ::ng-deep.dx-widget input {
+    background-color: $sectionForestBackground;
+    color: $sectionForest;
+  }
+}

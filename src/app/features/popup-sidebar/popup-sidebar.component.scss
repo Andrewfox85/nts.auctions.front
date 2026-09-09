@@ -1,0 +1,133 @@
+@import "src/assets/scss/_constants.scss";
+
+.loading {
+  background-color: rgba(0, 0, 0, 0.2);
+  z-index: 2000;
+  width: 100%;
+  position: absolute;
+  height: 100%;
+  top: 0;
+  right: 0;
+}
+
+.content {
+  padding: 9px;
+
+  .main_field {
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    border: 1px solid $lightGrayBackgroundColorButton;
+    border-radius: 2px;
+
+    .title {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 16px;
+    }
+
+    .field {
+      display: flex;
+      width: 100%;
+      margin-bottom: 8px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .name {
+        width: 40%;
+
+        span {
+          color: $secondTextColor;
+        }
+      }
+
+      .info {
+        width: 60%;
+
+        span {
+          color: $mainTextColor;
+        }
+      }
+    }
+  }
+  .editButton {
+    position: absolute;
+    right: 32px;
+    z-index: 10;
+
+    /*.editIcon {
+      content: url(/auctions/assets/img/action_icons/green_edit.svg");
+      padding-right: 4px;
+    }*/
+  }
+
+  .sidebarContent {
+    ::ng-deep.dx-datagrid-content .dx-datagrid-table {
+      border-collapse: collapse !important;
+    }
+
+    ::ng-deep.dx-datagrid-total-footer > .dx-datagrid-content {
+      padding: 0;
+    }
+    ::ng-deep.dx-datagrid-group-opened::before {
+      content: none;
+    }
+    ::ng-deep.dx-datagrid-rowsview .dx-row.dx-group-row:not(.dx-row-focused) {
+      background-color: transparent;
+      color: $columnNameTextColor;
+      line-height: 20px;
+    }
+
+    ::ng-deep.dx-datagrid-content
+      .dx-datagrid-table
+      .dx-row
+      .dx-command-expand {
+      min-width: 0 !important;
+      width: 0 !important;
+      pointer-events: none;
+    }
+  }
+}
+
+.withoutBottomBorder {
+  border-bottom: none !important;
+}
+
+.buttons {
+  .btn {
+    min-width: 24px;
+  }
+}
+
+.disabled_register {
+  opacity: 0.4;
+}
+
+.tabs {
+  position: relative;
+}
+
+.view-analogs-btn {
+  position: absolute;
+  top: 1px;
+  right: 0;
+  font-family: "Roboto";
+  font-weight: 400;
+  font-style: "Regular";
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0%;
+  background-color: rgba(76, 175, 80, 1);
+  color: rgba(255, 255, 255, 1);
+  padding: 8px 16px;
+  cursor: pointer;
+  border: none;
+  z-index: 1;
+}
+
+// сокрытие кнопки закрыть форму пока запрос в процессе выполнения
+::ng-deep .popup-pending .dx-popup-title .close {
+  display: none !important;
+}

@@ -1,0 +1,521 @@
+@import "src/assets/scss/mixins";
+@import "src/assets/scss/_variables.scss";
+@import "src/assets/scss/_overwriteDevExpress";
+@import "src/assets/scss/_constants.scss";
+
+::ng-deep app-header {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  z-index: 2;
+}
+
+header {
+  @media print {
+    & {
+      display: none;
+    }
+  }
+  ::ng-deep.dx-buttongroup-item.dx-button-mode-outlined.dx-button {
+    border: none;
+    padding: 0;
+    color: $headerTopColor !important;
+  }
+
+  ::ng-deep.dx-buttongroup-item.dx-button.dx-button-mode-outlined.dx-state-focused {
+    background-color: transparent;
+    color: $mainActiveColor !important;
+  }
+  ::ng-deep.dx-buttongroup-item.dx-button.dx-button-mode-outlined.dx-state-hover {
+    background-color: transparent;
+    color: $mainActiveColor !important;
+  }
+  ::ng-deep.dx-dropdownbutton-action.dx-button .dx-button-content,
+  ::ng-deep.dx-dropdownbutton-popup-wrapper
+    .dx-list:not(.dx-list-select-decorator-enabled)
+    .dx-list-item-content {
+    padding: 0 !important;
+  }
+
+  ::ng-deep.dx-menu-base
+    .dx-menu-item
+    .dx-menu-item-content
+    .dx-menu-item-popout-container
+    .dx-menu-item-popout {
+    display: none !important;
+  }
+
+  .header_top {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 24px;
+    gap: 4px;
+    //height: 36px;
+    color: $headerTopColor;
+    background: $headerTop;
+
+    &__left {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 24px;
+
+      a {
+        vertical-align: bottom;
+        color: $headerTopColor !important;
+      }
+      a:hover {
+        color: $mainActiveColor;
+      }
+    }
+
+    &__right {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 0px;
+
+      .date {
+        padding-right: 12px;
+        border-right: 1px solid $lightGrayBackgroundColorButton;
+        display: flex;
+
+        p {
+          padding: 0;
+          padding-right: 3px;
+          margin: 0;
+        }
+      }
+    }
+  }
+
+  .header_top-line {
+    height: 100%;
+    padding: 12px 24px;
+    //@include media(desktop-max) {
+    //  padding: 10px 15px;
+    //}
+
+    &__left {
+      .logo {
+        margin-right: 50px;
+        height: 60px;
+        font-size: 0;
+        cursor: pointer;
+        //@include media(desktop-max) {
+        //  margin-right: 25px;
+        //}
+
+        img {
+          width: 100%;
+          height: 100%;
+          //@include media(desktop-max) {
+          //  width: 140px;
+          //}
+        }
+      }
+
+      li {
+        list-style: none;
+        padding: 8px 16px;
+
+        a {
+          text-decoration: none;
+          font-style: normal;
+          font-weight: 400;
+          font-size: 14px;
+          line-height: 20px;
+          color: $mainTextColor !important;
+          @include media(desktop-max) {
+            font-size: 14px;
+          }
+        }
+      }
+
+      nav.main_nav {
+        ul {
+          display: flex;
+          flex-direction: row;
+          justify-content: center;
+          align-items: center;
+          padding: 8px 16px;
+          gap: 1px;
+          margin: 0;
+
+          li {
+            list-style: none;
+            padding: 8px 16px;
+            cursor: pointer;
+
+            &.active {
+              color: $mainActiveColor !important;
+            }
+
+            div {
+              text-decoration: none;
+              font-style: normal;
+              font-weight: 400;
+              font-size: 14px;
+              line-height: 20px;
+              color: $mainTextColor !important;
+              @include media(desktop-max) {
+                font-size: 14px;
+              }
+
+              .first-submenu {
+                position: absolute;
+                top: 120px;
+                min-width: 230px;
+                background-color: $white;
+                box-shadow: 0px 2px 4px $lightGrayBackgroundColorButtonHover;
+
+                ul {
+                  display: flex;
+                  flex-direction: column;
+                  gap: 4px;
+                  justify-content: start;
+                  align-items: start;
+                  padding: 0;
+
+                  li {
+                    position: relative;
+                    width: 100%;
+                    padding: 0px;
+
+                    a{
+                      display: block;
+                      padding: 8px 16px;
+                    }
+
+                    div.subItem{
+                      display: flex;
+                      justify-content: space-between;
+                      width: 100%;
+                      padding: 8px 16px;
+
+                      .filtersArrow {
+                        content: url("/auctions/assets/img/icons/filters-arrow.svg");
+                      }
+                    }
+
+                    .second-submenu,
+                    .second-submenu-archive {
+                      visibility: visible;
+                      opacity: 1;
+                    }
+
+                    &:hover {
+                      background-color: $lightGrayBackgroundColor;
+                    }
+                  }
+                }
+              }
+
+              .second-submenu,
+              .second-submenu-archive {
+                visibility: hidden;
+                opacity: 0;
+                position: absolute;
+                top: 0;
+                min-width: 230px;
+                left: 100%;
+                background-color: $white;
+                box-shadow: 0px 2px 4px $lightGrayBackgroundColorButtonHover;
+              }
+            }
+
+            &.active {
+              div {
+                color: $mainActiveColor !important;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    &__right {
+      align-items: stretch;
+
+      .btnCreateOffer {
+        padding: 12px 16px;
+      }
+
+      .info_block {
+        > div#user {
+          display: flex;
+          align-items: center;
+          padding: 10px 15px;
+          box-sizing: border-box;
+          height: 100%;
+          font-weight: 600;
+          //@include media(desktop-max) {
+          //  font-size: 11px;
+          //  padding: 5px 10px;
+          //}
+
+          .icon {
+            width: 24px;
+            height: 24px;
+            background-position: center center;
+            background-size: contain;
+            background-repeat: no-repeat;
+            @include media(desktop-max) {
+              width: 15px;
+              height: 15px;
+            }
+          }
+
+          span.text {
+            font-size: 16px;
+            color: $mainTextColor;
+            margin-left: 10px;
+            @include media(desktop-max) {
+              font-size: 11px;
+            }
+          }
+        }
+
+        & + .info_block {
+          border-left: 1px solid rgba(68, 68, 68, 0.2);
+        }
+      }
+
+      .support,
+      .user {
+        > div#user {
+          cursor: pointer;
+          position: relative;
+          padding-right: 39px;
+          @include media(desktop-max) {
+            padding-right: 25px;
+          }
+
+          &:after {
+            content: "";
+            position: absolute;
+            top: calc(50% - 12px);
+            right: 15px;
+            background-image: url("/auctions/assets/img/icons/arrow_down.svg");
+            background-size: contain;
+            width: 24px;
+            height: 24px;
+            @include media(desktop-max) {
+              width: 15px;
+              height: 15px;
+              top: calc(50% - 7.5px);
+              right: 5px;
+            }
+          }
+        }
+
+        &.unauthorized {
+          > div#user {
+            padding-right: 0;
+
+            &:after {
+              display: none;
+              visibility: hidden;
+            }
+          }
+          button {
+            min-width: 60px;
+            padding: 0 13px;
+            height: 44px;
+          }
+        }
+      }
+
+      .language {
+        select {
+          border: none;
+          font-weight: 400;
+        }
+        option {
+          padding: 7px 9px;
+          width: 70px;
+        }
+
+        option:hover {
+          background-color: $lightGrayBackgroundColor;
+        }
+
+        option:active {
+          background-color: $lightGrayBackgroundColor;
+        }
+      }
+
+      .support {
+        position: relative;
+
+        .icon {
+          background-image: url("/auctions/assets/img/icons/support.svg");
+        }
+
+        &__dropdown {
+          position: absolute;
+          z-index: 1;
+          background: $white;
+          border-radius: 4px;
+          filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.3));
+          padding: 10px 15px;
+          width: 225px;
+          box-sizing: border-box;
+          display: none;
+          visibility: hidden;
+          right: 0;
+
+          &.active {
+            display: block;
+            visibility: visible;
+          }
+
+          .phone {
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            font-size: 16px;
+            line-height: 24px;
+            color: $mainTextColor;
+
+            & + .phone {
+              margin-top: 5px;
+            }
+
+            .icon {
+              margin-right: 14px;
+              width: 20px;
+              height: 20px;
+              background-position: center center;
+              background-size: contain;
+              background-repeat: no-repeat;
+
+              &.mtc {
+                background-image: url("/auctions/assets/img/icons/mtc.svg");
+              }
+
+              &.a1 {
+                background-image: url("/auctions/assets/img/icons/a1.svg");
+              }
+            }
+          }
+        }
+      }
+
+      .user {
+        position: relative;
+
+        > div#user {
+          .icon {
+            width: 44px;
+            height: 44px;
+            background-image: url("/auctions/assets/img/icons/user_circle.svg");
+          }
+
+          padding-right: 24px;
+          @include media(desktop-max) {
+            padding-right: 12px;
+          }
+
+          &:after {
+            right: -5px;
+          }
+        }
+
+        &__dropdown {
+          position: absolute;
+          z-index: 2;
+          background: $white;
+          border-radius: 4px;
+          filter: drop-shadow(0px 4px 20px rgba(0, 0, 0, 0.3));
+          padding: 20px 20px 4px 20px;
+          width: auto;
+          min-width: 268px;
+          box-sizing: border-box;
+          right: 0;
+
+          .logo-user-wrapper {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 6px;
+            flex-direction: row;
+            margin-bottom: 16px;
+            .logo {
+              display: flex;
+              background-image: url(/auctions/assets/img/icons/user_circle_active.svg);
+              background-repeat: no-repeat;
+              width: 40px;
+              height: 40px;
+              flex-flow: column;
+              flex-grow: 2;
+              flex-shrink: 0;
+            }
+            .user-company {
+              display: flex;
+              flex-flow: column;
+              flex-grow: 2;
+              flex-shrink: 1;
+            }
+          }
+
+          &.active {
+            display: block;
+            visibility: visible;
+          }
+
+          &:before {
+            content: "";
+            position: absolute;
+            top: -7px;
+            right: 30px;
+            width: 14px;
+            height: 14px;
+            transform: rotate(45deg);
+            background-color: $white;
+            z-index: -1;
+          }
+
+          .company {
+            font-weight: 400;
+            font-size: 12px;
+            line-height: 16px;
+            color: $mainTextColor;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #7b83952e;
+          }
+
+          .reg_number {
+            font-weight: 400;
+            font-size: 12px;
+            line-height: 16px;
+            color: $mainTextColor;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #7b83952e;
+
+            h3,
+            span {
+              font-size: 14px;
+              line-height: 110%;
+              letter-spacing: -0.02em;
+              color: $mainTextColor;
+            }
+
+            h3 {
+              font-weight: 600;
+              margin-bottom: 2px;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+.show-exported {
+  cursor: pointer;
+  border: none;
+  background: none;
+}

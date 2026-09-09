@@ -1,0 +1,11 @@
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+
+.twoElements {
+  flex: 1 0 calc(50% - 8px);
+  min-width: 0;
+  max-width: calc(50% - 8px);
+}

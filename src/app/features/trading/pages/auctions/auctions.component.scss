@@ -1,0 +1,100 @@
+@import "src/assets/scss/_constants.scss";
+
+main,
+.main_component,
+.content,
+.tabs,
+dx-tab-panel::ng-deep {
+  height: 100%;
+}
+
+::ng-deep.dx-datagrid-headers .dx-datagrid-table .dx-row > td {
+  padding: 12px !important;
+}
+
+::ng-deep .dx-datagrid .dx-toolbar .dx-toolbar-after {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.main {
+  border: none !important;
+  width: 100%;
+
+  tr {
+    border-bottom: 1px solid $greyBorder;
+    display: block;
+    padding: 8px;
+    height: 48px;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &.price {
+      display: flex;
+      gap: 4px;
+      justify-content: flex-end;
+      padding: 8px;
+    }
+  }
+}
+
+.twostrings {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  position: relative;
+  bottom: 4px;
+}
+
+.overflowText {
+  height: 48px !important;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.lotNumber {
+  text-decoration: underline;
+  cursor: pointer;
+
+  &:hover {
+    color: $mainActiveColor;
+  }
+}
+
+.edited-remains {
+  height: 18px;
+  gap: 4px;
+  border-radius: 2px;
+  padding: 4px 6px;
+  background-color: $sectionForestBackground;
+  color: $stepActive;
+  font-family: "Roboto";
+  font-weight: 400;
+  font-style: "Regular";
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0%;
+  vertical-align: middle;
+  text-align: center;
+  width: 50px;
+  display: flex;
+  align-items: center;
+  text-align: center;
+}
+
+.flex-d-c {
+  display: flex;
+  flex-direction: column;
+}
+
+::ng-deep.dx-datagrid .mine-cell,
+::ng-deep.dx-datagrid .mine-cell * {
+  color: green!important;
+  font-weight: 500!important;
+}

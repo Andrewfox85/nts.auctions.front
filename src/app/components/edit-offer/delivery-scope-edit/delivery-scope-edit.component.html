@@ -1,0 +1,334 @@
+<dx-scroll-view [useNative]="true" height="calc(100vh - 125px)">
+<div class="flexContentColumn16">
+<div *ngFor="let scopes of deliveryScopes">
+    <table class="w-100" [ngClass]="{'disabledScope': scopes[1].isDeletedScope}">
+      <thead>
+        <tr>
+          <th [attr.colspan]="!isViewAdditionalColumns() ? 2 : null">
+            <div class="flexContent24">
+              <div> {{ scopes[DELIVERY_SCOPE_ITEMS.SCOPE_INFO][0].firmClientName }}</div>
+
+              @if (
+                editRuleInIntersections() !== editingRules.editingIsNotAvailable &&
+                [IdSessionPeriods.offersAdjustment, IdSessionPeriods.pretrading].includes(idSessionPeriod)
+              ) {
+                <div>
+                  @if ((!scopes[DELIVERY_SCOPE_ITEMS.SCOPE_INFO].isDeletedScope || deliveryScopes?.length === 1) && isCanDelete()) {
+                    <i class="deleteIcon pointer" (click)="onDelete(scopes)"></i>
+                  }
+
+                  @if (scopes[DELIVERY_SCOPE_ITEMS.SCOPE_INFO].isDeletedScope) {
+                    <i class="restore pointer visible" (click)="onRestoreScope(scopes)"></i>
+                  }
+                </div>
+              }
+            </div>
+          </th>
+          @if (isViewAdditionalColumns()) {
+            <th [width]="'20%'">{{ 'btns.sell' | translate }}</th>
+
+            <th [width]="'20%'">{{ 'counterOffers.counterOffers' | translate }}</th>
+          }
+
+        </tr>
+      </thead>
+      <tbody>
+      <ng-container *ngFor="let scope of scopes[1]; let i=index; last as last" style=" overflow-y: auto">
+        <tr>
+          <td class="text-align-left">
+            <div id="name{{scope.idFirmClient}}{{scope.idDemandOfferGood}}" class="twostrings">{{ scope.goodName }}</div>
+            <dx-tooltip target="#name{{scope.idFirmClient}}{{scope.idDemandOfferGood}}"
+                        [showEvent]="{name: 'mouseenter', delay: 500}"
+                        hideEvent="mouseleave">
+              <div *dxTemplate="let data = data; of: 'content'">
+                <div class="properties">
+                  <span>{{scope.properties}}</span>
+                </div>
+              </div>
+            </dx-tooltip>
+          </td>
+
+          @if (!isSameGradedSaleOffer) {
+            <td class="paddingNumberBoxCell " [width]="'20%'">
+              <div class="flexContent8 center jc-end">
+                <dx-number-box
+                  *ngIf="type == 'editOffer' || type == 'counterOffers'"
+                  dxNumberBoxClear
+                  placeholder="0.0000" [min]="0"
+                  [max]="idAuctionType === auctionType.simpleBuyerAuction ?
+                   editDemandOfferServiceService.getOriginalScopeVolume(Number(scopes[DELIVERY_SCOPE_ITEMS.ID_SCOPE]), scope.idDemandOfferGood) :
+                    maxGoodVolume(scope.idGood)"
+                  [(value)]="scope.volume"
+                  [width]="130"
+                  height="32px"
+                  [disabled]="scopes[1].isDeletedScope"
+                  valueChangeEvent="input"
+                  (onValueChanged)="onChangeScopeDelivery(scopes[0], scope.idGood)"
+                  class="date-roboto-mono"
+                >
+                  <dxo-format
+                    type="fixedPoint"
+                    [precision]="4">
+                  </dxo-format>
+                </dx-number-box>
+                <div class="number-style"
+                     *ngIf="type == 'submitCounterOffers'">{{ (scope.volume) | toNumber | ruNumberFormat: undefined : 4 }}
+                </div>
+                <div>{{ scope.unitName }}</div>
+              </div>
+            </td>
+          }
+
+          @if (isSameGradedSaleOffer && i === 0) {
+            <td
+              [attr.rowspan]="goods.length"
+              class="text-align-right"
+            >
+              <div class="flexContent8 number-style jc-end">
+                <dx-number-box
+                  dxNumberBoxClear
+                  placeholder="0.0000"
+                  [min]="0"
+                  [max]="getMaxGradedValue(scopes[DELIVERY_SCOPE_ITEMS.ID_SCOPE])"
+                  [value]="getGradedValue(scopes[DELIVERY_SCOPE_ITEMS.ID_SCOPE])"
+                  [width]="130"
+                  valueChangeEvent="input"
+                  [disabled]="scopes[DELIVERY_SCOPE_ITEMS.SCOPE_INFO].isDeletedScope"
+                  (onValueChanged)="onChangeTotalScopeValue($event, scopes[DELIVERY_SCOPE_ITEMS.ID_SCOPE])"
+                  class="date-roboto-mono">
+                  <dxo-format
+                    type="fixedPoint"
+                    [precision]="4">
+                  </dxo-format>
+                </dx-number-box>
+                <span class="h-36px d-flex ai-c w-auto text-align-left">{{ scope.unitName }}</span>
+              </div>
+            </td>
+          }
+
+          @if (isViewAdditionalColumns()) {
+            <td
+              [class.difference]="(scope.volume | toNumber) !== (scope.volumeCounter | toNumber)"
+            >
+              <!--Встречные предложения-->
+              <div class="flexContent4 center jc-end">
+                <div class="number-style">{{ scope.volumeCounter }}</div>
+                <div>{{ scope.unitName }}</div>
+              </div>
+            </td>
+          }
+
+        </tr>
+
+        <!-- Строка Итого -->
+        <tr *ngIf="last && onSameUnits() && isViewAdditionalColumns()" class="viewRow">
+          <td class="text-align-left greenColor" [class.disabledScope]="scopes[1].isDeletedScope">
+            {{direction ==  idDirection.buy ? ('editOffer.totalByConsignee' | translate) : ('editOffer.totalByShipper' | translate)}}
+          </td>
+
+          <td
+            class="text-align-right date-roboto-mono greenColor"
+            [class.disabledScope]="scopes[1].isDeletedScope"
+          >
+            <span
+              class="flexContent8 jc-end">
+               @if (!isSameGradedSaleOffer) {
+                 <span>
+                   {{ (totalRowData[scopes[0]]) | ruNumberFormat: null : precisionVolume }}
+                 </span>
+               } @else {
+
+                 <span>
+                   {{ scope.volume | ruNumberFormat: null : precisionVolume }}
+                 </span>
+               }
+
+              <div>{{scope.unitName}}</div>
+            </span>
+          </td>
+
+          <td *ngIf="type == 'counterOffers'" class="text-align-right date-roboto-mono greenColor" [ngClass]="{'disabledScope': scopes[1].isDeletedScope, 'difference': totalRowData[scopes[0]] != totalRowDataCounter[scopes[0]]}">
+            <span
+              class="flexContent8 jc-end">
+            <span>
+              {{(totalRowDataCounter[scopes[0]] | ruNumberFormat: null : precisionVolume) }}
+            </span>
+            <div>{{scope.unitName}}</div>
+          </span>
+          </td>
+        </tr>
+      </ng-container>
+      </tbody>
+    </table>
+  </div>
+
+  <!--   Всего по грузоотправителям    -->
+  <div class="flexContentColumn10">
+    <div class="l-h20">{{direction ==  idDirection.buy ? ('editOffer.totalByConsignees' | translate) : ('editOffer.totalByShippers' | translate)}} </div>
+
+    <table class="w-100">
+      <thead>
+      <tr>
+        <th class="text-align-left">{{'trading.offersTable.nameProduct' | translate}} </th>
+        <th class="text-align-right" [width]="'20%'">{{'editOffer.deliverySchedule.quantityApplication' | translate}} </th>
+        <th class="text-align-right" [width]="'20%'">{{'editOffer.numberOfShippers' | translate}} </th>
+        @if (isViewAdditionalColumns()) {
+          <th class="text-align-right" [width]="'20%'">{{ 'counterOffers.quantitySchCounter' | translate }}</th>
+        }
+      </tr>
+      </thead>
+      <tbody>
+      <ng-container *ngFor="let good of goods; let i=index; last as last" style=" overflow-y: auto">
+        <tr>
+          <td class="text-align-left">{{good.goodName}}</td>
+
+          @if (!isSameGradedSaleOffer) {
+            <td class="text-align-right">
+            <span class="flexContent8 jc-end">
+                <div>
+                {{ getVolumeValue(good.goodsSpecifications) | ruNumberFormat: null : precisionVolume }}
+              </div>
+                <div>{{ good.unitName }}</div>
+            </span>
+            </td>
+          } @else if (isSameGradedSaleOffer && i === 0) {
+            <td
+              [attr.rowspan]="goods.length"
+            >
+              <span class="flexContent4 text-align-right jc-end">
+                <div>
+                  {{
+                    goods
+                      | sumVolume : 'volume'
+                      | ruNumberFormat : null : precisionVolume
+                  }}
+                </div>
+                <div>{{ good.unitName }}</div>
+              </span>
+            </td>
+          }
+
+          @if (!isSameGradedSaleOffer) {
+            <td
+              class="text-align-right"
+              id="scope{{good.idGood}}">
+          <span
+            class="flexContent8 jc-end"
+            [class.redColor]="getVolumeValue(good.goodsSpecifications) != this.totalGoodData[good.idGood]"
+          >
+            <div>
+              {{ (this.totalGoodData[good.idGood]) | ruNumberFormat: null : precisionVolume }}
+            </div>
+
+            <div>{{ good.unitName }}</div></span>
+
+              <dx-tooltip target="#scope{{good.idGood}}"
+                          [showEvent]="{name: 'mouseenter', delay: 500}"
+                          hideEvent="mouseleave"
+                          *ngIf="getVolumeValue(good.goodsSpecifications) != this.totalGoodData[good.idGood]"
+              >
+                <div *dxTemplate="let data = data; of: 'content'" class="w-500px text-align-left">
+                  <span>{{ 'editOffer.scopeVolumeErr' | translate }}</span>
+                </div>
+              </dx-tooltip>
+            </td>
+          } @else if (i === 0) {
+            <td
+              id="sumVolume"
+              [attr.rowspan]="goods.length"
+              class="text-align-right jc-end"
+              [class.redColor]="(filteredWithoutDeleted() | sumVolume: 'volume') !== (goods | sumVolume: 'volume')"
+            >
+               {{
+                filteredWithoutDeleted()
+                   | sumVolume: 'volume'
+                   | ruNumberFormat : null : 4
+               }}
+              {{ good.unitName }}
+
+              <dx-tooltip
+                target=".redColor"
+                [showEvent]="{name: 'mouseenter', delay: 500}"
+                hideEvent="mouseleave"
+              >
+                <div
+                  *dxTemplate="let data = data; of: 'content'"
+                  class="w-500px text-align-left"
+                >
+                  <span>{{ 'editOffer.scopeVolumeErr' | translate }}</span>
+                </div>
+              </dx-tooltip>
+            </td>
+          }
+
+          @if (isViewAdditionalColumns()) {
+            <td
+              [class.difference]="getVolumeValue(good.goodsSpecifications) != this.totalRowDataCounterGood[good.idGood]">
+            <span class="flexContent8 jc-end"><div>{{
+                (this.totalRowDataCounterGood[good.idGood]) | ruNumberFormat: null : precisionVolume
+              }}</div><div>{{
+                good.unitName
+              }}</div></span>
+            </td>
+          }
+        </tr>
+
+        <!-- Строка Итого -->
+        @if (last && onSameUnits() && isViewAdditionalColumns()) {
+          <tr class="viewRow">
+            <td class="text-align-left greenColor">{{ 'general.totalCommon' | translate }}</td>
+            <td class="text-align-right greenColor"><span class="flexContent8 jc-end">
+            <div>
+              {{ (this.totalGoodsFromOffer | ruNumberFormat: null : precisionVolume) }}
+            </div>
+            <div>{{ good.unitName }}</div></span></td>
+            <td class="text-align-right greenColor">
+            <span class="flexContent8 jc-end">
+            <div>
+              {{ (getTotalGoodsFromScope()) | ruNumberFormat: null : precisionVolume }}
+            </div>
+            <div>
+              {{ good.unitName }}
+            </div>
+          </span>
+            </td>
+            @if (type === 'counterOffers') {
+              <td class="text-align-right greenColor"
+                  [class.difference]="getTotalGoodsFromScope() != getTotalGoodsFromScopeCounter()">
+            <span class="flexContent8 jc-end">
+            <div>{{ (getTotalGoodsFromScopeCounter()) | ruNumberFormat: null : precisionVolume }}
+            </div>
+            <div>{{ good.unitName }}</div></span></td>
+            }
+          </tr>
+        }
+      </ng-container>
+    </table>
+  </div>
+</div>
+</dx-scroll-view>
+
+<dx-popup
+  contentTemplate="deletePopup"
+  [hideOnOutsideClick]="false"
+  [visible]="isVisibleDeletePopup"
+  [showTitle]="true"
+  title="{{ 'editOffer.deleteClient' | translate }}"
+  width="455"
+  height="auto"
+  [showCloseButton]="true"
+  (onHiding)="isVisibleDeletePopup = false;"
+>
+  <dxo-animation [show]="{easing: 'ease-in-out', type:'fadeIn', duration: 150}"></dxo-animation>
+  <div *dxTemplate="let data of 'deletePopup'" class="flexContentColumn32">
+    <div class="flexContentColumn4"><span>{{ 'trading.areYouSureDelete' | translate }} {{scope[1][0].firmClientName}}?</span>
+    <span>{{ 'editOffer.totalVolumeRecalculated' | translate }}</span></div>
+
+    <div class="buttonsClass flexContent20">
+      <button class="btn btn-primary submit w-50"
+              (click)="onDeleteScope()">{{'btns.delete' | translate}}</button>
+      <button class="btn btn-outline-primary btn-inherit w-50"
+              (click)="isVisibleDeletePopup = false;">{{'btns.close' | translate}}</button>
+    </div>
+  </div>
+</dx-popup>

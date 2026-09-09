@@ -1,0 +1,20 @@
+.nsi-btn {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+
+  .active {
+    cursor: pointer;
+    color: #4CAF50;
+  }
+}
+
+.catalog-body-wrapper {
+  ::ng-deep.dx-datagrid-filter-panel {
+    left: 0 !important;
+    position: relative;
+    padding-top: 0px;
+    height: auto;
+  }
+}

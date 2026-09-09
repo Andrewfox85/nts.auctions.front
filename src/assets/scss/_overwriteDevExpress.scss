@@ -1,0 +1,1301 @@
+.dx-freespace-row {
+  height: 0px !important;
+}
+@import "_variables";
+@import "_config";
+
+.dx-popup-bottom .dx-toolbar-items-container .dx-toolbar-button .dx-button {
+  min-width: 100px;
+  padding: 8px;
+  border: 1px solid #4caf50;
+  transition: all 0.3s ease-in-out;
+  border-radius: 2px;
+}
+
+.dx-popup-bottom
+  .dx-toolbar-items-container
+  .dx-toolbar-button:first-child
+  .dx-button {
+  background-color: #4caf50;
+  color: #fff !important;
+  transition: all 0.3s ease-in-out;
+}
+
+.dx-popup-bottom
+  .dx-toolbar-items-container
+  .dx-toolbar-button
+  .dx-button.dx-state-hover {
+  background-color: #3b8d45;
+  border: 1px solid #3b8d45;
+  color: #fff !important;
+}
+
+::ng-deep.dx-popup-bottom.dx-toolbar {
+  padding-top: 0;
+}
+
+.dx-popup-bottom
+  .dx-toolbar-items-container
+  .dx-toolbar-button:first-child
+  .dx-button.dx-state-hover {
+  background-color: #3b8d45;
+  border: 1px solid #3b8d45;
+}
+
+.dx-widget.dx-checkbox.dx-checkbox-checked.dx-state-disabled
+  + .dx-item.dx-treeview-item {
+  color: #dadada !important;
+  opacity: 1 !important;
+}
+
+.dx-datagrid-headers.dx-datagrid-table.dx-row > td {
+  background-color: #f0f8f1 !important;
+}
+
+.dx-datagrid-rowsview .dx-selection.dx-row:not(.dx-row-focused) > td,
+.dx-datagrid-rowsview .dx-selection.dx-row:not(.dx-row-focused) > tr > td,
+.dx-datagrid-rowsview .dx-selection.dx-row:not(.dx-row-focused):hover > td,
+.dx-datagrid-rowsview
+  .dx-selection.dx-row:not(.dx-row-focused):hover
+  > tr
+  > td {
+  background-color: #f0f8f1 !important;
+  //border-color: #f8fcf8 !important;
+  border-right: 0px solid transparent !important;
+  border-left: 1px solid #f0f8f1 !important;
+}
+
+::ng-deep.dx-button .dx-button-content {
+  padding: 0px;
+}
+
+//dx-icons
+.dx-icon-spindown::before {
+  content: "\f016";
+}
+
+.dx-dropdowneditor-icon::before {
+  content: "\f016";
+  position: absolute;
+  display: block;
+  width: 18px;
+  top: 50%;
+  margin-top: -9px;
+  left: 50%;
+  margin-left: -9px;
+}
+
+.dx-datebox-date .dx-dropdowneditor-icon::before {
+  content: "" !important;
+  background-image: url("/auctions/assets/img/icons/calendar-blank-thin 1.svg");
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+}
+
+.dx-icon-filter::before {
+  content: "" !important;
+  //background-image: url('/auctions/assets/img/icons/icon-filter.png');
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+::ng-deep.dx-icon-xlsxfile::before{
+  content: ""!important;
+  background-image: url("/auctions/assets/img/icons/export.svg") !important;
+  background-repeat: no-repeat;
+  background-position: 0px 0px;
+  width: 18px;
+  height: 20px;
+  display: inline-block;
+}
+
+.dx-icon-filter::before {
+  content: ""!important;
+  background-repeat: no-repeat;
+  background-position: 0px 0px;
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.dx-icon-export::before{
+  background-color: transparent;
+}
+
+/* .dx-toolbar .dx-button .dx-icon{
+  background-color: $lightGrayBackgroundColor;
+} */
+.dx-icon-spindown::before {
+  background-color: transparent !important;
+}
+.dx-popup-title .dx-closebutton .dx-icon {
+  background-color: transparent;
+}
+
+::ng-deep.dx-toolbar.dx-toolbar-compact .dx-button {
+  min-width: 100px;
+  border-width: 1px;
+  border-style: solid;
+}
+
+.dx-header-filter-menu .dx-toolbar-button .dx-toolbar-item-content .dx-button {
+  border: 1px solid #4caf50;
+  padding: 8px;
+}
+
+.dx-header-filter-menu
+  .dx-toolbar-button:first-child
+  .dx-toolbar-item-content
+  .dx-button {
+  background-color: #4caf50;
+  color: #fff !important;
+  transition: all 0.3s ease-in-out;
+}
+
+.dx-header-filter-menu
+  .dx-toolbar-button:first-child
+  .dx-toolbar-item-content
+  .dx-button.dx-state-hover {
+  background-color: #3b8d45;
+  border: 1px solid #3b8d45;
+}
+
+.dx-datagrid-header-panel
+  .dx-toolbar-button
+  .dx-toolbar-item-content
+  .dx-button {
+  background-color: #f5f5f5;
+  border: 1px solid #f5f5f5;
+}
+
+::ng-deep.dx-datagrid .dx-sort-icon::before {
+  content: "" !important;
+  background-image: url("/auctions/assets/img/icons/icon-sort-default.png");
+  background-repeat: no-repeat;
+  background-position: 0px 0px;
+  width: 24px;
+  height: 16px;
+  display: inline-block;
+  vertical-align: middle;
+}
+.dx-toolbar-after {
+  height: fit-content !important;
+}
+.dx-datagrid .dx-sort-up::before {
+  content: "" !important;
+  background-image: url("/auctions/assets/img/icons/icon-sort-up.png");
+  background-repeat: no-repeat;
+  background-position: 0px 0px;
+  width: 24px;
+  height: 16px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.dx-datagrid .dx-sort-down::before {
+  content: "" !important;
+  background-image: url("/auctions/assets/img/icons/icon-sort-down.png");
+  background-repeat: no-repeat;
+  background-position: 0px 0px;
+  width: 24px;
+  height: 16px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+// dx-tabpanel
+::ng-deep.dx-tabpanel {
+  .dx-tabpanel-tabs {
+    .dx-tabs {
+      background-color: $white;
+      color: $white;
+      box-shadow: none;
+      //box-shadow: inset 0 -1px $mainActiveColor, inset 0 1px, inset -1px 0, inset 1px 0;;
+
+      .dx-tab {
+        padding: 10px 16px;
+        width: fit-content;
+      }
+    }
+
+    .dx-tab {
+      box-shadow: none;
+
+      &.dx-tab-selected {
+        box-shadow: inset 0 -2px $mainActiveColor;
+        //border-radius: 4px 4px 0 0;
+
+        .dx-tab-content {
+          color: $mainActiveColor;
+        }
+      }
+    }
+
+    .dx-tabs-expanded .dx-tab:not(.dx-tab-selected):first-of-type {
+      box-shadow: none;
+    }
+  }
+
+  .dx-multiview-wrapper {
+    border: none;
+  }
+}
+
+::ng-deep.dx-tabpanel
+  .dx-tabpanel-tabs
+  .dx-tabs-expanded
+  .dx-tab:not(.dx-tab-selected):first-of-type {
+  box-shadow: none;
+
+  :focus,
+  :focus-visible,
+  :focus-within {
+    box-shadow: none;
+  }
+}
+
+::ng-deep.dx-tabpanel .dx-tabpanel-tabs .dx-tab {
+  box-shadow: none;
+
+  :focus,
+  :focus-visible,
+  :focus-within {
+    box-shadow: none;
+  }
+}
+
+::ng-deep.dx-tabpanel-tabs .dx-tabs.dx-tabs-horizontal .dx-tabpanel-tab {
+  max-width: 64px;
+}
+
+::ng-deep.dx-tab {
+  background-color: $white;
+}
+
+::ng-deep.dx-tabpanel.dx-state-focused {
+  .dx-tabpanel-tabs {
+    .dx-tab {
+      //box-shadow: inset 0 1px, inset 0 -1px $mainActiveColor;
+      box-shadow: none;
+
+      &.dx-tab-selected {
+        //box-shadow: inset 0 1px $mainActiveColorHover, inset -1px 0 $mainActiveColorHover, inset 1px 0 $mainActiveColorHover;
+        box-shadow: inset 0 -2px $mainActiveColorHover;
+
+        .dx-tab-content {
+          color: $mainActiveColor;
+        }
+      }
+    }
+
+    .dx-tabs {
+      //box-shadow: inset 0 -1px $mainActiveColorHover, inset 0 1px, inset -1px 0, inset 1px 0;
+      box-shadow: inset 0 -1px $borderColor;
+    }
+
+    .dx-tabs-expanded .dx-tab:not(.dx-tab-selected):first-of-type {
+      //box-shadow: inset 0 -1px $mainActiveColorHover, inset 1px 0, inset 0 1px;
+      box-shadow: none;
+    }
+  }
+}
+
+::ng-deep.dx-tabpanel.dx-state-focused
+  > .dx-tabpanel-tabs
+  .dx-tabs-stretched
+  .dx-tab:not(.dx-tab-selected):last-of-type {
+  box-shadow: none;
+}
+
+// ::ng-deep.dx-tabs-expanded .dx-tab {
+//     flex-basis: 0%;
+//     flex-grow: 0;
+// }
+
+//dx-tabs
+::ng-deep.dx-tab.dx-tab-selected {
+  box-shadow: inset 0 -2px $mainActiveColor;
+  color: $mainActiveColor;
+}
+
+::ng-deep.dx-tabs {
+  width: 100%;
+  border: 0;
+  //border-bottom: 1px solid $borderColor;
+  box-shadow: inset 0 -1px $greyBorder;
+}
+
+::ng-deep.dx-tabs-wrapper {
+  width: auto !important;
+}
+
+::ng-deep.dx-tabs-wrapper {
+  display: flex;
+  flex-direction: row;
+  border-top: none !important;
+  // border: none !important;
+  background: #fff;
+}
+
+::ng-deep.dx-tabs-wrapper::after {
+  display: none;
+}
+
+.dx-item.dx-tab.dx-tabpanel-tab.dx-state-hover::before,
+.dx-item.dx-tab.dx-tabpanel-tab.dx-state-hover::after {
+  content: none !important;
+  background: none !important;
+  height: 0 !important;
+  width: 0 !important;
+}
+
+::ng-deep.dx-tab {
+  //position: initial!important;
+  padding: 10px 16px;
+  color: $mainTextColor;
+  box-shadow: inset 0 -1px $greyBorder;
+}
+::ng-deep.dx-tab-text {
+  line-height: normal;
+}
+::ng-deep.dx-item.dx-tab.dx-tab-selected.dx-state-focused {
+  outline: none;
+}
+
+::ng-deep.dx-tab.dx-state-focused::after,
+::ng-deep.dx-tab-selected::after {
+  border: 0 !important;
+}
+
+//dx-date-box
+.dx-texteditor.dx-state-hover {
+  border-color: $greyBorder;
+}
+
+.dx-texteditor.dx-state-readonly {
+  border: 0;
+}
+
+.dx-texteditor.dx-state-focused.dx-editor-outlined {
+  border-color: $mainActiveColorHover;
+}
+
+::ng-deep.dx-theme-generic-typography a {
+  color: $mainActiveColorHover;
+}
+
+::ng-deep.dx-calendar-navigator-next-view.dx-button .dx-icon,
+::ng-deep.dx-calendar-navigator-previous-view.dx-button .dx-icon {
+  color: $mainActiveColorHover;
+}
+
+::ng-deep.dx-calendar-navigator
+  .dx-calendar-caption-button.dx-button
+  .dx-button-content {
+  color: $mainActiveColorHover;
+}
+
+::ng-deep.dx-calendar-cell.dx-calendar-selected-date.dx-calendar-contoured-date,
+::ng-deep.dx-calendar-cell.dx-calendar-selected-date.dx-calendar-today.dx-calendar-contoured-date {
+  box-shadow: inset 0 0 0 1px #bebebe, inset 0 0 0 1000px $mainActiveColorHover;
+}
+
+::ng-deep.dx-calendar-cell.dx-calendar-selected-date {
+  box-shadow: inset 0 0 0 1000px $mainActiveColorHover;
+}
+
+/*::ng-deep.dx-overlay-content.dx-popup-normal.dx-resizable.dx-popup-inherit-height {
+  transform: scale(0.7) translate(-22%, -10px) !important;
+}*/
+
+//dx-select-box
+::ng-deep.dx-list:not(.dx-list-select-decorator-enabled)
+  .dx-list-item.dx-state-active {
+  background-color: $mainActiveColorHover;
+}
+
+::ng-deep.dx-list.dx-list-select-decorator-enabled
+  .dx-list-select-all.dx-state-focused
+  .dx-checkbox-icon {
+  border-color: $mainActiveColorHover;
+}
+
+::ng-deep.dx-list:not(.dx-list-select-decorator-enabled)
+  .dx-list-item.dx-state-active {
+  background-color: $mainActiveColorHover;
+}
+
+::ng-deep.dx-list:not(.dx-list-select-decorator-enabled)
+  .dx-list-item.dx-list-item-selected.dx-state-focused {
+  background-color: $mainActiveColorHover;
+}
+
+::ng-deep.dx-texteditor.dx-state-active.dx-editor-outlined {
+  border-color: $mainActiveColorHover;
+}
+
+.dx-list:not(.dx-list-select-decorator-enabled) .dx-list-item.dx-state-focused {
+  background-color: $mainActiveColorHover;
+}
+
+::ng-deep.dx-texteditor.dx-editor-outlined {
+  border-radius: 2px;
+  border-color: $borderColor;
+}
+
+::ng-deep.dx-state-disabled .dx-widget,
+::ng-deep.dx-state-disabled.dx-widget {
+  background: $lightGrayBackgroundColor !important;
+  opacity: 0.5 !important;
+}
+
+/*::ng-deep.dx-state-disabled .dx-checkbox, ::ng-deep.dx-state-disabled.dx-checkbox {  todo возможно, что-то сломается
+  background-color: $lightGrayBackgroundColorButton !important;
+}*/
+
+.dx-selectbox-popup-wrapper .dx-list-item-content {
+  word-wrap: break-word;
+  white-space: normal;
+}
+
+//dx-contextmenu
+::ng-deep.dx-menu-base .dx-menu-item .dx-menu-item-content .dx-menu-item-text {
+  white-space: break-spaces;
+  font-size: 14px;
+}
+
+::ng-deep.dx-menu-item .error {
+  color: $colorError;
+  font-size: 14px;
+}
+
+::ng-deep.dx-menu-item.dx-menu-item-has-text .dx-icon {
+  margin-right: 0;
+}
+
+::ng-deep.dx-menu-base .dx-menu-item .dx-menu-item-content {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+}
+
+// ::ng-deep.dx-context-menu .dx-menu-items-container {
+//   width: 320px;
+// }
+
+::ng-deep.dx-menu-base .dx-menu-item-content .dx-menu-item-text {
+  padding: 0;
+}
+
+::ng-deep.dx-menu-base .dx-menu-item-content {
+  padding: 12px 16px;
+}
+
+//dx-tag-box
+::ng-deep.dx-list.dx-list-select-decorator-enabled
+  .dx-list-item.dx-state-focused
+  .dx-checkbox-icon {
+  border: 1px solid $mainActiveColorHover;
+}
+
+::ng-deep.dx-list.dx-list-select-decorator-enabled
+  .dx-list-item.dx-state-hover
+  .dx-checkbox-icon {
+  border-color: $mainActiveColorHover;
+}
+
+::ng-deep.dx-list.dx-list-select-decorator-enabled
+  .dx-list-select-all.dx-state-hover
+  .dx-checkbox-icon {
+  border-color: $mainActiveColorHover;
+}
+
+//dx-treeview-item
+::ng-deep.dx-treeview-item-with-checkbox.dx-state-focused,
+::ng-deep.dx-checkbox.dx-checkbox-icon {
+  border-color: $mainActiveColorHover;
+}
+
+.dx-treeview-item-with-checkbox.dx-state-focused
+  > .dx-checkbox
+  .dx-checkbox-icon {
+  border-color: $mainActiveColorHover;
+}
+
+//dx-tooltip
+::ng-deep.dx-tooltip-wrapper .dx-overlay-content .dx-popup-content {
+  background: $mainTextColor;
+  border-radius: 2px;
+  color: $white;
+  border: none;
+  max-width: 500px;
+  white-space: pre-wrap;
+}
+
+::ng-deep.dx-tooltip-wrapper.dx-popover-wrapper .dx-popover-arrow:after {
+  background: $mainTextColor;
+  border: none;
+  z-index: 2000 !important;
+}
+
+::ng-deep.dx-tooltip-wrapper .dx-overlay-content {
+  border: none;
+}
+
+//context-menu
+::ng-deep.dx-menu-base .dx-icon {
+  width: max-content;
+  height: max-content;
+}
+
+/*::ng-deep.dx-menu-base .dx-menu-item .dx-menu-item-content .dx-menu-item-text{
+  white-space: break-spaces;
+}
+::ng-deep.dx-context-menu.dx-overlay-content{
+  max-width: 250px;
+}*/
+
+//dx-button-mode
+::ng-deep.dx-button-mode-contained.dx-button-default,
+::ng-deep.dx-button-mode-contained.dx-button-default.dx-state-hover,
+::ng-deep.dx-button-mode-contained.dx-button-default.dx-state-focused,
+::ng-deep.dx-button-mode-contained.dx-button-default.dx-state-active {
+  background-color: transparent;
+}
+
+.dx-button-mode-text.dx-state-focused,
+.dx-button-mode-text.dx-state-hover {
+  background-color: transparent;
+}
+
+::ng-deep.dx-texteditor-buttons-container
+  > .dx-button.dx-button-has-icon:not(.dx-button-has-text)
+  > .dx-button-content {
+  padding: 6px !important;
+}
+
+//dx-file-uploader
+::ng-deep.dx-button-mode-contained {
+  border: none;
+  color: $mainActiveColor !important;
+  background-color: #f5f5f5;
+}
+::ng-deep.dx-button-mode-contained.dx-state-hover,
+::ng-deep.dx-button-mode-contained.dx-state-focused,
+::ng-deep.dx-button-mode-contained.dx-state-active {
+  background-color: transparent;
+  background-color: #f5f5f5;
+}
+::ng-deep.dx-fileuploader-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  padding: 12px 50px;
+  width: 100%;
+  border: none;
+}
+::ng-deep.dx-fileuploader-input-label {
+  padding: 0;
+  font-size: 12px;
+  color: $text-light-grey !important;
+  text-align: center;
+}
+::ng-deep.dx-fileuploader-input {
+  padding: 0;
+}
+
+::ng-deep.dx-fileuploader-wrapper {
+  padding: 0;
+  border-radius: 4px;
+  border: 1px solid $borderColor;
+}
+::ng-deep.dx-fileuploader-dragover
+  .dx-fileuploader-input-wrapper
+  .dx-fileuploader-button {
+  display: block;
+}
+::ng-deep.dx-fileuploader-dragover .dx-fileuploader-input-label {
+  padding: 0;
+  border: none;
+}
+::ng-deep.dx-fileuploader-dragover .dx-fileuploader-input {
+  padding: 0;
+}
+::ng-deep.dx-fileuploader-dragover .dx-fileuploader-input-wrapper {
+  padding: 12px 50px;
+}
+::ng-deep.dx-fileuploader-dragover.dx-fileuploader-wrapper {
+  border: 1px dashed blue;
+}
+::ng-deep.dx-fileuploader-file {
+  background-color: $colorGray;
+}
+
+/*::ng-deep.dx-fileuploader-input-wrapper::before, ::ng-deep.dx-fileuploader-input-wrapper::after{
+  content: none;
+}*/
+
+//font-family
+::ng-deep.dx-widget {
+  font-family: $font-family;
+  color: $mainTextColor;
+}
+
+::ng-deep.dx-theme-generic-typography {
+  font-family: $font-family;
+}
+
+::ng-deep.dx-overlay-wrapper {
+  color: $mainTextColor;
+  font-family: $font-family;
+}
+
+::ng-deep.dx-overlay-shader {
+  background-color: rgb(0 0 0 / 50%);
+}
+
+::ng-deep.dx-popup-title.dx-toolbar {
+  padding: 10px 16px;
+  color: $mainTextColor;
+}
+::ng-deep.dx-toolbar-menu-container {
+  display: none; //todo может повлиять на что-то
+}
+
+::ng-deep.dx-popup-title.dx-toolbar .dx-toolbar-label {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+}
+.dx-popup-title.dx-toolbar .dx-toolbar-item {
+  background-color: transparent !important;
+}
+::ng-deep.dx-popup-wrapper > .dx-overlay-content {
+  border-radius: 2px;
+}
+
+::ng-deep.dx-popup-content {
+  padding: 16px;
+}
+
+//dx-switch
+::ng-deep.dx-switch-container {
+  width: 42px;
+  border-radius: 12px;
+  border: none;
+  height: 20px;
+  padding: 0;
+  margin: 0;
+}
+
+::ng-deep.dx-switch-off {
+  background-color: $toggle-off;
+  border-radius: 12px;
+  margin-left: -15px;
+  padding: 0;
+}
+
+::ng-deep.dx-switch-on {
+  background-color: $mainActiveColor;
+  border-radius: 12px;
+}
+
+::ng-deep.dx-switch-handle::before {
+  width: 14px;
+  height: 14px;
+  border-radius: 100px;
+  margin-left: 3px;
+  background-color: $white;
+}
+
+::ng-deep.dx-switch-handle {
+  margin: 3px 0;
+}
+
+::ng-deep.dx-switch-on-value .dx-switch-handle::before {
+  margin-left: -3px;
+  background-color: $white;
+}
+
+::ng-deep.dx-switch.dx-state-hover .dx-switch-container {
+  border-color: transparent;
+}
+
+::ng-deep.dx-switch.dx-state-focused .dx-switch-handle::before,
+::ng-deep.dx-switch.dx-state-hover .dx-switch-handle::before {
+  background-color: $white !important;
+}
+
+::ng-deep td .dx-focused {
+  border-color: red;
+}
+
+//dx-tree-list
+::ng-deep.dx-treelist .dx-row > td {
+  padding: 12px 8px;
+}
+
+::ng-deep.dx-treelist {
+  font-size: 12px;
+}
+
+::ng-deep.dx-treelist-headers .dx-treelist-table .dx-row > td {
+  color: $mainTextColor;
+  line-height: 16px;
+  letter-spacing: 0.48px;
+  font-weight: 500;
+}
+
+::ng-deep.dx-treelist-nowrap .dx-header-row > td > .dx-treelist-text-content {
+  white-space: break-spaces;
+}
+
+::ng-deep.dx-treelist-focus-overlay {
+  border: 0px;
+}
+
+.myCellFixShadowLeft {
+  box-shadow: 3px 0 8px rgba(0, 0, 0, 0.1);
+  clip-path: inset(0px -8px0 0);
+}
+
+.myCellFixShadowRight {
+  box-shadow: -3px 0 8px rgba(0, 0, 0, 0.1);
+  clip-path: inset(0px -8px 0px -8px);
+}
+
+// TReeList pattern
+.dx-treelist-content .dx-treelist-table .dx-row > td,
+.dx-treelist-content .dx-treelist-table .dx-row > tr > td {
+  vertical-align: middle;
+}
+
+.dx-treelist-rowsview .dx-treelist-expanded span::before {
+  content: "\f014";
+  position: absolute;
+  display: block;
+  width: 18px;
+  height: 18px;
+  top: 0%;
+  left: 0;
+  margin-left: 0px;
+  margin-top: 0px;
+  color: #000;
+}
+
+.dx-treelist-rowsview .dx-treelist-collapsed span::before {
+  content: "\f016";
+  position: absolute;
+  display: block;
+  width: 18px;
+  height: 18px;
+  top: 0;
+  left: 0;
+  margin-left: 0;
+  margin-top: 0;
+  color: #000;
+}
+
+.dx-treelist-rowsview.dx-treelist-nowrap
+  .dx-treelist-table
+  .dx-treelist-cell-expandable
+  .dx-treelist-text-content {
+  white-space: nowrap;
+  margin-left: 30px;
+}
+
+.dx-treelist-rowsview tr:not(.dx-row-focused) .dx-treelist-empty-space {
+  color: #959595;
+  margin-right: 8px;
+}
+
+//dx-tag-box
+.dx-tag-content {
+  position: relative;
+  display: inline-block;
+  text-align: center;
+  cursor: pointer;
+  margin: 4px 0 4px 4px !important;
+  padding: 6px 25px 5px 6px !important;
+  min-width: 40px;
+  background-color: $lightGrayBackgroundColor;
+  border-radius: 3px;
+  color: #333;
+}
+
+// dx-checkbox
+.dx-checkbox-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 2px;
+  border: 1px solid $greyBorder;
+  background-color: $white;
+}
+
+.dx-datagrid-checkbox-size .dx-checkbox-icon {
+  height: 18px;
+  width: 18px;
+}
+
+.dx-datagrid-search-text {
+  background-color: $mainActiveColorHover;
+}
+
+::ng-deep.dx-checkbox-checked .dx-checkbox-icon {
+  color: $mainActiveColorHover;
+  border-color: $mainActiveColorHover !important;
+  height: 18px;
+  width: 18px;
+}
+
+::ng-deep.dx-checkbox:hover .dx-checkbox-icon {
+  border-color: $mainActiveColorHover !important;
+}
+
+::ng-deep.dx-checkbox:focus .dx-checkbox-icon {
+  border-color: $mainActiveColorHover;
+}
+
+::ng-deep.dx-checkbox-indeterminate .dx-checkbox-icon::before {
+  background-color: $mainActiveColorHover;
+}
+
+::ng-deep.dx-checkbox-icon {
+  border-color: $toggle-off !important;
+}
+
+::ng-deep.dx-checkbox-text {
+  white-space: nowrap !important;
+}
+
+::ng-deep.dx-datagrid-checkbox-size {
+  padding: 0;
+}
+
+::ng-deep.dx-state-disabled .dx-checkbox,
+::ng-deep.dx-state-disabled.dx-checkbox {
+  background-color: transparent !important;
+}
+
+::ng-deep.dx-datagrid-summary-item {
+  font-weight: 400;
+}
+
+::ng-deep.dx-button .dx-button-content {
+  padding: 0px;
+}
+/*::ng-deep.dx-accordion-item-opened{
+  margin: 12px 0;
+}*/
+
+/*::ng-deep.dx-accordion-item-opened>.dx-accordion-item-title, ::ng-deep.dx-accordion-item-opened.dx-state-hover>.dx-accordion-item-title{
+  background-color: ;
+}*/
+::ng-deep.dx-accordion-item-title::after {
+  float: left;
+  margin-left: 0;
+  margin-right: 9px;
+}
+::ng-deep.dx-state-focused.dx-accordion-item,
+::ng-deep.dx-accordion-item {
+  border-color: $borderTable;
+  border-radius: 4px;
+}
+::ng-deep.dx-accordion-item-opened + .dx-accordion-item,
+::ng-deep.dx-accordion-item-opened
+  + .dx-accordion-item.dx-state-hover:not(.dx-state-focused) {
+  border-top-color: $borderTable;
+}
+::ng-deep.dx-accordion-item-body {
+  padding: 0;
+}
+.dx-accordion-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+::ng-deep.dx-slider-range.dx-slider-range-visible {
+  border: 1px solid $mainActiveColor;
+  background: $mainActiveColor;
+  border-radius: 2px;
+}
+
+::ng-deep.dx-slider-handle {
+  margin-top: -7px;
+  width: 7px;
+  height: 14px;
+  border: 1px solid $mainActiveColor;
+  background: $mainActiveColor;
+  border-radius: 1px;
+}
+
+::ng-deep.dx-slider .dx-state-focused.dx-slider-handle:not(.dx-state-active) {
+  border: 1px solid $mainActiveColor;
+  background: $mainActiveColor;
+}
+
+::ng-deep.dx-slider .dx-state-hover.dx-slider-handle:not(.dx-state-active) {
+  border: 1px solid $mainActiveColor;
+  background: $mainActiveColor;
+}
+
+::ng-deep.dx-slider .dx-state-active.dx-slider-handle {
+  border: 1px solid $mainActiveColor;
+  background: $mainActiveColor;
+}
+
+::ng-deep.dx-datagrid {
+  font-size: 12px;
+  color: $mainTextColor;
+}
+
+::ng-deep.dx-datagrid-content .dx-datagrid-table .dx-row .dx-command-select {
+  min-width: 35px !important;
+  width: 35px !important;
+}
+
+::ng-deep.dx-datagrid-headers .dx-datagrid-table .dx-row > td {
+  //column's name is uppercase
+  color: $mainTextColor !important;
+  font-weight: 500;
+  line-height: 16px;
+  letter-spacing: 0.48px;
+}
+
+.dx-datagrid-header-panel .dx-toolbar {
+  margin-bottom: 4px;
+}
+
+::ng-deep.dx-row.dx-column-lines.dx-header-row {
+  background-color: $lightGrayBackgroundColor;
+}
+
+::ng-deep.dx-datagrid-nowrap,
+::ng-deep.dx-datagrid-nowrap .dx-header-row > td > .dx-datagrid-text-content {
+  white-space: normal !important;
+  text-align: left;
+  font-family: $default-font-family;
+}
+
+::ng-deep.dx-header-row
+  .dx-header-filter-indicator.dx-text-content-alignment-left {
+  max-width: 80%;
+}
+
+::ng-deep.dx-header-row
+  > td
+  > .dx-datagrid-text-content:not(.dx-sort-indicator):not(
+    .dx-header-filter-indicator
+  ) {
+  max-width: 85%;
+}
+
+::ng-deep.dx-datagrid-rowsview .dx-selection.dx-row:not(.dx-row-focused) > td,
+::ng-deep.dx-datagrid-rowsview
+  .dx-selection.dx-row:not(.dx-row-focused)
+  > tr
+  > td,
+::ng-deep.dx-datagrid-rowsview
+  .dx-selection.dx-row:not(.dx-row-focused):hover
+  > td,
+::ng-deep.dx-datagrid-rowsview
+  .dx-selection.dx-row:not(.dx-row-focused):hover
+  > tr
+  > td {
+  background-color: $backSelectedRowGrid;
+  border-color: $mainActiveColor;
+}
+
+::ng-deep.dx-row
+  .dx-data-row
+  .dx-row-lines
+  .dx-column-lines
+  .dx-selection
+  > tr {
+  border: 1px solid $mainActiveColor;
+}
+
+::ng-deep.dx-datagrid-rowsview .dx-row.dx-group-row {
+  font-weight: 400;
+}
+
+.dx-datagrid-rowsview .dx-row:hover {
+  background-color: $layerHoverTable;
+  cursor: grab;
+}
+
+.dx-toolbar-after .dx-toolbar-item:first-child {
+  //иконка выбора столбцов + поиск по гриду поменялись местами (поиск / выбор столбцов)
+  order: 1;
+}
+
+::ng-deep.dx-datagrid-headers .dx-texteditor-input,
+.dx-datagrid-rowsview .dx-texteditor-input {
+  padding: 0px;
+  min-height: 30px;
+}
+::ng-deep.dx-header-row .dx-sort-indicator {
+  max-width: calc(100% - 22px);
+}
+
+::ng-deep.dx-row.dx-datagrid-group-footer > td {
+  border-left-width: 0;
+  border-right-width: 0;
+  border-top-width: 0;
+}
+
+.dx-datagrid-nodata {
+  font-size: 14px;
+}
+
+.dx-datagrid-rowsview.dx-empty {
+  height: 60px;
+  background-color: #f5f5f5;
+  border: 1px solid #dadada;
+}
+
+.dx-datagrid-headers .dx-datagrid-table .dx-row > td {
+  vertical-align: baseline !important;
+}
+
+::ng-deep.dx-datagrid-header-panel {
+  order: 0;
+}
+
+.dx-datagrid-filter-panel .dx-icon-filter {
+  content: "" !important;
+  background-image: url("/auctions/assets/img/icons/icon-panel-filter.png");
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.dx-datagrid-header-panel {
+  order: 0;
+  border-bottom: 0;
+  padding-bottom: 8px;
+}
+
+::ng-deep.dx-datagrid-filter-panel {
+  order: 1;
+  border-bottom: 0;
+  border-top: 0;
+  padding: 10px 0;
+  height: 39px;
+  width: 330px;
+  position: fixed;
+  left: 302px;
+  z-index: 500;
+}
+
+::ng-deep.dx-datagrid-borders > .dx-datagrid-filter-panel {
+  border-left: 0;
+  border-right: 0;
+}
+
+::ng-deep.dx-datagrid-headers {
+  order: 2;
+}
+
+::ng-deep.dx-datagrid-rowsview {
+  order: 3;
+}
+
+::ng-deep.dx-datagrid-total-footer {
+  order: 4;
+  border-top: none;
+}
+::ng-deep.dx-datagrid-pager {
+  order: 5;
+}
+
+::ng-deep.dx-datagrid-filter-panel .dx-datagrid-filter-panel-clear-filter,
+::ng-deep.dx-datagrid-filter-panel .dx-datagrid-filter-panel-text,
+::ng-deep.dx-datagrid-filter-panel .dx-icon-filter {
+  color: $mainActiveColorHover;
+}
+
+::ng-deep.dx-datagrid-filter-panel .dx-datagrid-filter-panel-text {
+  font-size: 0;
+}
+
+.dx-datagrid-pager {
+  border-top: 0;
+}
+.dx-pager {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+::ng-deep.dx-pager .dx-pages {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+}
+
+::ng-deep.dx-pager .dx-pages .dx-info {
+  opacity: 1;
+}
+
+::ng-deep.dx-datagrid-filter-panel .dx-datagrid-filter-panel-text::before {
+  content: var(--grid-filter-text, "");
+  font-size: 12px;
+}
+
+::ng-deep.dx-datagrid-headers + .dx-datagrid-rowsview,
+.dx-datagrid-rowsview.dx-datagrid-after-headers {
+  border-top: none !important;
+}
+
+.dx-header-filter::before {
+  content: "" !important;
+  background-image: url("/auctions/assets/img/icons/icon-filter.png");
+  background-repeat: no-repeat;
+  background-position: 0px 0px;
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.dx-header-filter.dx-header-filter-empty::before {
+  content: "" !important;
+  background-image: url("/auctions/assets/img/icons/icon-filter-empty.png");
+  background-repeat: no-repeat;
+  background-position: 0px 0px;
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.dx-icon-column-chooser::before {
+  content: url("/auctions/assets/img/icons/settings.svg");
+  width: 16px;
+  height: 16px;
+  display: block;
+  vertical-align: middle;
+  background-color: $lightGrayBackgroundColor;
+}
+
+// сокрытие двойного скролла который возникает при открытии column chooser
+.dx-overlay-wrapper.dx-datagrid-column-chooser,
+.dx-overlay-wrapper.dx-treelist-column-chooser {
+  position: fixed !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+}
+
+// высота попапа по контенту до 85% от размера экрана;
+.dx-overlay-wrapper.dx-datagrid-column-chooser .dx-overlay-content,
+.dx-overlay-wrapper.dx-treelist-column-chooser .dx-overlay-content {
+  height: fit-content !important;
+  max-height: min(85vh, 1720px);
+}
+
+::ng-deep.dx-toolbar-after {
+  display: flex;
+  // flex-direction: row-reverse;
+  gap: 16px;
+}
+
+::ng-deep.dx-datagrid-search-panel {
+  margin: 0;
+}
+
+::ng-deep.dx-radiobutton-icon-checked .dx-radiobutton-icon-dot {
+  background-color: $mainActiveColor;
+}
+
+::ng-deep.dx-radiobutton.dx-state-focused .dx-radiobutton-icon {
+  border-color: $mainActiveColor;
+}
+
+::ng-deep.dx-state-disabled.dx-switch,
+.dx-state-disabled.dx-switch.dx-switch-on {
+  opacity: 0.5 !important;
+}
+
+::ng-deep.dx-toast-info {
+  background-color: $backSelectedRowGrid;
+  color: $mainTextColor;
+  font-weight: 400;
+  border-radius: 2px;
+  border-left: 3px solid $mainActiveColorHover;
+  padding: 15px;
+  display: flex;
+}
+
+::ng-deep.dx-toast-success {
+  background-color: $sectionForestBackground;
+  color: $mainTextColor;
+  font-weight: 400;
+  border-radius: 2px;
+  border-left: 3px solid $mainActiveColorHover;
+  padding: 15px;
+  display: flex;
+}
+
+::ng-deep.dx-toast-error {
+  background-color: $backgroundColorError;
+  color: $mainTextColor;
+  font-weight: 400;
+  border-radius: 2px;
+  border-left: 3px solid $colorError;
+  padding: 15px;
+  display: flex;
+}
+
+::ng-deep.dx-toast-icon {
+  display: none;
+}
+
+::ng-deep.dx-list .dx-empty-message,
+::ng-deep.dx-list-item {
+  border-top: none;
+}
+
+::ng-deep.dx-popup-bottom.dx-toolbar .dx-toolbar-item,
+.dx-rtl.dx-popup-bottom.dx-toolbar.dx-toolbar-menu-container {
+  padding: 0 !important;
+}
+
+::ng-deep {
+  .dx-datagrid .dx-datagrid-rowsview {
+    // Стандартный фокус
+    .dx-row-focused.dx-data-row:not(.dx-edit-row) > td:not(.dx-focused) {
+      background-color: $sectionForestBackground !important;
+      color: $mainTextColor;
+    }
+
+    // isMine строки - переопределяем только цвет текста
+    .mine-row {
+      color: green !important;
+
+      &.dx-row-focused.dx-data-row:not(.dx-edit-row) > td:not(.dx-focused) {
+        background-color: $sectionForestBackground !important;
+        color: green !important; // Сохраняем зеленый даже при фокусе
+      }
+    }
+  }
+}
+
+::ng-deep.dx-datagrid-rowsview .dx-row-focused.dx-data-row > td,
+.dx-datagrid-rowsview .dx-row-focused.dx-data-row > tr:last-child > td {
+  border-left: none;
+  border-bottom: none !important;
+}

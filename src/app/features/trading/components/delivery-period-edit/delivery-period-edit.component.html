@@ -1,0 +1,223 @@
+<div>
+    <div class="border flexContentColumn8 w-100 p-2">
+      <div class="flexContent4 jc-sb">
+        <div class="d-flex">
+          <span class="font-w500 font-s16">{{
+            "trading.offersTable.deliveryTime" | translate
+          }}</span>
+        </div>
+        <div class="flexContent8">
+          <a class="underline" (click)="saveDeliveryPeriodForm()">{{
+            "btns.save" | translate
+          }}</a>
+          <div
+            class="close"
+            (click)="closeDeliveryPeriodForm()"
+          ></div>
+        </div>
+      </div>
+
+      <div class="flexContentColumn8">
+        <dx-validation-group
+          class="form flexContentColumn8"
+          #deliveryTerm
+        >
+         <form
+            [formGroup]="deliveryTermForm"
+            class="flexContent16 fl-wrap wrap"
+          >
+            <div class="form-group">
+              <label>{{
+                "editOffer.startDelivery" | translate
+              }}</label>
+              <div>
+                <dx-select-box
+                  [dataSource]="uniqueDeliveryTerm"
+                  valueExpr="deliveryStartId"
+                  displayExpr="deliveryStartName"
+                  height="40px"
+                  placeholder="{{ 'filters.selection' | translate }}"
+                  formControlName="startDelivery"
+                  [showClearButton]="false"
+                  (onOpened)="this.isEditedDeliveryTerm = true"
+                  (onValueChanged)="
+                    deliveryTermStartChange(DELIVERY_TERMS.DELIVERY_START)
+                  "
+                >
+                  <dx-validator>
+                    <dxi-validation-rule
+                      type="required"
+                    ></dxi-validation-rule>
+                  </dx-validator>
+                </dx-select-box>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>{{
+                "editOffer.deliveryType" | translate
+              }}</label>
+              <div>
+                <dx-select-box
+                  [dataSource]="deliveryTermType"
+                  valueExpr="deliveryTermId"
+                  displayExpr="deliveryTermName"
+                  [class.disabled]="!deliveryTermForm.controls.startDelivery.value"
+                  height="40px"
+                  placeholder="{{ 'filters.selection' | translate }}"
+                  formControlName="deliveryType"
+                  [showClearButton]="false"
+                  (onOpened)="isEditedDeliveryTerm = true"
+                  (onValueChanged)="
+                    deliveryTermStartChange(DELIVERY_TERMS.DELIVERY_TYPE)
+                  "
+                >
+                  <dx-validator>
+                    <dxi-validation-rule
+                      type="required"
+                    ></dxi-validation-rule>
+                  </dx-validator>
+                </dx-select-box>
+              </div>
+            </div>
+
+            @if (deliveryTermType?.length > 0 && isDate()?.startDeliveryDateValue &&
+             deliveryTermForm.controls.deliveryType.value) {
+              <div
+                class="form-group"
+              >
+                <label>{{
+                  "editOffer.deliveryStartDate" | translate
+                }}</label>
+                <div>
+                  <dx-date-box
+                    type="date"
+                    height="40px"
+                    [useMaskBehavior]="true"
+                    displayFormat="dd.MM.yyyy"
+                    formControlName="startDate"
+                    [min]="dateSessionPlusDay"
+                    [max]="
+                      deliveryTermForm.controls.endDate.value
+                        ? deliveryTermForm.controls.endDate.value
+                        : null
+                    "
+                    placeholder="{{
+                      'general.placeholderDateBox' | translate
+                    }}"
+                    (onValueChanged)="
+                      onCreateString();
+                      isDateType
+                        ? endValidator?.instance.validate()
+                        : null
+                    "
+                  >
+
+                  @if (deliveryTermType?.length > 0 && isDate()?.startDeliveryDateValue &&
+                  deliveryTermForm.controls.deliveryType.value) {
+                      <dx-validator>
+                        <dxi-validation-rule
+                          type="required"
+                        ></dxi-validation-rule>
+                      </dx-validator>
+                  }
+
+                  </dx-date-box>
+                </div>
+              </div>
+            }
+
+
+            @if (deliveryTermType?.length > 0 && isDate()?.endDeliveryDateValue &&
+               deliveryTermForm.controls.deliveryType?.value) {
+              <div
+                class="form-group"
+              >
+                <label>{{
+                  "editOffer.deliveryEndDate" | translate
+                }}</label>
+                <div>
+                  <dx-date-box
+                    type="date"
+                    height="40px"
+                    [useMaskBehavior]="true"
+                    displayFormat="dd.MM.yyyy"
+                    formControlName="endDate"
+                    [min]="
+                      this.deliveryTermForm.controls.startDate.value
+                        ? this.deliveryTermForm.controls.startDate.value
+                        : dateSessionPlusDay
+                    "
+                    placeholder="{{
+                      'general.placeholderDateBox' | translate
+                    }}"
+                    (onValueChanged)="onCreateString()"
+                  >
+                  @if (deliveryTermType?.length > 0 && isDate()?.endDeliveryDateValue && deliveryTermForm.controls.deliveryType?.value) {
+                      <dx-validator>
+                          <dxi-validation-rule
+                            type="required"
+                          ></dxi-validation-rule>
+                          <dxi-validation-rule
+                            #endValidator
+                            type="compare"
+                            comparisonType=">="
+                            [ignoreEmptyValue]="true"
+                            [reevaluate]="true"
+                            [comparisonTarget]="validateEndDate"
+                            message="{{
+                              'errors.errorMessageDate' | translate
+                            }}"
+                          >
+                          </dxi-validation-rule>
+                      </dx-validator>
+                  }
+                  </dx-date-box>
+                </div>
+              </div>
+            }
+
+
+            @if (isDeliveryTime) {
+                <div
+                  class="form-group"
+                >
+                  <label>{{
+                    "editOffer.deliveryTime" | translate
+                  }}</label>
+                  <div>
+                    <dx-select-box
+                      [dataSource]="deliveryTermValue"
+                      valueExpr="id"
+                      displayExpr="value"
+                      height="40px"
+                      placeholder="{{ 'filters.selection' | translate }}"
+                      formControlName="deliveryTerm"
+                      [showClearButton]="false"
+                      (onOpened)="isEditedDeliveryTerm = true"
+                      (onValueChanged)="onCreateString()"
+                    >
+                    @if (isDeliveryTime) {
+                      <dx-validator>
+                        <dxi-validation-rule
+                          type="required"
+                        ></dxi-validation-rule>
+                      </dx-validator>
+                    }
+                    </dx-select-box>
+                  </div>
+                </div>
+            }
+          </form>
+
+          <div class="stringConcated">
+            {{
+              deliveryTermConcated
+                ? deliveryTermConcated
+                : ("general.automaticallyText" | translate)
+            }}
+          </div>
+        </dx-validation-group>
+      </div>
+    </div>
+  </div>

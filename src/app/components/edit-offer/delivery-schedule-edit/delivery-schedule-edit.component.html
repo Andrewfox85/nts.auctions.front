@@ -1,0 +1,318 @@
+<dx-scroll-view [useNative]="true" height="calc(100vh - 125px)">
+  <div class="flexContentColumn16" *ngIf="isScheduleView; else noViewSchedule">
+    <div class="flexContentColumn8" id="head">
+      <form [formGroup]="typePeriod" class="flexContent20 w-fit-cnt flex-end">
+        <div class="form-group">
+          <label>{{ 'editOffer.deliverySchedule.deliveryPeriodType' | translate }}</label>
+          <div>
+            <dx-select-box
+              [dataSource]="deliveryScheduleList"
+              displayExpr="name"
+              valueExpr="id"
+              height="40px"
+              width="294px"
+              placeholder="{{'filters.selection' | translate}}"
+              formControlName="term"
+              [disabled]="editRuleInIntersections() == editingRules.editingIsNotAvailable"
+            >
+              <dx-validator>
+                <dxi-validation-rule
+                  type="required"
+                ></dxi-validation-rule>
+              </dx-validator>
+            </dx-select-box>
+          </div>
+        </div>
+
+        <div class="h-100 d-flex flex-end">
+          <button class="btn btn-primary submit w-155px"
+                  [disabled]="editRuleInIntersections() == editingRules.editingIsNotAvailable || !this.typePeriod.controls.term?.value || (this.typePeriod.controls.term?.value && this.typePeriod.controls.term?.value == '0')"
+                  (click)="onEditSchedule(); onCreateSchedule()">{{ 'btns.form' | translate }}
+          </button>
+        </div>
+      </form>
+      <div class="font-s12 text-gray_1">{{ 'editOffer.deliverySchedule.userMessageSchedule' | translate }}</div>
+    </div>
+
+    <div class="flexContentColumn8">
+      <div class="flexContent20">
+        <div class="label w-100">{{ 'editOffer.deliverySchedule.deliverySchedule' | translate }}
+          - {{ concatedStringDeliveryTerm }}
+        </div>
+      </div>
+      <!--   (onShown)="onContentReady()" *ngIf="typePeriod.controls.term.value"   (onHidden)="onRemovetableTerm()"-->
+      <!--          <form [formGroup] ="tableForm">-->
+      <!--    <div #scheuleTable>-->
+      <dx-scroll-view [useNative]="true" height="{{tableTerm.offsetHeight > 500 ? 500 : 'auto'}}">
+        <table #tableTerm>
+          <thead>
+          <tr>
+            <th id="number">№
+              <dx-tooltip target="#number"
+                          showEvent="mouseenter"
+                          hideEvent="mouseleave"
+              >
+                <div *dxTemplate="let data = data; of: 'content'">
+                  {{ 'editOffer.deliverySchedule.serialNumberPeriod' | translate }}
+                </div>
+              </dx-tooltip>
+            </th>
+            <th class="w-112px">{{ 'general.beginningPeriod' | translate }}</th>
+            <th class="w-112px">{{ 'general.endPeriod' | translate }}</th>
+            <th class="text-align-left">{{ 'trading.offersTable.nameProduct' | translate }}</th>
+            <th class="text-align-right w-194px">{{ 'general.quantity' | translate }}</th>
+          </tr>
+          </thead>
+
+          <tbody>
+          <ng-container *ngFor="let term of this.scheduleData; let i=index" style=" overflow-y: auto">
+            <tr>
+              <td [attr.rowspan]="goods.length">{{ i + 1 }}</td>
+              <td [attr.rowspan]="goods.length" class="date-roboto-mono">{{ term.startDate }}</td>
+              <td [attr.rowspan]="goods.length" class="date-roboto-mono">{{ term.endDate }}</td>
+              <td class="text-align-left">
+                <span id="name{{i+1}}{{term.goods[0].idGood}}">{{ term.goods[0].name }}</span>
+                <dx-tooltip target="#name{{i+1}}{{term.goods[0].idGood}}"
+                            [showEvent]="{name: 'mouseenter', delay: 500}"
+                            hideEvent="mouseleave">
+                  <div *dxTemplate="let data = data; of: 'content'">
+                    <div class="properties">
+                  <span *ngFor="let prop of term.goods[0].properties">
+                    {{ prop.propertyName }} {{ prop.propertyValue }}.
+                  </span>
+                    </div>
+                  </div>
+                </dx-tooltip>
+              </td>
+
+              @if (!isSameGradedSaleOffer) {
+                <td class="text-align-right">
+                  <div class="flexContent8 center jc-end">
+                    <dx-number-box
+                      id="{{i+1}}_{{term.goods[0].idGood}}"
+                      dxNumberBoxClear
+                      placeholder="0.0000" [min]="0"
+                      [value]="term.goods[0].volume"
+                      [width]="115"
+                      (onValueChanged)="onChangeVolume($event, i, term.goods[0].idGood)"
+                      valueChangeEvent="input"
+                      [disabled]="editRuleInIntersections() == editingRules.editingIsNotAvailable"
+                      class="date-roboto-mono"
+                    >
+                      <dxo-format
+                        type="fixedPoint"
+                        [precision]="4">
+                      </dxo-format>
+                    </dx-number-box>
+                    <span class="h-36px d-flex ai-c w-55px text-align-left">{{ term.goods[0].units }}</span>
+                  </div>
+                </td>
+              }
+
+              @if (isSameGradedSaleOffer) {
+                <td
+                  [attr.rowspan]="goods.length"
+                  class="text-align-right"
+                >
+                  <div class="flexContent8 number-style">
+                    <dx-number-box
+                      dxNumberBoxClear
+                      placeholder="0.0000"
+                      [min]="0"
+                      [value]="term.periodVolume"
+                      [width]="115"
+                      (onValueChanged)="onTotalVolumeChanged($event, i)"
+                      valueChangeEvent="input"
+                      class="date-roboto-mono">
+                      <dxo-format
+                        type="fixedPoint"
+                        [precision]="4">
+                      </dxo-format>
+                    </dx-number-box>
+                    <span class="h-36px d-flex ai-c w-55px text-align-left">{{ term.goods[0].units }}</span>
+                  </div>
+                </td>
+              }
+            </tr>
+
+            <tr *ngFor="let g of term.goods.slice(1)  ">
+              <td class="text-align-left">
+
+                <span id="name{{i+1}}{{g.idGood}}">{{ g?.name }}</span>
+
+                <dx-tooltip target="#name{{i+1}}{{g.idGood}}"
+                            [showEvent]="{name: 'mouseenter', delay: 500}"
+                            hideEvent="mouseleave"
+                >
+                  <div *dxTemplate="let data = data; of: 'content'" class="w-500px text-align-left">
+                    <div class="properties">
+      <span *ngFor="let prop of g.properties">
+        {{ prop.propertyName }} {{ prop.propertyValue }}.
+      </span>
+                    </div>
+                  </div>
+                </dx-tooltip>
+              </td>
+
+              @if (!isSameGradedSaleOffer) {
+                <td class="text-align-right">
+                  <div class="flexContent8 center jc-end">
+                    <dx-number-box
+                      id="{{i+1}}_{{g.idGood}}" placeholder="0.0000" [min]="0"
+                      dxNumberBoxClear
+                      [value]="g.volume"
+                      [width]="115"
+                      (onValueChanged)="onChangeVolume($event, i, g.idGood)"
+                      valueChangeEvent="input"
+                      [disabled]="editRuleInIntersections() == editingRules.editingIsNotAvailable"
+                      class="date-roboto-mono"
+                    >
+                      <dxo-format
+                        type="fixedPoint"
+                        [precision]="4">
+                      </dxo-format>
+                    </dx-number-box>
+                    <span class="h-36px d-flex ai-c w-55px text-align-left">{{ g.units }}</span>
+                  </div>
+                </td>
+              }
+            </tr>
+
+          </ng-container>
+          </tbody>
+
+        </table>
+      </dx-scroll-view>
+    </div>
+    <!--      </div>-->
+
+    <div class="flexContentColumn8">
+      <div class="label">{{ 'editOffer.deliverySchedule.totalDeliverySchedule' | translate }}</div>
+
+      <dx-scroll-view height="{{totalTable.offsetHeight > 300 ? 300 : 'auto'}}" [useNative]="true">
+        <table #totalTable>
+          <thead class="relative">
+          <tr>
+            <th class="text-align-left">{{ 'trading.offersTable.nameProduct' | translate }}</th>
+            <th class="text-align-right"
+                width="20%">{{ 'editOffer.deliverySchedule.quantityApplication' | translate }}
+            </th>
+            <th class="text-align-right"
+                width="20%">{{ 'editOffer.deliverySchedule.quantityDeliverySchedule' | translate }}
+            </th>
+          </tr>
+          </thead>
+
+          <tbody>
+          <ng-container *ngFor="let item of goods; last as last; let i = index">
+            <tr>
+              <td class="text-align-left">{{ item.goodName }}</td>
+
+              @if (!isSameGradedSaleOffer) {
+                <td class="text-align-right date-roboto-mono">
+                  {{ (getFieldValue(item.goodsSpecifications).fieldValueNumber) | ruNumberFormat: getFieldValue(item.goodsSpecifications)?.fieldPrecision }}
+                  {{ item.unitName }}
+                </td>
+              }
+
+              @if (isSameGradedSaleOffer && i === 0) {
+                <td
+                  [attr.rowspan]="goods.length"
+                  class="text-align-right"
+                >
+                  {{ totalRowData?.quantityOffer | ruNumberFormat : null : 4 }}
+                  {{ item.unitName }}
+                </td>
+              }
+
+              @if (!isSameGradedSaleOffer) {
+                <td>
+                  <ng-container *ngFor="let sum of sumVolumeGoodTerm">
+                    @if (Number(sum.idGood) === Number(item.idGood)) {
+                      <div
+                        id="sum{{item.idGood}}"
+                        class="text-align-right date-roboto-mono"
+                      >
+                        <span
+                          [class.redColor]="Number(sum.sumValue) !== getFieldValue(item.goodsSpecifications).fieldValueNumber"
+                        >
+                          {{ (sum.sumValue | ruNumberFormat: getFieldValue(item.goodsSpecifications)?.fieldPrecision) }}
+                          {{ item.unitName }}
+                        </span>
+
+                        @if (Number(sum.sumValue) !== getFieldValue(item.goodsSpecifications).fieldValueNumber) {
+                          <dx-tooltip
+                            target="#sum{{item.idGood}}"
+                            [showEvent]="{name: 'mouseenter', delay: 500}"
+                            hideEvent="mouseleave"
+                          >
+                            <div
+                              *dxTemplate="let data = data; of: 'content'"
+                              class="w-500px text-align-left">
+                              <span>{{ 'editOffer.deliverySchedule.errorMessageSchedule' | translate }}</span>
+                            </div>
+                          </dx-tooltip>
+                        }
+                      </div>
+                    }
+                  </ng-container>
+                </td>
+              }
+
+              @if (isSameGradedSaleOffer && i === 0) {
+                <td
+                  id="sumVolume"
+                  [attr.rowspan]="goods.length"
+                  class="text-align-right"
+                  [class.redColor]="
+                  (scheduleData | sumVolume: 'periodVolume') !== (goodsArray | sumVolume: 'volume')"
+                >
+                  {{
+                    scheduleData
+                      | sumVolume: 'periodVolume'
+                      | ruNumberFormat : null : 4
+                  }}
+                  {{ item.unitName }}
+
+                  <dx-tooltip
+                    target=".redColor"
+                    [showEvent]="{name: 'mouseenter', delay: 500}"
+                    hideEvent="mouseleave"
+                  >
+                    <div
+                      *dxTemplate="let data = data; of: 'content'"
+                      class="w-500px text-align-left"
+                    >
+                      <span>{{ 'editOffer.deliverySchedule.errorMessageSchedule' | translate }}</span>
+                    </div>
+                  </dx-tooltip>
+                </td>
+              }
+            </tr>
+            <!-- Строка Итого -->
+            @if (last && onSameUnits && !isSameGradedSaleOffer) {
+              <tr class="viewRow">
+                <td class="text-align-left greenColor">{{ 'general.totalCommon' | translate }}</td>
+                <td class="text-align-right date-roboto-mono greenColor">{{ totalRowData?.quantityOffer }}</td>
+                <td class="text-align-right date-roboto-mono greenColor">{{ totalRowData?.quantitySchedule }}</td>
+              </tr>
+            }
+          </ng-container>
+          </tbody>
+        </table>
+      </dx-scroll-view>
+    </div>
+
+    <!--<div class="flexContent20 buttonsClass jc-end">
+      <button class="btn btn-primary submit w-155px" (click)="onSave()">{{'btns.save' | translate}}</button>
+      <button class="btn btn-outline-primary submit w-155px" (click)="this.save.emit(false)">{{'btns.close' | translate}}</button>
+    </div>-->
+  </div>
+
+  <ng-template #noViewSchedule>
+    <div class="greyNotifications">
+      {{'editOffer.deliveryScheduleExcluded' | translate}}
+    </div>
+
+  </ng-template>
+</dx-scroll-view>

@@ -1,0 +1,161 @@
+<ng-container>
+  <div class="viewGoodInfo flexContentColumn12 p-2">
+    <div class="name">
+      <label class="blackColor">{{ good.goodName }}</label>
+      <i class="close" (click)="good.isOpened = false"></i>
+    </div>
+
+    <!--                        характеристики товара из каталога-->
+    @if (good.idGood != null) {
+      <div class="description">
+        @for (prop of good.properties; track prop.propertyName) {
+          <span>
+                        <span class="propName"> {{ prop.propertyName }}</span>
+                        <span> {{ prop.propertyValue }}.</span>
+                      </span>
+        }
+      </div>
+    }
+
+    <!--                        характеристики товара НСИ -->
+    @if (good.idGood === null) {
+      <div class="flexContentColumn4">
+        @for (prop of getCounterRefsRefs; track prop.idReference) {
+          @if (!showDifferences ||
+          (showDifferences && getPropValueFromDemand(prop.idReference) !== prop.nameValue)) {
+            <div class="flexContent8 flex-start">
+              <div class="fieldName font-s14">
+                {{ prop.nameReference }}
+              </div>
+
+              <div class="info flexContent8 flex-start">
+                <div class="w-50 font-s14">
+                  {{ getPropValueFromDemand(prop.idReference) }}
+                </div>
+
+                <div class="w-50 font-s14"
+                     [class.difference]="getPropValueFromDemand(prop.idReference) !== prop.nameValue">
+                  {{ prop.nameValue }}
+                </div>
+              </div>
+
+            </div>
+          }
+        }
+      </div>
+    }
+
+    <div class="flexContentColumn4">
+      <!-- для леса отделить в отдельный подраздел фактические значения (длина/ширина и тп) -->
+      @for (field of good.goodsSpecifications | sortActualDimensions; track field.idInterfaceField) {
+        <div
+          class="flexContent8 flex-start"
+          [style.display]="ACTUAL_SIZE_READINESS_FIELDS.includes(field.idInterfaceField)
+                          ? 'flex'
+                          : 'none'
+                                           "
+        >
+          <div class="fieldName font-s14">
+            {{ field.fieldName }}
+          </div>
+          <div
+            class="font-s14"
+          >
+            {{
+              field | actualValue
+            }}
+          </div>
+        </div>
+      }
+      <!--          по цене: ставка НДС, цена (без НДС), стоимость (без НДС), сумма НДС, стоимость (с учетом НДС), количество, ед.изм., валюта-->
+      <!--          по котировке: ставка НДС, цена (без НДС), стоимость (без НДС), сумма НДС, стоимость (с учетом НДС), количество, тип поправки, поправка, котировка, валюта котировки-->
+      <!--          без котировки: ставка НДС, поправка, тип поправки, количество, ед.изм-->
+      @for (field of good.goodsSpecifications; track field.idInterfaceField) {
+        <div
+          class="flexContent8 flex-start"
+          [style.display]=" (field | showGoodsFields)"
+          display-specs
+          [pricingTypeId]="fullInfo.generalInfo?.pricingTypeId"
+          [field]="field"
+        >
+          <div class="fieldName font-s14">
+            {{ field.fieldName }}
+          </div>
+          <div class="font-s14" [class.w-50]="isSpecialFields">
+            {{
+              field | goodsValue
+            }}
+          </div>
+
+          @if (isSpecialFields) {
+            <div
+              class="w-50 font-s14"
+              [class.difference]="
+                        !compareSpecsFromCounter(
+                          field.fieldValue,
+                          getSpecsFromCounter(
+                            good.goodsSpecifications[0].idDemandOfferGood,
+                            field.idInterfaceField
+                          )
+                        )
+                      "
+            >
+              {{
+                getSpecsFromCounter(
+                  good.goodsSpecifications[0].idDemandOfferGood,
+                  field.idInterfaceField
+                )
+              }}
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+
+    <div class="flexContentColumn4">
+
+      @if (sessionIds.session.idAuctionType === auctionType.simpleSellerAuction) {
+        <div class="flexContent8 flex-start">
+          <div class="fieldName font-s14">
+            {{ "trading.offersTable.VAT" | translate }} (%)
+          </div>
+          <div class="font-s14 date-roboto-mono">
+            {{ getValue(good.goodsSpecifications, IdInterfaceField.VATrate) }}
+          </div>
+        </div>
+      }
+
+      <div class="flexContent8 flex-start">
+        <div class="fieldName font-s14">
+          {{ "trading.offersTable.amountVAT" | translate }}
+        </div>
+
+        <div class="info flexContent8 flex-start">
+          <div class="w-50 font-s14">
+            {{
+              getAmountVAT(good.goodsSpecifications)
+                | ruNumberFormat
+                : currencyPrecision
+                  : currencyPrecision
+            }}
+          </div>
+
+          @if (sessionIds.session.idAuctionType === auctionType.simpleBuyerAuction) {
+            <div class="w-50 font-s14"
+                 [class.difference]="!getCompareValue(good.goodsSpecifications[0].idDemandOfferGood, 'priceWithoutVatMatch') ||
+                                                 !getCompareValue(good.goodsSpecifications[0].idDemandOfferGood, 'volumeMatch')">
+              {{
+                getValueFromCounter(good.goodsSpecifications[0].idDemandOfferGood, "amountVAT")
+                  | ruNumberFormat
+                  : currencyPrecision
+                    : currencyPrecision
+              }}
+            </div>
+          }
+        </div>
+
+      </div>
+    </div>
+  </div>
+</ng-container>

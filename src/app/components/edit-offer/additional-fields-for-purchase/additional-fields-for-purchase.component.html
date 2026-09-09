@@ -1,0 +1,39 @@
+<div class="buySaleCond border p-2 container">
+  @for (field of fieldsArray(); track field.idField) {
+  <div class="flexContentColumn4 twoElements">
+    <div class="form-group">
+      <label>{{ field.fieldName }}</label>
+
+      <div>
+        @if(field.idField !== IdInterfaceField.okrb007){
+        <dx-select-box
+          [dataSource]="field.dataSource"
+          valueExpr="id"
+          displayExpr="name"
+          height="40px"
+          placeholder="{{ 'filters.selection' | translate }}"
+          [showClearButton]="false"
+          [class.disabled]="field.disabled"
+          [(value)]="field.value"
+          (onValueChanged)="handleChangeValue(field.idField, $event)"
+        >
+          <dx-validator>
+            <dxi-validation-rule type="required" />
+          </dx-validator>
+        </dx-select-box>
+        } @else{
+        <dx-text-box
+          height="40px"
+          [value]="field.fieldValue?.toString()"
+          [class.disabled]="true"
+        >
+          <dx-validator>
+            <dxi-validation-rule type="required" />
+          </dx-validator>
+        </dx-text-box>
+        }
+      </div>
+    </div>
+  </div>
+  }
+</div>

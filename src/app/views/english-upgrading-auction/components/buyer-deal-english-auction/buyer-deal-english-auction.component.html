@@ -1,0 +1,152 @@
+<div class="buyerInformation border p-2">
+  <div class="flexContent4 jc-sb" (click)="changeBuyerInformationHidden()">
+    <span class="font-s16">{{ "trading.dealsTab.buyer" | translate }}</span>
+    <div
+      class="filtersArrow"
+      [class.tr-rt180]="!buyerInformationHidden()"
+    ></div>
+  </div>
+
+  <div [hidden]="buyerInformationHidden()">
+    <form [formGroup]="editForm">
+      <div class="flexContentColumn16 mt-3 w-100">
+        <div class="flexContent8 flex-start">
+          <div class="label">
+            {{ "trading.tradersTable.participant" | translate }}
+          </div>
+          <div class="info">
+            {{ generalInfo()?.buyerInfo?.buyerConcatedFirmName }}
+          </div>
+        </div>
+
+        @if(selectedType() === 'broker') { 
+          <div class="flexContent8 flex-start">
+            <div class="label">
+              {{ "general.contractType" | translate }}
+            </div>
+            <div class="info">
+              {{ "general.agencyAgreement" | translate }}
+            </div>
+          </div>
+        }
+
+        <div class="flexContent8 flex-start">
+          <div>
+            <span class="flexContent8">
+              <input
+                type="radio"
+                name="role"
+                id="broker"
+                [checked]="selectedType() === 'broker'"
+                [disabled]="brokerList().length === 0" 
+                (change)="onTypeChange('broker')" 
+              />
+
+              <label for="broker" class="pb-0 blackColor font-s14">
+                {{ "general.brokerRole" | translate }}
+              </label>
+            </span>
+          </div>
+
+           <div>
+              <span class="flexContent8">
+                <input
+                  type="radio"
+                  name="role"
+                  id="visitor"
+                  [checked]="selectedType() === 'visitor'"
+                  [disabled]="visitorList().length === 0"
+                  (change)="onTypeChange('visitor')"
+                />
+
+                <label for="visitor" class="pb-0 blackColor font-s14">
+                  {{ "general.visitorRole" | translate }}
+                </label>
+              </span>
+            </div>
+        </div>
+
+        @if(infoForEdit()?.length > 0) {
+        <div class="flexContent16 w-100">
+
+          @if(selectedType() === 'broker') {
+            <div class="form-group w-50">
+              <label>{{ "general.client" | translate }}</label>
+              <div>
+                <dx-select-box
+                  [dataSource]="uniqueFirmClients()"
+                  valueExpr="idFirmClient"
+                  displayExpr="concatedNameFirmClient"
+                  height="40px"
+                  placeholder="{{ 'filters.selection' | translate }}"
+                  formControlName="buyerIdClientNew"
+                  [searchEnabled]="true"
+                  [showClearButton]="true"
+                  [minSearchLength]="3"
+                  [showDataBeforeSearch]="true"
+                  (onValueChanged)="onChooseClient($event.value)"
+                >
+                </dx-select-box>
+              </div>
+            </div>
+          }
+          
+          @if(branchDataSource().length > 0) {
+          <div class="form-group w-50">
+            <label>{{ "general.structuralSubdivision" | translate }}</label>
+            <div>
+              <dx-select-box
+                [dataSource]="branchDataSource()"
+                valueExpr="idBranch"
+                displayExpr="nameBranch"
+                height="40px"
+                placeholder="{{ 'filters.selection' | translate }}"
+                formControlName="buyerIdBranchNew"
+                [searchEnabled]="true"
+                [minSearchLength]="3"
+                [showDataBeforeSearch]="true"
+                [showClearButton]="true"
+              >
+              </dx-select-box>
+            </div>
+          </div>
+          }
+        </div>
+
+        } @if(infoForEdit()?.length == 0) {
+        <div class="flexContentColumn8 w-100">
+          <div class="notificationBlue h-auto p-2">
+            <span class="message flexContent8 center">
+              <i class="blueIcon"></i>
+              <span class="secondTextColor font-s14 l-h16"
+                >{{"viewDeal.editingIsNotAvailable" | translate }}</span
+              >
+            </span>
+          </div>
+        </div>
+        } @if (infoForEdit()?.length > 0) {
+        <div class="flexContentColumn8 w-100">
+          <div class="flexContent20">
+            <label>{{ "viewDeal.editReason" | translate }}</label>
+            <label
+              >{{
+                editForm.get("textReason")?.value?.length > 0
+                  ? editForm.get("textReason")?.value?.length
+                  : 0
+              }}/500</label
+            >
+          </div>
+          <dx-text-area
+            height="124px"
+            placeholder="{{ 'general.text' | translate }}"
+            maxLength="500"
+            valueChangeEvent="keyup"
+            formControlName="textReason"
+          >
+          </dx-text-area>
+        </div>
+        }
+      </div>
+    </form>
+  </div>
+</div>

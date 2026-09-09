@@ -1,0 +1,28 @@
+@import "src/assets/scss/_constants.scss";
+
+.traderMessage {
+  border-radius: 0 4px 4px 4px;
+  background: $lightGrayBackgroundColor;
+  padding: 8px 16px;
+  max-height: 140px;
+  overflow-y: scroll;
+}
+
+.actions {
+  position: absolute;
+  right: 55px;
+  z-index: 10;
+  padding: 9px 0;
+
+  i:hover {
+    background-color: $lightGrayBackgroundColorButton;
+    cursor: pointer;
+    border-radius: 2px;
+  }
+}
+
+.template {
+  ::ng-deep.dx-selectbox .dx-texteditor-input {
+    max-width: 89% !important;
+  }
+}

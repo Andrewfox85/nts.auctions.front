@@ -1,0 +1,212 @@
+<main class="limitations p-0">
+  <div class="main_component">
+    <h1>{{ "limitations.limitations" | translate }}</h1>
+    <div class="flexContentColumn16">
+      <div class="session p-3 border flexContentColumn16">
+        <div class="flexContent20">
+          <div class="session__info p-1 flexContent16 ai-c">
+            <span>{{ "general.section" | translate }}: {{ sectionName }}</span>
+            <span>{{ "general.session" | translate }}: № {{ sessionID }}</span>
+            <span
+              >{{ "general.dateAndTime" | translate }}:
+              {{
+                sessionDate | excelDate | date : "dd.MM.yyyy HH:mm" : "+0000"
+              }}</span
+            >
+            <span>{{ sessionName }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-2">
+        <div class="flexContent20">
+          <div class="toolbarTable flexContent8">
+            <div>
+              <button
+                class="btn h-32px secondary-btn w-280px"
+                (click)="getData()"
+              >
+                <div class="flexContent8 ai-c blackColor">
+                  <div class="toolbar update"></div>
+
+                  {{ "filters.updatedIn" | translate }}
+
+                  <div class="date-roboto-mono font-s12">
+                    {{
+                      this.currentTimeDate | date : "HH:mm dd.MM.yyyy" : "+0300"
+                    }}
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <div class="content mt-5">
+            @if (listOfLimitations) {
+            <div class="body">
+              <div class="limitations-body-wrapper">
+                <div class="body_content">
+                  <dx-data-grid
+                    [dataSource]="listOfLimitations"
+                    [showBorders]="false"
+                    [showColumnLines]="true"
+                    [showRowLines]="true"
+                    appLocalizeContextMenu
+                  >
+                    <dxo-header-filter [visible]="true" [allowSearch]="true" />
+
+                    <!-- № -->
+                    <dxi-column
+                      caption="№"
+                      cssClass="column date-roboto-mono myCellFixShadowLeft text-align-left"
+                      width="70"
+                      [allowHiding]="false"
+                      alignment="left"
+                      [allowFiltering]="false"
+                      [fixed]="true"
+                      [allowFixing]="false"
+                      cellTemplate="cellTemplateRowNumber"
+                    />
+
+                    <div *dxTemplate="let data of 'cellTemplateRowNumber'">
+                      <div>{{ data.row.rowIndex + 1 }}</div>
+                    </div>
+
+                    <!-- Наименование НГ/ТГ/товара -->
+                    <dxi-column
+                      caption="{{ 'limitations.name' | translate }}"
+                      dataField="goodName"
+                      cssClass="column text-align-left"
+                      [minWidth]="240"
+                      alignment="left"
+                      [allowFiltering]="true"
+                      cellTemplate="cellTemplateGoods"
+                    />
+
+                    <div *dxTemplate="let data of 'cellTemplateGoods'">
+                      <div class="flexContent4 center">
+                        <span class="good-tag" id="good_{{ data.data.id }}">{{
+                          data.data.treeLevel == 2
+                            ? "НГ"
+                            : data.data.treeLevel == 3
+                            ? "ТГ"
+                            : "Т"
+                        }}</span>
+
+                        <dx-tooltip
+                          target="#good_{{ data.data.id }}"
+                          hideEvent="mouseleave"
+                          [showEvent]="{ name: 'mouseover', delay: 500 }"
+                        >
+                          <div
+                            *dxTemplate="let content = content; of: 'content'"
+                          >
+                            {{
+                              data.data.treeLevel == 2
+                                ? "Номенклатурная группа"
+                                : data.data.treeLevel == 3
+                                ? "Товарная группа"
+                                : "Товар"
+                            }}
+                          </div>
+                        </dx-tooltip>
+                        <span>{{ data.data.goodName }}</span>
+                      </div>
+                    </div>
+
+                    <!-- Товарные хар-ки -->
+                    <dxi-column
+                      caption="{{
+                        'limitations.productCharacteristics' | translate
+                      }}"
+                      dataField="goodSpecification"
+                      cssClass="column text-align-left"
+                      [minWidth]="240"
+                      alignment="left"
+                      [allowFiltering]="true"
+                    />
+
+                    <!-- Кол-во -->
+                    <dxi-column
+                      caption="{{ 'general.quantity' | translate }}"
+                      dataField="lotQuantityMaximum"
+                      cssClass="column date-roboto-mono text-align-right"
+                      [minWidth]="180"
+                      alignment="left"
+                      [allowFiltering]="true"
+                      cellTemplate="cellTemplateQuantity"
+                    />
+
+                    <div *dxTemplate="let data of 'cellTemplateQuantity'">
+                      <div>
+                        {{ data.data.lotQuantityMaximum }}
+                        {{ data.data.lotQuantityUnitName }}
+                      </div>
+                    </div>
+
+                    <!-- Участник-->
+                    <dxi-column
+                      caption="{{
+                        'trading.tradersTable.participant' | translate
+                      }}"
+                      dataField="firmsNames"
+                      cssClass="column p-0 text-align-left"
+                      [minWidth]="240"
+                      alignment="left"
+                      [allowFiltering]="true"
+                      cellTemplate="cellTemplateFirms"
+                      [calculateFilterExpression]="calculateFilterExpression"
+                    >
+                      <dxo-header-filter
+                        [dataSource]="orderHeaderFilterFirms"
+                      />
+                    </dxi-column>
+
+                    <div *dxTemplate="let data of 'cellTemplateFirms'">
+                      <table class="main">
+                        @for (firm of data.data.firms; track firm.firmName) {
+                        <tr>
+                          <span class="twostrings">{{ firm.firmName }}</span>
+                        </tr>
+                        }
+                      </table>
+                    </div>
+
+                    <!-- Клиент брокера-->
+                    <dxi-column
+                      caption="{{ 'filters.brokerClient' | translate }}"
+                      dataField="clientsNames"
+                      cssClass="column p-0 text-align-left"
+                      [minWidth]="240"
+                      alignment="left"
+                      [allowFiltering]="true"
+                      cellTemplate="cellTemplateClients"
+                      [calculateFilterExpression]="calculateFilterExpression"
+                    >
+                      <dxo-header-filter
+                        [dataSource]="orderHeaderFilterClients"
+                      />
+                    </dxi-column>
+
+                    <div *dxTemplate="let data of 'cellTemplateClients'">
+                      <table class="main">
+                        @for (firm of data.data.firms; track firm.clientName) {
+                        <tr>
+                          <span class="twostrings">{{ firm.clientName }}</span>
+                        </tr>
+                        }
+                      </table>
+                    </div>
+                  </dx-data-grid>
+                </div>
+              </div>
+            </div>
+            } @else {
+            <div class="noData">Нет данных</div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>

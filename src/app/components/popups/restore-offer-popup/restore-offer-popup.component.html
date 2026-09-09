@@ -1,0 +1,129 @@
+<dx-popup
+  contentTemplate="restorePopup()"
+  [hideOnOutsideClick]="false"
+  [visible]="restorePopup()"
+  [showTitle]="true"
+  title="{{
+    restorePopupType() === 'restore'
+      ? ('trading.offersTable.restoreOfferTitle' | translate)
+      : ('trading.offersTable.activateOfferTitle' | translate)
+  }}"
+  width="600"
+  height="auto"
+  [showCloseButton]="true"
+  (onShowing)="onShowing($event)"
+  (onHiding)="closePopup()"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+  <div *dxTemplate="let data of 'restorePopup()'">
+    <div class="flexContentColumn16">
+      <form [formGroup]="restoreForm">
+        @if(restorePopupType() === 'activate'){
+        <div>
+          <span
+            >{{ "trading.offersTable.chooseOffers" | translate }}
+            {{ choosenOffers()?.length }}</span
+          >
+        </div>
+        }
+
+        <div class="mt-3 border w-100">
+          <div class="p-3 flexContent8 jc-sb">
+            <span>{{ "trading.regsTable.violationsControl" | translate }}</span>
+            <div>
+              <dx-switch
+                switchedOffText=""
+                switchedOnText=""
+                formControlName="violationsControl"
+              ></dx-switch>
+            </div>
+          </div>
+
+          <div class="pb-3 pl-3 pr-3 pt-0 flexContent8 jc-sb">
+            <span [ngClass]="{ disabled: disabledDepositControl }">{{
+              "trading.regsTable.depositControl" | translate
+            }}</span>
+            <div>
+              <dx-switch
+                switchedOffText=""
+                switchedOnText=""
+                formControlName="depositControl"
+                [disabled]="disabledDepositControl"
+                (onValueChanged)="
+                  onChangeControlSwitcher($event, 'depositControl')
+                "
+              ></dx-switch>
+            </div>
+          </div>
+
+          <div class="pb-3 pl-3 pr-3 pt-0 flexContent8 jc-sb">
+            <span [ngClass]="{ disabled: disabledDepositCalculation }">{{
+              "trading.offersTable.depositCalculation" | translate
+            }}</span>
+            <div>
+              <dx-switch
+                switchedOffText=""
+                switchedOnText=""
+                formControlName="depositCalculation"
+                [disabled]="disabledDepositCalculation"
+              ></dx-switch>
+            </div>
+          </div>
+        </div>
+
+        <div class="buttons flexContent24 buttonsClass">
+          <button
+            class="btn btn-primary submit w-50"
+            [disabled]="!restoreForm.valid"
+            (click)="
+              restorePopupType() === 'restore' ? restoreOffer() : activateOffer()
+            "
+          >
+            {{
+              restorePopupType() === "restore"
+                ? ("btns.restoreRegistration" | translate)
+                : ("btns.activate" | translate)
+            }}
+          </button>
+          <button class="btn btn-outline-primary w-50" (click)="closePopup()">
+            {{ "btns.close" | translate }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</dx-popup>
+
+<!-- уведомление -->
+<dx-toast
+  [(visible)]="isVisibleToast"
+  type="info"
+  width="auto"
+  height="auto"
+  [displayTime]="5000"
+>
+  <div *dxTemplate="let data of 'content'">
+    <div class="flexContent8 center">
+      <div class="checkIcon"></div>
+      <div>{{ message }}</div>
+    </div>
+  </div>
+  <dxo-position
+    my="top right"
+    at="right top"
+    of="window"
+    offset="-23 50"
+  ></dxo-position>
+</dx-toast>
+
+<!-- модалка с результатом действия-->
+<app-result-popup
+  [resultPopup]="resultPopup"
+  [resultPopupType]="'activate'"
+  [resultData]="resultData"
+  [choosenOffers]="this.choosenOffers()"
+  [sessionsParam]="sessionsParam"
+  (close)="resultPopup = false"
+></app-result-popup>

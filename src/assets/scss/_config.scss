@@ -1,0 +1,66 @@
+// ---------------------------------------------------------------------------------------------------------------------
+// Z-INDEX
+// ---------------------------------------------------------------------------------------------------------------------
+$z-index: (
+    float-override: 1,
+    overlay: 10,
+    default: auto,
+    tooltip: 250,
+    dropdown: 500,
+    dialog: 1000,
+    alert: 2000,
+    );
+
+$windows-vertical-scroll-bar-width: 17px;
+
+// ---------------------------------------------------------------------------------------------------------------------
+// RESPONSIVE CONFIGURATIONS
+// ---------------------------------------------------------------------------------------------------------------------
+$responsive-breakpoints: (
+    mobile-min: 321px,
+    es-mobile-max: 320px,
+    small_mobile-min: 577px,
+    small_mobile-max: 575px,
+    mobile-max: 767px,
+    tablet-min: 768px,
+    tablet-max: 991px,
+    laptop-min: 992px,
+    laptop-max: 1199px,
+    desktop-min: 1200px,
+    desktop-max: 1499px,
+    );
+
+$media-queries: (
+    // queries (mobile first)
+    mobile-min: 'all and (min-width: #{map-get($responsive-breakpoints, mobile-min)})',
+    small_mobile-max: 'all and (max-width: #{map-get($responsive-breakpoints, small_mobile-max)})',
+    small_mobile-min: 'all and (min-width: #{map-get($responsive-breakpoints, small_mobile-min)})',
+    es-mobile-max: 'all and (max-width: #{map-get($responsive-breakpoints, es-mobile-max)})',
+    mobile-max: 'all and (max-width: #{map-get($responsive-breakpoints, mobile-max)})',
+    tablet-min: 'all and (min-width: #{map-get($responsive-breakpoints, tablet-min)})',
+    tablet-max: 'all and (max-width: #{map-get($responsive-breakpoints, tablet-max)})',
+    laptop-min: 'all and (min-width: #{map-get($responsive-breakpoints, laptop-min)})',
+    laptop-max: 'all and (max-width: #{map-get($responsive-breakpoints, laptop-max)})',
+    desktop-min: 'all and (min-width: #{map-get($responsive-breakpoints, desktop-min)})',
+    desktop-max: 'all and (max-width: #{map-get($responsive-breakpoints, desktop-max)})',
+
+    // IE10+ CSS specific query:
+    // sass-lint:disable no-vendor-prefixes
+    ie-10-plus: 'all and (-ms-high-contrast: none), (-ms-high-contrast: active)',
+    // sass-lint:enable no-vendor-prefixes
+    );
+
+
+// ---------------------------------------------------------------------------------------------------------------------
+// FONT STYLE CONFIGURATIONS
+// ---------------------------------------------------------------------------------------------------------------------
+$default-font-family: 'Roboto','Roboto Mono', 'Segoe UI';
+$default-font-size: 14px;
+$default-line-height: 1.15;
+$date-number-font: 'Roboto Mono';
+
+// ---------------------------------------------------------------------------------------------------------------------
+// DEFAULT VARIABLES
+// ---------------------------------------------------------------------------------------------------------------------
+$rounded-corner-border-radius: 4px;
+$circle-border-radius: 50%;

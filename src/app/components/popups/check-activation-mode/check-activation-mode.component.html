@@ -1,0 +1,28 @@
+<!--Дополнительное предупреждение при переносе заявок при проверке текущего состояния режима активации заявок в связке с торговым периодом-->
+<dx-popup
+  contentTemplate="isActivatedTransferOffersToBidsPopup"
+  [hideOnOutsideClick]="false"
+  [visible]="true"
+  [showTitle]="true"
+  [title]="title"
+  width="450"
+  height="auto"
+  [showCloseButton]="true"
+  (onHiding)="this.onContinue.emit( true)"
+>
+  <dxo-animation [show]="{easing: 'ease-in-out', type:'fadeIn', duration: 150}"></dxo-animation>
+  <div *dxTemplate="let data of 'isActivatedTransferOffersToBidsPopup'" class="flexContentColumn32">
+    <div>
+      <span>{{ 'general.activateModeMess' | translate }} {{this.tradeTypeId.toString() != "2" ? ('general.sale' | translate) : ('general.purchase' | translate) }}.</span>
+    </div>
+
+    <div class="buttons flexContent24 buttonsClass">
+      <button class="btn btn-primary submit w-50"
+              (click)="this.onContinue.emit( true)">{{ 'btns.continue' | translate }}
+      </button>
+      <button class="btn btn-outline-primary w-50"
+              (click)="this.onContinue.emit( false)">{{ 'btns.close' | translate }}
+      </button>
+    </div>
+  </div>
+</dx-popup>

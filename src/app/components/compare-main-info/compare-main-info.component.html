@@ -1,0 +1,823 @@
+<dx-scroll-view [useNative]="true" height="calc(100vh - 125px)">
+  <div class="flexContentColumn12 mt-2">
+    <div>
+      <dx-check-box
+        text="{{ 'counterOffers.showDifferences' | translate }}"
+        iconSize="20px"
+        [value]="showDifferences"
+        (onValueChanged)="showDifferences = !showDifferences"
+      >
+      </dx-check-box>
+    </div>
+
+    <div class="buySaleCond border p-2">
+      <div class="flexContent4 jc-sb">
+        <div class="w-260px font-s16 d-flex">
+          <span>{{ "viewOffer.buySaleCond" | translate }}</span>
+          <i
+            *ngIf="fullInfo.goods?.length > 1"
+            class="compositeLotLittle ml-2"
+            id="compositeLot"
+          ></i>
+          <dx-tooltip
+            target="#compositeLot"
+            [showEvent]="{ name: 'mouseover', delay: 500 }"
+            hideEvent="mouseleave"
+          >
+            <div *dxTemplate="let data = data; of: 'content'">
+              {{ "viewOffer.compositeLot" | translate }}
+            </div>
+          </dx-tooltip>
+        </div>
+      </div>
+
+      <div class="flexContentColumn8 mt-3">
+        <div class="flexContent8 flex-start">
+          <div class="label"></div>
+          <div class="info flexContent8 cursor-default">
+            <div class="w-50 d-flex jc-c">{{ "compareOffer.firstOffer" | translate }}</div>
+            <div class="w-50 d-flex jc-c">
+              {{ "compareOffer.currentOffer" | translate }}
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="flexContent8 flex-start"
+          *ngIf="
+            this.fullInfo.deliveryConditions?.length > 0 &&
+            (!showDifferences ||
+              (showDifferences && !fullInfo.generalInfo.deliveryConditionMatch))
+          "
+        >
+          <div class="label d-flex">
+            <span>{{
+              "trading.offersTable.termsDeliveryTime" | translate
+            }}</span>
+            <i
+              *ngIf="uniqueDelConditions?.length > 1"
+              class="multibasisLotLittle ml-2"
+              id="multibasisLotLittle"
+            ></i>
+            <dx-tooltip
+              target="#multibasisLotLittle"
+              [showEvent]="{ name: 'mouseover', delay: 500 }"
+              hideEvent="mouseleave"
+            >
+              <div *dxTemplate="let data = data; of: 'content'">
+                {{ "filters.multibasisLot" | translate }}
+              </div>
+            </dx-tooltip>
+          </div>
+
+          <div class="info flex-start flexContent16 cursor-default">
+            <div class="w-50">
+              {{ uniqueDelConditionsParent[0]?.concatedCondition }}
+            </div>
+            <div
+              class="w-50"
+              [ngClass]="{
+                difference: !fullInfo.generalInfo.deliveryConditionMatch
+              }"
+            >
+              {{ uniqueDelConditions[0]?.concatedCondition }}
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="flexContent4 flex-start"
+          *ngIf="
+            !showDifferences ||
+            (showDifferences && !fullInfo.generalInfo.deliveryPeriodMatch)
+          "
+        >
+          <div class="label">
+            {{ "trading.offersTable.deliveryTime" | translate }}
+          </div>
+
+          <div class="info flexContent16 cursor-default">
+            <div class="w-50">
+              {{
+                fullInfoParent.generalInfo?.concatedDeliveryPeriod
+                  | upperCaseFirstLetter
+              }}
+            </div>
+            <div
+              class="w-50"
+              [class.difference]="!fullInfo.generalInfo.deliveryPeriodMatch"
+            >
+              {{
+                fullInfo.generalInfo?.concatedDeliveryPeriod
+                  | upperCaseFirstLetter
+              }}
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="flexContent4 flex-start"
+          *ngIf="
+            !showDifferences ||
+            (showDifferences && !fullInfo.generalInfo.paymentConditionsMatch)
+          "
+        >
+          <div class="label">
+            {{ "trading.offersTable.termsPayment" | translate }}
+          </div>
+
+          <div class="info flexContent16 cursor-default">
+            <div class="w-50">
+              {{ fullInfoParent.generalInfo?.concatedPaymentConditions }}
+            </div>
+            <div
+              class="w-50"
+              [ngClass]="{
+                difference: !fullInfo.generalInfo.paymentConditionsMatch
+              }"
+            >
+              {{ fullInfo.generalInfo?.concatedPaymentConditions }}
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="flexContent4 flex-start"
+          *ngIf="
+            getGoodsSpecifications(fullInfo.goods[0].goodsSpecifications, 47) &&
+            (!showDifferences ||
+              (showDifferences && !fullInfo.generalInfo.priceAdjustedMatch))
+          "
+        >
+          <div class="label">{{ "general.adjustablePrice" | translate }}</div>
+
+          <div class="info flexContent16 date-roboto-mono cursor-default">
+            <div class="w-50">
+              <dx-check-box
+                iconSize="20px"
+                [readOnly]="true"
+                [value]="
+                  this.getValue(
+                    this.fullInfoParent.goods[0].goodsSpecifications,
+                    47
+                  ) == 'true'
+                "
+              >
+              </dx-check-box>
+            </div>
+            <div
+              class="w-50"
+              [ngClass]="{
+                difference: !fullInfo.generalInfo.priceAdjustedMatch
+              }"
+            >
+              <dx-check-box
+                iconSize="20px"
+                [readOnly]="true"
+                [value]="
+                  this.getValue(
+                    this.fullInfo.goods[0].goodsSpecifications,
+                    47
+                  ) == 'true'
+                "
+              >
+              </dx-check-box>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="flexContent4 flex-start"
+          *ngIf="
+            !showDifferences ||
+            (showDifferences && !fullInfo.generalInfo.totalAmountMatch)
+          "
+        >
+          <div class="label">{{ "viewOffer.costVATLot" | translate }}</div>
+
+          <div class="info flexContent16 date-roboto-mono cursor-default">
+            <div class="w-50">{{ totalRowDataParent?.costVat }}</div>
+            <div
+              class="w-50"
+              [ngClass]="{ difference: !fullInfo.generalInfo.totalAmountMatch }"
+            >
+              {{ totalRowData?.costVat }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Товары -->
+    <div class="goods flexContentColumn4 flex-end w-100">
+      <table
+        *ngIf="fullInfoParent.goods?.length == fullInfo.goods?.length"
+        class="w-100"
+      >
+        <tr>
+          <th></th>
+          <th class="text-align-center" colspan="4">
+            {{ "compareOffer.firstOffer" | translate }}
+          </th>
+          <th class="text-align-center" colspan="4">
+            {{ "compareOffer.currentOffer" | translate }}
+          </th>
+        </tr>
+
+        <tr>
+          <th class="text-align-left w-260px">
+            {{ "trading.offersTable.nameProduct" | translate }}
+          </th>
+
+          <th>{{ "trading.offersTable.volume" | translate }}</th>
+          <th
+            *ngIf="
+              fullInfoParent.generalInfo?.pricingTypeId ==
+              pricingType?.formulaWithQuotation
+            "
+          >
+            {{ "trading.offersTable.quotation" | translate }}
+          </th>
+          <th
+            *ngIf="
+              fullInfoParent.generalInfo?.pricingTypeId != pricingType?.price
+            "
+          >
+            {{ "trading.offersTable.amendment" | translate }}
+          </th>
+          <th
+            *ngIf="
+              fullInfoParent.generalInfo?.pricingTypeId !=
+              pricingType?.formulaWithoutQuotation
+            "
+          >
+            {{ "viewOffer.priceWithoutVAT" | translate }}
+          </th>
+          <th
+            *ngIf="
+              fullInfoParent.generalInfo?.pricingTypeId !=
+              pricingType?.formulaWithoutQuotation
+            "
+          >
+            {{ "viewOffer.costVAT" | translate }}
+          </th>
+          <th class="w-40px"></th>
+
+          <th>{{ "trading.offersTable.volume" | translate }}</th>
+          <th
+            *ngIf="
+              fullInfo.generalInfo?.pricingTypeId ==
+              pricingType?.formulaWithQuotation
+            "
+          >
+            {{ "trading.offersTable.quotation" | translate }}
+          </th>
+          <th *ngIf="fullInfo.generalInfo?.pricingTypeId != pricingType?.price">
+            {{ "trading.offersTable.amendment" | translate }}
+          </th>
+          <th
+            *ngIf="
+              fullInfo.generalInfo?.pricingTypeId !=
+              pricingType?.formulaWithoutQuotation
+            "
+          >
+            {{ "viewOffer.priceWithoutVAT" | translate }}
+          </th>
+          <th
+            *ngIf="
+              fullInfo.generalInfo?.pricingTypeId !=
+              pricingType?.formulaWithoutQuotation
+            "
+          >
+            {{ "viewOffer.costVAT" | translate }}
+          </th>
+        </tr>
+        <tbody>
+          <ng-container
+            *ngFor="
+              let good of expandTable
+                ? fullInfoParent.goods
+                : fullInfoParent.goods.slice(0, 5);
+              let i = index;
+              last as last;
+              first as first
+            "
+          >
+            <tr [class.viewRow]="good.isOpened == true">
+              <td
+                class="w-260px text-align-left cursor-default"
+                id="name{{ good.idGood }}"
+              >
+                <span class="twostrings">{{ good.goodName }}</span>
+                <dx-tooltip
+                  target="#name{{ good.idGood }}"
+                  [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                  hideEvent="mouseleave"
+                >
+                  <div
+                    *dxTemplate="let data = data; of: 'content'"
+                    class="whiteTextColor text-align-left"
+                  >
+                    {{ good.goodName }}
+                  </div>
+                </dx-tooltip>
+              </td>
+
+              <td class="date-roboto-mono">
+                {{
+                  getValueParent(
+                    good.goodsSpecifications[0].idDemandOfferGood,
+                    IdInterfaceField.quantity
+                  )
+                    | ruNumberFormat
+                      : null
+                      : good.goodsSpecifications[0].fieldPrecision
+                }}
+                {{ good.unitName }}
+              </td>
+
+              @if(fullInfoParent.generalInfo?.pricingTypeId ==
+              pricingType?.formulaWithQuotation) {
+              <td class="date-roboto-mono">
+                {{
+                  getValue(good.goodsSpecifications, 56)
+                    | toNumber
+                    | ruNumberFormat
+                      : good.goodsSpecifications[0].fieldPrecision
+                }}
+                {{ good.quoteCurrency }}
+              </td>
+              } @if(fullInfoParent.generalInfo?.pricingTypeId !=
+              pricingType?.price) {
+              <td class="date-roboto-mono">
+                {{
+                  getValueParent(
+                    good.goodsSpecifications[0].idDemandOfferGood,
+                    IdInterfaceField.amendment
+                  )
+                    | ruNumberFormat
+                      : (good.priceAdjustment.id == 2 ? currencyPrecision : 0)
+                }}
+                {{ good.priceAdjustment.id == 1 ? "%" : good.currency }}
+              </td>
+              } @if(fullInfoParent.generalInfo?.pricingTypeId !=
+              pricingType?.formulaWithoutQuotation){
+              <td class="date-roboto-mono">
+                {{
+                  getValueParent(
+                    good.goodsSpecifications[0].idDemandOfferGood,
+                    IdInterfaceField.priceWithoutVAT
+                  ) | ruNumberFormat : currencyPrecision : currencyPrecision
+                }}
+                {{ good.currency }}
+              </td>
+              } @if(fullInfoParent.generalInfo?.pricingTypeId !=
+              pricingType?.formulaWithoutQuotation) {
+              <td class="date-roboto-mono">
+                {{
+                  getNumberCost(
+                    good.goodsSpecifications[0].idDemandOfferGood, true
+                  ) | ruNumberFormat : currencyPrecision : currencyPrecision
+                }}
+                {{ good.currency }}
+              </td>
+              }
+
+              <td class="w-40px">
+                <div class="flexContent10" (click)="good.isOpened = true">
+                  <i
+                    class="viewGood"
+                    [ngStyle]="{ 'pointer-events': goodInfo ? 'none' : 'all' }"
+                  ></i>
+                </div>
+              </td>
+
+              <td
+                class="date-roboto-mono"
+                [class.difference]="
+                  !getCompareValue(good.idGood, 'volumeMatch')
+                "
+              >
+                {{
+                  getValueChild(good.idGood, IdInterfaceField.quantity)
+                    | ruNumberFormat
+                      : null
+                      : good.goodsSpecifications[0].fieldPrecision
+                }}
+                {{ good.unitName }}
+              </td>
+
+              @if(fullInfo.generalInfo?.pricingTypeId != pricingType?.price){
+              <td
+                [class.difference]="
+                  !getCompareValue(good.idGood, 'priceAdjustmentMatch')
+                "
+                class="date-roboto-mono"
+              >
+                {{
+                  getValueChild(good.idGood, IdInterfaceField.amendment)
+                    | ruNumberFormat : currencyPrecision : currencyPrecision
+                }}
+                {{ good.priceAdjustment.id == 1 ? "%" : good.currency }}
+              </td>
+              } @if(fullInfo.generalInfo?.pricingTypeId !=
+              pricingType?.formulaWithoutQuotation) {
+              <td
+                [class.difference]="
+                  !getCompareValue(good.idGood, 'priceWithoutVatMatch')
+                "
+                class="date-roboto-mono"
+              >
+                {{
+                  getValueChild(good.idGood, IdInterfaceField.priceWithoutVAT)
+                    | ruNumberFormat : currencyPrecision : currencyPrecision
+                }}
+                {{ getCurrency(good.idGood) }}
+              </td>
+              } @if(fullInfo.generalInfo?.pricingTypeId !=
+              pricingType?.formulaWithoutQuotation) {
+              <td
+                [class.difference]="
+                  !getCompareValue(good.idGood, 'costVatMatch')
+                "
+                class="date-roboto-mono"
+              >
+                {{
+                  getNumberCost(good.idGood, false)
+                    | ruNumberFormat : currencyPrecision : currencyPrecision
+                }}
+                {{ getCurrency(good.idGood) }}
+              </td>
+              }
+            </tr>
+
+            <ng-container *ngIf="good.isOpened === true">
+              <tr>
+                <td colspan="8" class="p-0 text-align-left">
+                  <div class="viewGoodInfo flexContentColumn12 p-2">
+                    <div class="name">
+                      <label class="blackColor">{{ good.goodName }}</label>
+                      <i class="close" (click)="good.isOpened = false"></i>
+                    </div>
+
+                    <!--                        характеристики товара из каталога-->
+                    @if (good.idGood !== null) {
+                      <div class="description">
+                        @for (prop of good.properties; track prop.propertyName) {
+                          <span>
+                            <span class="propName"> {{ prop.propertyName }}</span>
+                            <span> {{ prop.propertyValue }}.</span>
+                          </span>
+                        }
+                      </div>
+                    }
+
+                    <!--                        характеристики товара НСИ -->
+                    @if (good.idGood === null) {
+                      <div class="description">
+                        @for (prop of good.goodValues | goodAnalogDescription; track prop.label; let last = $last) {
+                          <span class="prop-item">
+                            <span class="propName">{{ prop.label }}: </span>
+                            <span>{{ prop.value }}</span>
+                            @if (!last) {
+                              <span>; </span>
+                            }
+                          </span>
+                        }
+                      </div>
+                    }
+
+                    <div class="flexContent8 flex-start">
+                      <div class="label"></div>
+                      <div class="info font-s14 flexContent8 cursor-default">
+                        <div class="w-50">
+                          {{ "compareOffer.firstOffer" | translate }}
+                        </div>
+                        <div class="w-50">
+                          {{ "compareOffer.currentOffer" | translate }}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="flexContentColumn4">
+                      <!-- для леса отделить в отдельный подраздел фактические значения (длина/ширина и тп) -->
+                      @for (field of good.goodsSpecifications | sortActualDimensions; track field.idInterfaceField) {
+                        <div
+                          class="flexContent8 flex-start"
+                          [style.display]="ACTUAL_SIZE_READINESS_FIELDS.includes(
+                            field.idInterfaceField
+                          )
+                            ? 'flex'
+                            : 'none'
+                        "
+                        >
+                          <div class="fieldName font-s14">
+                            {{ field.fieldName }}
+                          </div>
+                          <div class="font-s14 w-50">
+                            {{
+                              field | actualValue
+                            }}
+                          </div>
+                          <div class="font-s14 w-50">
+                            {{
+                              field | actualValue
+                            }}
+                          </div>
+                        </div>
+                      }
+                      <!--          по цене: ставка НДС, цена (без НДС), стоимость (без НДС), сумма НДС, стоимость (с учетом НДС), количество, ед.изм., валюта-->
+                      <!--          по котировке: ставка НДС, цена (без НДС), стоимость (без НДС), сумма НДС, стоимость (с учетом НДС), количество, тип поправки, поправка, котировка, валюта котировки-->
+                      <!--          без котировки: ставка НДС, поправка, тип поправки, количество, ед.изм-->
+                      @for (field of good.goodsSpecifications; track $index) {
+                        <div
+                          class="flexContent8 flex-start"
+                          [style.display]=" (field | showGoodsFields)"
+                          display-specs
+                          [pricingTypeId]="fullInfo?.generalInfo?.pricingTypeId"
+                          [field]="field"
+                        >
+                          <div class="fieldName label font-s14">
+                            {{ field.fieldName }}
+                          </div>
+
+                          <div class="info flexContent8 cursor-default">
+                            <div
+                              class="w-50 font-s14"
+                              [ngClass]="{
+                              'date-roboto-mono':
+                                field.controlFieldType == 'dxNumberBox'
+                            }"
+                            >
+                              {{
+                                field | goodsValue
+                              }}
+                            </div>
+
+                            <div
+                              class="w-50 font-s14"
+                              [class.difference]="(field.idInterfaceField | checkDifferences: good.idGood: getCompareValue.bind(this))"
+                            >
+                              {{
+                                findGood(good).goodsSpecifications[$index] | goodsValue
+                              }}
+                            </div>
+                          </div>
+                        </div>
+                      }
+                    </div>
+
+                    <div class="flexContentColumn4">
+                      <div class="flexContent8 flex-start">
+                        <div class="fieldName label font-s14">
+                          {{ "trading.offersTable.VAT" | translate }} (%)
+                        </div>
+
+                        <div class="info font-s14 flexContent8 cursor-default">
+                          <div class="w-50">
+                            {{
+                              getValue(
+                                good.goodsSpecifications,
+                                IdInterfaceField.VATrate
+                              )
+                            }}
+                          </div>
+                          <div class="w-50" [class.difference]="!getCompareValue(good.idGood, 'vatMatch')">
+                            {{
+                              getValue(
+                                findGood(good).goodsSpecifications,
+                                IdInterfaceField.VATrate
+                              )
+                            }}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="flexContent8 flex-start">
+                        <div class="fieldName label font-s14">
+                          {{ "trading.offersTable.amountVAT" | translate }}
+                        </div>
+
+                        <div class="info font-s14 flexContent8 cursor-default">
+                          <div class="w-50">
+                            {{
+                              getAmountVAT(
+                                good.goodsSpecifications[0].idDemandOfferGood, true
+                              )
+                                | ruNumberFormat
+                                  : currencyPrecision
+                                  : currencyPrecision
+                            }}
+                          </div>
+
+                          <div class="w-50" [class.difference]="!getCompareValue(good.idGood, 'amountVATMatch')">
+                            {{
+                              getAmountVAT(good.idGood, false)
+                                | ruNumberFormat
+                                  : currencyPrecision
+                                  : currencyPrecision
+                            }}
+                          </div>
+                        </div>
+                      </div>
+
+                     @if (fullInfo.generalInfo.directionId === IdDirection.buy) {
+                      <div class="flexContent8 flex-start">
+                        <div class="fieldName label font-s14">
+                          {{ "filters.currency" | translate }}
+                        </div>
+
+                        <div class="info font-s14 flexContent8 cursor-default">
+                          <div class="w-50">
+                            {{ good.currency }}
+                          </div>
+
+                          <div class="w-50" [class.difference]="!getCompareValue(good.idGood, 'currencyMatch')">
+                            {{ getCurrency(good.idGood) }}
+                          </div>
+                        </div>
+                      </div>
+                    }
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </ng-container>
+
+            <!-- Строка Итого -->
+            <tr *ngIf="last" class="viewRow greenColor">
+              <td class="text-align-left w-260px">
+                {{ "viewOffer.total" | translate }}
+              </td>
+              <td
+                class="text-align-right date-roboto-mono"
+                *ngIf="this.onSameUnits(this.fullInfoParent.goods)"
+              >
+                {{ totalRowDataParent?.quantity }}
+              </td>
+              <td
+                class="text-align-right date-roboto-mono"
+                *ngIf="!this.onSameUnits(this.fullInfoParent.goods)"
+              >
+                -
+              </td>
+              <td class="text-align-right date-roboto-mono">-</td>
+              <td class="text-align-right date-roboto-mono">
+                {{ totalRowDataParent?.costVat }}
+              </td>
+              <td></td>
+              <td
+                class="text-align-right date-roboto-mono"
+                [ngClass]="{
+                  difference: !this.fullInfo.generalInfo.totalVolumeMatch
+                }"
+                *ngIf="this.onSameUnits(this.fullInfo.goods)"
+              >
+                {{ totalRowData?.quantity }}
+              </td>
+              <td
+                class="text-align-right date-roboto-mono"
+                *ngIf="!this.onSameUnits(this.fullInfo.goods)"
+              >
+                -
+              </td>
+              <td class="text-align-right date-roboto-mono">-</td>
+              <td
+                class="text-align-right date-roboto-mono"
+                [ngClass]="{
+                  difference: !this.fullInfo.generalInfo.totalAmountMatch
+                }"
+              >
+                {{ totalRowData?.costVat }}
+              </td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
+
+      <div
+        *ngIf="fullInfoParent.goods.length > 5"
+        class="expandTableBtn w-auto"
+        (click)="expandTable = !expandTable"
+      >
+        <div class="flexContent4 p-1">
+          {{
+            expandTable
+              ? ("viewOffer.collapseTable" | translate)
+              : ("viewOffer.expandTable" | translate)
+          }}
+          <i class="expandTable" [ngClass]="{ 'tr-rt180': expandTable }"></i>
+        </div>
+      </div>
+    </div>
+
+    <!--Дополнительная информация-->
+    @if (fullInfo.generalInfo.detailsImportDomestic?.length > 0 ||
+        fullInfo.generalInfo.detailsExportForeign?.length > 0 ||
+        fullInfo.documents?.length > 0) {
+        <app-offers-additional-info
+          [generalInfo]="fullInfo.generalInfo"
+          [documents]="fullInfo.documents"
+          [userToken]="user?.token">
+        </app-offers-additional-info>
+    }
+
+    <!-- Инф-ция о продавце/покупателе -->
+    @if (fullInfo.generalInfo.firmName) {
+      <div class="sellerInformation border p-2">
+        <div
+          class="flexContent4 jc-sb"
+          (click)="sellerInformationHidden = !sellerInformationHidden"
+        >
+          <span class="font-s16">{{
+            fullInfo?.generalInfo?.directionId === IdDirection.sale
+              ? ("trading.dealsTab.seller" | translate)
+              : ("trading.dealsTab.buyer" | translate)
+          }}</span>
+          <div
+            class="filtersArrow"
+            [ngClass]="{ 'tr-rt180': !sellerInformationHidden }"
+          ></div>
+        </div>
+
+        <div [hidden]="sellerInformationHidden">
+          <div class="flexContentColumn4 mt-3">
+            <div class="flexContent8 flex-start">
+              <div class="label">
+                {{ "trading.tradersTable.participant" | translate }}
+              </div>
+              <div class="info">{{ fullInfo.generalInfo.firmName }}</div>
+            </div>
+
+            @if (fullInfo.generalInfo.idClientContractType !== null) {
+              <div
+                class="flexContent8 flex-start"
+              >
+                <div class="label">{{ "general.contractType" | translate }}</div>
+                <div class="info">
+                  {{
+                    fullInfo.generalInfo.idClientContractType === AgreementType.Commission
+                      ? ("general.commissionAgreement" | translate)
+                      : fullInfo.generalInfo.idClientContractType === AgreementType.Agency
+                      ? ("general.agencyAgreement" | translate)
+                      : ""
+                  }}
+                </div>
+              </div>
+            }
+
+            @if (fullInfo.generalInfo.clientName || (uniqueDeliveryScopes && fullInfo.generalInfo.idClientContractType === AgreementType.Commission)) {
+              <div class="flexContent8 flex-start">
+                <div class="label">{{ "filters.brokerClient" | translate }}</div>
+
+                @if (fullInfo.generalInfo.clientName) {
+                  <div class="info">
+                    {{ fullInfo.generalInfo.clientName }}
+                  </div>
+                }
+
+                @if (uniqueDeliveryScopes && fullInfo.generalInfo.idClientContractType === AgreementType.Commission) {
+                  <div class="info">
+                    @for (client of uniqueDeliveryScopes; track client.firmClientName) {
+                      <div>{{ client.firmClientName }}</div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+
+            @if (fullInfo.generalInfo.branchName) {
+              <div class="flexContent8 flex-start">
+                <div class="label">
+                  {{ "general.structuralSubdivision" | translate }}
+                </div>
+                <div class="info">{{ fullInfo.generalInfo.branchName }}</div>
+              </div>
+            }
+
+            @if (fullInfo.generalInfo.traderFullName) {
+              <div class="flexContent8 flex-start">
+                <div class="label">{{ "viewOffer.traderName" | translate }}</div>
+                <div class="info">{{ fullInfo.generalInfo.traderFullName }}</div>
+              </div>
+            }
+
+            @if (fullInfo.generalInfo.traderTelephone) {
+              <div class="flexContent8 flex-start">
+                <div class="label">{{ "viewOffer.phoneNum" | translate }}</div>
+                <div class="info">{{ fullInfo.generalInfo.traderTelephone }}</div>
+              </div>
+            }
+
+            @if (fullInfo.generalInfo.traderEmail) {
+              <div class="flexContent8 flex-start">
+                <div class="label">{{ "viewOffer.mail" | translate }}</div>
+                <div class="info">{{ fullInfo.generalInfo.traderEmail }}</div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</dx-scroll-view>

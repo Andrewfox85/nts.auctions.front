@@ -1,0 +1,33 @@
+@import '../../../../assets/scss/constants';
+
+.hidden {
+  display: none;
+  visibility: collapse;
+}
+
+.paddingNumberBoxCell{
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+.twostrings {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  position: relative;
+}
+
+.disabledScope{
+  color: $headerTopColor!important;
+  pointer-events: none;
+}
+
+.visible {
+  opacity: 1;
+  pointer-events: visible;
+  z-index: 30;
+}
+
+.redColor{
+  color: $colorError;
+}

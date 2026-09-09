@@ -1,0 +1,94 @@
+@import "../../../assets/scss/constants";
+
+.label {
+  width: 220px;
+  color: $secondTextColor;
+}
+
+.info {
+  width: calc(100% - 220px);
+}
+
+.text {
+  width: calc(100% - 220px);
+  .name {
+    overflow: hidden;
+    display: inherit;
+    max-height: 78px;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    transition: max-height 0.3s ease-out;
+
+    &.opened {
+      height: auto;
+      max-height: 2000px;
+      margin-bottom: 0px;
+      overflow: hidden;
+      display: inherit;
+    }
+  }
+}
+
+.wrapper {
+  padding: 12px;
+  border-radius: 2px;
+  width: 100%;
+}
+
+::ng-deep.dx-scrollview-bottom-pocket {
+  display: none !important;
+}
+
+.buttons {
+  position: sticky;
+  bottom: 0;
+  background-color: $white;
+}
+
+table {
+  .viewRow {
+    background-color: $layerHoverTable;
+  }
+
+  .viewGoodInfo {
+    padding: 16px;
+    background: $layerHoverTable;
+    color: $mainTextColor;
+
+    .name {
+      display: flex;
+      flex-direction: row;
+      gap: 16px;
+      justify-content: space-between;
+
+      label {
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 20px;
+      }
+    }
+
+    .description {
+      font-size: 14px;
+      line-height: 20px;
+
+      .propName {
+        font-size: 14px;
+        color: $headerTopColor;
+      }
+    }
+  }
+}
+
+.overflowText {
+  height: 20px !important;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+hr {
+  border: 1px solid $lightGrayBackgroundColorButton;
+  margin: 0;
+}

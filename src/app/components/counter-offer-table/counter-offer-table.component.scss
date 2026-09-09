@@ -1,0 +1,21 @@
+@import "../../../assets/scss/constants";
+
+.text-mine {
+  color: $mainActiveColor;
+}
+
+.text-rejected {
+  opacity: 0.5;
+}
+
+.my-counter-offers {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.rejected-counter-goods {
+  position: absolute;
+  left: 190px;
+  top: 0;
+}

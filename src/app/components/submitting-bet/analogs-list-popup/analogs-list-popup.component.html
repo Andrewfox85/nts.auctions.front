@@ -1,0 +1,103 @@
+<dx-popup
+  contentTemplate="popupContent"
+  [visible]="analogsListPopup()"
+  [hideOnOutsideClick]="false"
+  [showTitle]="true"
+  title="{{ 'analogsList.analogsList' | translate }}"
+  [showCloseButton]="true"
+  height="auto"
+  width="1050"
+  (onHidden)="closePopup()"
+>
+  <div *dxTemplate="let data of 'popupContent'">
+    <div class="flexContentColumn16 w-100">
+      @if (analogsForShow && dynamicColumns()) {
+      <div class="flexContentColumn8">
+        <div>
+          <dx-check-box
+            text="{{ 'analogsList.myAnalogs' | translate }}"
+            iconSize="20px"
+            [value]="isMyAnalogs()"
+            (onValueChanged)="showMyAnalogs($event)"
+          >
+          </dx-check-box>
+        </div>
+
+        <dx-data-grid
+          #dataGridAnalogs
+          [dataSource]="analogsForShow()"
+          [showBorders]="false"
+          [showColumnLines]="true"
+          [allowColumnResizing]="true"
+          [allowColumnReordering]="true"
+          [showRowLines]="true"
+          [width]="'100%'"
+          (onSelectionChanged)="onSelectionChanged($event)"
+        >
+          <dxo-header-filter [visible]="true" [allowSearch]="true" />
+
+          <dxo-selection mode="single" />
+          <dxo-column-fixing [enabled]="true" />
+
+          <dxi-column
+            caption="{{ 'trading.offersTable.nameProduct' | translate }}"
+            dataField="nameGood"
+            cssClass="column date-roboto-mono text-align-left"
+            width="230"
+            alignment="left"
+            [allowFiltering]="true"
+            cellTemplate="nameTemplate"
+          ></dxi-column>
+
+        <div *dxTemplate="let item of 'nameTemplate'">
+
+          <div class="flexContent8 center">
+            @if (item.data.idGood === idGood()) {
+              <i class="addedGood" id="name{{item.data.idGood}}"></i>
+            }
+            
+            <span>{{item.data.nameGood}}</span>
+          </div>
+
+          <dx-tooltip target="#name{{item.data.idCatalogGood}}"
+                      [showEvent]="{name: 'mouseenter', delay: 500}"
+                      hideEvent="mouseleave">
+               <div *dxTemplate="let data = data; of: 'content'" class="whiteTextColor text-align-left">{{ "counterOffers.addedGood" | translate }}</div>
+          </dx-tooltip>
+        </div>
+
+
+          <!-- динамические колонки (хар-ки товара) -->
+          @for (v of dynamicColumns(); track v.caption) {
+            <dxi-column
+              caption="{{ v.caption }}"
+              dataField="{{ v.dataField }}"
+              cssClass="column text-align-right"
+              width="180"
+            >
+            </dxi-column>
+          }
+        </dx-data-grid>
+      </div>
+      }
+
+      <div class="d-flex jc-end">
+        <div class="flexContent20 w-50">
+          <button
+            class="btn btn-primary submit w-50"
+            [disabled]="!selectedRow"
+            (click)="addAnalogToForm(selectedRow)"
+          >
+            {{ "btns.suggestAnalog" | translate }}
+          </button>
+          <button
+            class="btn btn-outline-primary submit w-50"
+            (click)="closePopup()"
+          >
+            {{ "btns.close" | translate }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</dx-popup>

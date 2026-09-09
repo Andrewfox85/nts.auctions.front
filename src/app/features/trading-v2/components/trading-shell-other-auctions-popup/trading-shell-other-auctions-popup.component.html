@@ -1,0 +1,110 @@
+<dx-popup
+  contentTemplate="otherAuctionsPopup"
+  [hideOnOutsideClick]="false"
+  [visible]="visible"
+  [showTitle]="true"
+  title="{{ 'general.entryToAuctions' | translate }}"
+  width="560"
+  height="auto"
+  [showCloseButton]="true"
+  (onHiding)="onClose()"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  />
+
+  <div *dxTemplate="let data of 'otherAuctionsPopup'">
+    <div class="flexContentColumn16">
+      <div class="notificationBlue borderBlue">
+        <i class="blueIcon"></i>
+        <div>{{ 'trading.choosenSessionNewTab' | translate }}</div>
+      </div>
+
+      <form [formGroup]="form">
+        <div class="flexContentColumn16 w-100">
+          <div class="form-group">
+            <label>{{ 'filters.section' | translate }}</label>
+
+            <div class="flexContentColumn8">
+              <dx-select-box
+                [dataSource]="sections"
+                valueExpr="id"
+                displayExpr="name"
+                height="40px"
+                placeholder="{{ 'filters.selection' | translate }}"
+                formControlName="section"
+                [showClearButton]="true"
+                (onValueChanged)="sectionChanged.emit($event)"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>{{ 'filters.session' | translate }}</label>
+
+            <div class="flexContentColumn8">
+              <dx-select-box
+                [dataSource]="sessionsForDisplay"
+                valueExpr="sessionId"
+                displayExpr="sessionName"
+                height="40px"
+                placeholder="{{ 'filters.selection' | translate }}"
+                formControlName="session"
+                fieldTemplate="sessionTemplate"
+                [disabled]="!form.get('section')?.value"
+                [showClearButton]="true"
+              >
+                <div *dxTemplate="let item of 'item'">
+                  <div
+                    id="nameSession{{ item.sessionId }}"
+                    class="flexContent8"
+                  >
+                    <div class="date-roboto-mono">№{{ item.sessionId }}</div>
+                    <div class="overflowText">{{ item.sessionName }}</div>
+                  </div>
+
+                  <dx-tooltip
+                    target="#nameSession{{ item.sessionId }}"
+                    [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                    hideEvent="mouseleave"
+                  >
+                    <div *dxTemplate="let tooltipData of 'content'">
+                      {{ item.sessionName }}
+                    </div>
+                  </dx-tooltip>
+                </div>
+
+                <div *dxTemplate="let item of 'sessionTemplate'">
+                  <dx-text-box
+                    placeholder="{{ 'filters.selection' | translate }}"
+                    class="date-roboto-mono"
+                    [value]="formatSessionSelectBox(item)"
+                    [readOnly]="true"
+                  />
+                </div>
+              </dx-select-box>
+            </div>
+          </div>
+
+          <div class="buttons flexContent24 buttonsClass mt-2">
+            <button
+              type="button"
+              class="btn btn-primary submit w-50"
+              [disabled]="!form.valid"
+              (click)="onNavigate()"
+            >
+              {{ 'btns.goToAuction' | translate }}
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-primary w-50"
+              (click)="onClose()"
+            >
+              {{ 'btns.close' | translate }}
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</dx-popup>

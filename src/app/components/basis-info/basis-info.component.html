@@ -1,0 +1,218 @@
+<dx-scroll-view [useNative]="true" height="calc(100vh - 125px)">
+  @if (type === 'compareOffer') {
+    <div class="flexContent16 flex-start mb-3">
+      <div class="flexContentColumn16 w-50">
+        <table>
+          <tr>
+            <td class="text-align-left">{{ 'compareOffer.firstBases' | translate }}</td>
+          </tr>
+          <tbody>
+            <tr>
+              <th class="text-align-left">{{ 'general.deliveryBasis' | translate }}</th>
+            </tr>
+          <ng-container *ngFor="let basis of uniqueDelConditionsParent">
+            <tr>
+              <td class="text-align-left">{{ basis.concatedCondition }}</td>
+            </tr>
+          </ng-container>
+          </tbody>
+        </table>
+      </div>
+    
+      <div class="flexContentColumn16 w-50">
+        <table>
+          <tr>
+            <td class="text-align-left">{{ 'compareOffer.currentBases' | translate }}</td>
+          </tr>
+          <tbody>
+            <tr>
+              <th class="text-align-left">{{ 'general.deliveryBasis' | translate }}</th>
+            </tr>
+          <ng-container *ngFor="let basis of deliveryBases">
+            <tr>
+              <td class="text-align-left">{{ basis[0] }}</td>
+            </tr>
+          </ng-container>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+
+<div *ngFor="let delivery of deliveryBases" class="accordion mb-3">
+    <dx-accordion
+      [dataSource]="[delivery[1]]"
+      [multiple]="true"
+      [collapsible]="true"
+      [animationDuration]="300"
+      id="accordion-container"
+    >
+      <div *dxTemplate="let basis of 'title'">
+        <div class="flexContent20">
+          <div class="font-s12 l-h16"
+               [ngClass]="{'flexContentColumn8': basis[0].isMain,'flexContent8': !basis[0].isMain }">
+            <div *ngIf="basis[0].isMain">{{'viewOffer.coreBasis' | translate}}</div>
+            <div class="flexContent16 ai-c" *ngIf="type == 'compareOffer' && !includeBasis(basis[0]) && !addedBasis(basis[0])">
+              <span class="changeTag">{{'general.changed' | translate}}</span>
+            </div>
+
+            <div class="flexContent16 ai-c" *ngIf="type == 'compareOffer' && addedBasis(basis[0])">
+              <span class="changeTag">{{'general.added' | translate}}</span>
+            </div>
+
+            <div>{{basis[0].concatedCondition}}</div>
+          </div>
+        </div>
+      </div>
+      <div *dxTemplate="let basis of 'item'">
+        <div class="basisTable">
+          <dx-data-grid
+            #dataGridDeliveryCondition
+            [dataSource]="basis"
+            class="deliveryBasisGrid"
+            [showColumnLines]="true"
+            [showRowLines]="true"
+            appLocalizeContextMenu
+          >
+            <dxi-column
+              caption="{{ 'trading.offersTable.nameProduct' | translate }}"
+              dataField="goodName"
+              cssClass="column"
+              cellTemplate="nameTemplate"
+            >
+            </dxi-column>
+
+            <div *dxTemplate="let item of 'nameTemplate'">
+              <div class="twostrings" id="name{{item.data.idBasisLink}}">{{item.data.goodName}}</div>
+
+              <dx-tooltip target="#name{{item.data.idBasisLink}}"
+                          [showEvent]="{name: 'mouseenter', delay: 500}"
+                          hideEvent="mouseleave">
+                   <div *dxTemplate="let data = data; of: 'content'" class="whiteTextColor text-align-left">{{item.data.goodName}}</div>
+              </dx-tooltip>
+
+
+            </div>
+
+             <dxi-column
+                  caption="{{ 'trading.offersTable.volume' | translate }}"
+                  dataField="volume"
+                  cssClass="column date-roboto-mono "
+                  cellTemplate="quantityTemplate"
+                  alignment="right"
+              >
+            </dxi-column>
+            <div *dxTemplate="let item of 'quantityTemplate'" class="flexContent4 jc-end">
+              <div>{{ item.data.volume | ruNumberFormat:null:item.data.volumePrecision }}</div>
+              <div>{{item.data.unitName}}</div>
+            </div>
+
+
+            @if (pricingTypeId === pricingType?.formulaWithQuotation) {
+              <dxi-column
+                caption="{{ 'trading.offersTable.quotation' | translate }}"
+                dataField="quotation"
+                cssClass="column date-roboto-mono "
+                cellTemplate="quotationTemplate"
+                alignment="right"
+              >
+              </dxi-column>
+            }
+            
+            <div *dxTemplate="let item of 'quotationTemplate'" class="flexContent4 jc-end">
+              <div>{{ (item.data.quotation | toNumber) | ruNumberFormat: item.data.quoteCurrencyPrecision }}</div>
+              <div>{{item.data.quoteCurrency}}</div>
+            </div>
+
+            @if (pricingTypeId !== pricingType?.price) {
+              <dxi-column
+                caption="{{ 'trading.offersTable.amendment' | translate }}"
+                dataField="amendment"
+                cssClass="column date-roboto-mono "
+                cellTemplate="amendmentTemplate"
+                alignment="right"
+              >
+              </dxi-column>
+            }
+           
+            <div *dxTemplate="let item of 'amendmentTemplate'" class="flexContent4 jc-end">
+              <div>{{ (item.data.amendment | toNumber) | ruNumberFormat: currencyPrecision }}</div>
+              <div>{{item.data.priceAdjustment == 1 ? '%' : item.data.currency}}</div>
+            </div>
+
+            @if (pricingTypeId !== pricingType?.formulaWithoutQuotation) {
+              <dxi-column
+                caption="{{ 'trading.offersTable.priceWithoutVAT' | translate }}"
+                dataField="cost"
+                cssClass="column date-roboto-mono "
+                cellTemplate="priceWithoutVATTemplate"
+                alignment="right"
+              >
+              </dxi-column>
+            }
+            
+            <div *dxTemplate="let item of 'priceWithoutVATTemplate'" class="flexContent4 jc-end">
+              <div>{{ (item.data?.priceWithoutVat | toNumber) | ruNumberFormat: currencyPrecision }}</div>
+              <div>{{item.data.currency}}</div>
+            </div>
+
+            @if (isMinFieldVisible) {
+              <dxi-column
+                caption="{{ 'trading.offersTable.minPrice' | translate }}"
+                cssClass="column date-roboto-mono "
+                cellTemplate="minPriceWithoutVATTemplate"
+                alignment="right"
+              >
+              </dxi-column>
+            }
+            
+            <div *dxTemplate="let item of 'minPriceWithoutVATTemplate'" class="flexContent4 jc-end">
+              <div>{{ (item.data?.minPriceWithoutVat | toNumber) | ruNumberFormat: currencyPrecision }}</div>
+              <div>{{item.data.currency}}</div>
+            </div>
+
+            @if (pricingTypeId !== pricingType?.formulaWithoutQuotation) {
+              <dxi-column
+                caption="{{ 'trading.offersTable.costVAT' | translate }}"
+                dataField="costVat"
+                cssClass="column date-roboto-mono"
+                cellTemplate="costVATTemplate"
+                alignment="right"
+              >
+              </dxi-column>
+            }
+          
+            <div *dxTemplate="let item of 'costVATTemplate'" class="flexContent4 jc-end">
+              <div>{{ (item.data?.costVat | toNumber) | ruNumberFormat: currencyPrecision : currencyPrecision }}</div>
+              <div>{{item.data.currency}}</div>
+            </div>
+
+            <dxo-summary>
+              <dxi-total-item
+                column="costVat"
+                cssClass="blackColor date-roboto-mono d-flex jc-end"
+                summaryType="sum"
+                [customizeText]="
+                  summaryFormatterService.getTotalBasedCustomizeText(
+                    'viewOffer.totalBased',
+                    basis?.[0]?.currency,
+                    currencyPrecision
+                  )
+                "
+                alignment="right"
+                showInColumn="costVat"
+              >
+              </dxi-total-item>
+            </dxo-summary>
+          </dx-data-grid>
+        </div>
+
+      </div>
+    </dx-accordion>
+  </div>
+</dx-scroll-view>
+
+
+
+

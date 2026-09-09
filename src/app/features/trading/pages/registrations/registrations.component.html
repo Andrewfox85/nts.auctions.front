@@ -1,0 +1,454 @@
+<main class="registrations">
+  <div class="main_component">
+    <div class="content">
+      @if (registrations) {
+      <div class="body">
+        <div class="registrations-body-wrapper">
+          <div class="body_content">
+            <dx-data-grid
+              [dataSource]="
+                user?.IsWorker ? registrationsWorker : registrationsTrader
+              "
+              [showBorders]="false"
+              [showColumnLines]="true"
+              [allowColumnResizing]="true"
+              [allowColumnReordering]="true"
+              [showRowLines]="true"
+              (onContextMenuPreparing)="onContextMenuPreparing($event)"
+              (onSelectionChanged)="onSelectionChanged($event)"
+              [filterValue]="boundGridFilterValue"
+              (onOptionChanged)="onGridOptionChanged($event)"
+              appLocalizeContextMenu
+            >
+              <dxo-filter-panel [visible]="true" />
+
+              <dxo-header-filter [visible]="true" [allowSearch]="true" />
+
+              <dxo-search-panel
+                [visible]="true"
+                [width]="320"
+                placeholder="{{ 'filters.searchLabel' | translate }}"
+              />
+
+              <dxo-filter-row [visible]="true" />
+
+              @if (user?.IsWorker) {
+              <dxo-selection
+                mode="multiple"
+                showCheckBoxesMode="always"
+                selectAllMode="allPages"
+              />
+              }
+
+              <dxo-scrolling mode="standard" [scrollByContent]="true" showScrollbar="always" />
+
+              <dxo-state-storing
+                [enabled]="true"
+                type="custom"
+                [storageKey]="gridStateStorageKey"
+                [customLoad]="loadGridState"
+                [customSave]="saveGridState"
+              />
+
+              <dxo-column-chooser
+                [enabled]="tabIndex === 'registration'"
+                title="{{ 'general.columnChooser' | translate }}"
+                mode="select"
+                sortOrder="asc"
+                container="body"
+                [position]="columnChooserPosition"
+              />
+
+              <dxo-paging [pageSize]="numberEntriesPage[1]" />
+
+              <dxo-pager
+                [visible]="true"
+                [allowedPageSizes]="numberEntriesPage"
+                displayMode="compact"
+                [showPageSizeSelector]="true"
+                [showInfo]="true"
+                [infoText]="infoText"
+              />
+
+              <dxi-column
+                caption="{{ 'trading.regsTable.status' | translate }}"
+                dataField="statusName"
+                cssClass="column text-align-left"
+                [minWidth]="160"
+                allowSorting="true"
+                [allowFiltering]="true"
+                cellTemplate="cellTemplateStatus"
+              />
+
+              <div *dxTemplate="let data of 'cellTemplateStatus'">
+                <span
+                  [ngClass]="{
+                    redColor:
+                      data.data.statusId == statusRegs.rejectedBeforeBid ||
+                      data.data.statusId == statusRegs.rejectedBySystem ||
+                      data.data.statusId == statusRegs.rejectedInBid
+                  }"
+                  >{{ data.data.statusName }}</span
+                >
+              </div>
+
+              <dxi-column
+                caption="{{ 'trading.regsTable.direction' | translate }}"
+                dataField="directionName"
+                cssClass="column text-align-left"
+                [minWidth]="120"
+                allowSorting="true"
+                [allowFiltering]="true"
+              />
+
+              @if (user?.IsWorker) {
+              <dxi-column
+                caption="{{ 'trading.tradersTable.participant' | translate }}"
+                dataField="firmName"
+                cssClass="column text-align-left"
+                [minWidth]="210"
+                allowSorting="true"
+                [allowFiltering]="true"
+              />
+              }
+
+              <dxi-column
+                caption="{{ 'general.contractType' | translate }}"
+                dataField="clientContractTypeName"
+                cssClass="column text-align-left"
+                [minWidth]="150"
+                allowSorting="true"
+                [allowFiltering]="true"
+              />
+
+              <dxi-column
+                caption="{{ 'filters.brokerClient' | translate }}"
+                dataField="clientName"
+                cssClass="column text-align-left"
+                [minWidth]="210"
+                allowSorting="true"
+                [allowFiltering]="true"
+              />
+
+              <dxi-column
+                caption="{{ 'filters.listBranchs' | translate }}"
+                dataField="branchName"
+                cssClass="column text-align-left"
+                [minWidth]="210"
+                allowSorting="true"
+                [allowFiltering]="true"
+              />
+
+              @if (user?.IsWorker) {
+              <dxi-column
+                caption="{{ 'trading.tradersTable.trader' | translate }}"
+                dataField="traderName"
+                cssClass="column text-align-left"
+                [minWidth]="210"
+                allowSorting="true"
+                [allowFiltering]="true"
+                [visible]="user?.IsWorker ? true : false"
+              />
+              }
+
+              <dxi-column
+                caption="{{ 'trading.regsTable.rejectedReason' | translate }}"
+                dataField="rejectionReason"
+                cssClass="column text-align-left"
+                [minWidth]="450"
+                allowSorting="true"
+                [allowFiltering]="true"
+              />
+
+              <dxi-column
+                caption="{{ 'trading.regsTable.rejectedDate' | translate }}"
+                cssClass="column text-align-right"
+                [minWidth]="100"
+                allowSorting="true"
+                [allowFiltering]="false"
+                cellTemplate="cellTemplateRejectedDate"
+              />
+
+              <div *dxTemplate="let data of 'cellTemplateRejectedDate'">
+                @if (data.data.rejectionDate) {
+                <div class="flexContentColumn8">
+                  <span>{{
+                    data.data.rejectionDate
+                      | excelDate
+                      | date : "dd.MM.yyyy" : "+0000"
+                  }}</span>
+
+                  <span>{{
+                    data.data.rejectionDate
+                      | excelDate
+                      | date : "HH:mm" : "+0000"
+                  }}</span>
+                </div>
+                }
+              </div>
+            </dx-data-grid>
+          </div>
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+</main>
+
+<!-- Отклонение регистраций -->
+<dx-popup
+  contentTemplate="rejectPopup"
+  [hideOnOutsideClick]="false"
+  [visible]="rejectPopup"
+  [showTitle]="true"
+  title="{{ 'trading.regsTable.rejectTitle' | translate }}"
+  width="600"
+  height="auto"
+  [showCloseButton]="true"
+  (onHiding)="rejectPopup = false; clearRejectForm()"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  />
+
+  <div *dxTemplate="let data of 'rejectPopup'">
+    <div class="flexContentColumn16">
+      <form [formGroup]="rejectForm">
+        <div>
+          <span
+            >{{ "trading.regsTable.chooseRegs" | translate }}
+            {{ chooseRegs?.length }}</span
+          >
+        </div>
+
+        <div class="flexContentColumn8 w-100">
+          <div class="flexContent20">
+            <label>{{ "trading.regsTable.rejectReason" | translate }}</label>
+            <label
+              >{{
+                this.rejectReason?.length > 0 ? this.rejectReason?.length : 0
+              }}/500</label
+            >
+          </div>
+
+          <dx-text-area
+            height="124px"
+            placeholder="{{ 'general.text' | translate }}"
+            maxLength="500"
+            [(value)]="rejectReason"
+            valueChangeEvent="keyup"
+            formControlName="reason"
+          />
+        </div>
+
+        <div class="buttons flexContent24 buttonsClass">
+          <button
+            class="btn btn-primary submit w-50"
+            [disabled]="!rejectForm.valid"
+            (click)="rejectTrader()"
+          >
+            {{ "btns.removeMackler" | translate }}
+          </button>
+          <button
+            class="btn btn-outline-primary w-50"
+            (click)="rejectPopup = false; clearRejectForm()"
+          >
+            {{ "btns.close" | translate }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</dx-popup>
+
+<!-- восстановление -->
+<dx-popup
+  contentTemplate="restorePopup"
+  [hideOnOutsideClick]="false"
+  [visible]="restorePopup"
+  [showTitle]="true"
+  title="{{ 'trading.regsTable.restoreTitle' | translate }}"
+  width="500"
+  height="auto"
+  [showCloseButton]="true"
+  (onHiding)="restorePopup = false"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  />
+
+  <div *dxTemplate="let data of 'restorePopup'">
+    <div>
+      <span
+        >{{ "trading.regsTable.chooseRegs" | translate }}
+        {{ chooseRegs?.length }}</span
+      >
+    </div>
+
+    @if(restoreForm){
+    <form [formGroup]="restoreForm">
+      <div class="flexContentColumn24 w-100">
+        <div class="mt-3 border">
+          <div class="flexContent8 jc-sb p-3">
+            <span>{{ "trading.regsTable.depositControl" | translate }}</span>
+            <div>
+              <dx-switch
+                switchedOffText=""
+                switchedOnText=""
+                formControlName="depositControl"
+              />
+            </div>
+          </div>
+
+          <div class="flexContent8 jc-sb p-3 pt-0">
+            <span>{{ "trading.regsTable.violationsControl" | translate }}</span>
+            <div>
+              <dx-switch
+                switchedOffText=""
+                switchedOnText=""
+                formControlName="violationsControl"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="buttons flexContent24 buttonsClass">
+          <button class="btn btn-primary submit w-50" (click)="restoreReg()">
+            {{ "btns.restoreRegistration" | translate }}
+          </button>
+          <button
+            class="btn btn-outline-primary w-50"
+            (click)="restorePopup = false"
+          >
+            {{ "btns.close" | translate }}
+          </button>
+        </div>
+      </div>
+    </form>
+    }
+  </div>
+</dx-popup>
+
+<!-- для результатов -->
+<dx-popup
+  contentTemplate="resultPopup"
+  [hideOnOutsideClick]="false"
+  [visible]="resultPopup"
+  [showTitle]="true"
+  [title]="resultPopupTitle"
+  width="540"
+  height="auto"
+  [showCloseButton]="true"
+  (onHiding)="resultPopup = false; getData(); clearArr()"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  />
+
+  <div *dxTemplate="let data of 'resultPopup'">
+    @if (chooseRegs?.length === 1) {
+    <div>
+      @if (resultData[0].isSuccessful) {
+      <div class="resultMessage successGreen borderGreen h-auto">
+        <span class="message">
+          <i class="checkIcon"></i>
+          <span>{{
+            resultPopupType == "restore"
+              ? ("trading.regsTable.restoreSuccess" | translate)
+              : ("trading.regsTable.rejectSuccess" | translate)
+          }}</span>
+        </span>
+      </div>
+      } @if (!resultData[0].isSuccessful) {
+      <div class="resultMessage errorMessage borderRed h-auto">
+        <span class="message">
+          <i class="errorIcon"></i>
+          <span>{{ resultData[0].warningMessage }}</span>
+        </span>
+      </div>
+      }
+    </div>
+    } @if (chooseRegs?.length > 1) {
+    <div class="flexContentColumn24">
+      <!-- все успешно -->
+      @if (succeedRes?.length > 0 && unsucceedRes?.length === 0) {
+      <div class="resultMessage successGreen borderGreen h-auto">
+        <span class="message">
+          <i class="checkIcon"></i>
+
+          <span
+            >{{
+              resultPopupType == "restore"
+                ? ("trading.regsTable.restoreRes" | translate)
+                : ("trading.regsTable.rejectRes" | translate)
+            }}
+            {{ "errors.successWarning" | translate }} -
+            {{ succeedRes?.length }},
+            {{ "errors.noSuccessError" | translate }} - 0</span
+          >
+        </span>
+      </div>
+      }
+
+      <!-- часть успешно, часть нет -->
+      @if (succeedRes?.length > 0 && unsucceedRes?.length > 0) {
+      <div class="resultMessage notificationOrange borderOrange">
+        <span class="message">
+          <i class="unavailableIcon"></i>
+
+          <span
+            >{{
+              resultPopupType == "restore"
+                ? ("trading.regsTable.restoreRes" | translate)
+                : ("trading.regsTable.rejectRes" | translate)
+            }}
+            {{ "errors.successWarning" | translate }} -
+            {{ succeedRes?.length }},
+            {{ "errors.noSuccessError" | translate }} -
+            {{ unsucceedRes?.length }}</span
+          >
+        </span>
+      </div>
+      }
+
+      <!-- все неуспешно -->
+      @if (succeedRes?.length == 0 && unsucceedRes?.length > 0) {
+      <div class="resultMessage errorMessage borderRed">
+        <span class="message">
+          <i class="errorIcon"></i>
+
+          <span
+            >{{
+              resultPopupType == "restore"
+                ? ("trading.regsTable.restoreRes" | translate)
+                : ("trading.regsTable.rejectRes" | translate)
+            }}
+            {{ "errors.successWarning" | translate }} - 0,
+            {{ "errors.noSuccessError" | translate }} -
+            {{ unsucceedRes?.length }}</span
+          >
+        </span>
+      </div>
+      } @if (unsucceedRes?.length > 0) {
+      <div class="buttons flexContent24 buttonsClass">
+        <button
+          class="btn btn-primary submit w-50"
+          (click)="
+            onViewDetail(resultPopupType == 'restore' ? 'restore' : 'reject')
+          "
+        >
+          {{ "btns.viewInDdetail" | translate }}
+        </button>
+
+        <button
+          class="btn btn-outline-primary w-50"
+          (click)="resultPopup = false; getData(); clearArr()"
+        >
+          {{ "btns.close" | translate }}
+        </button>
+      </div>
+      }
+    </div>
+    }
+  </div>
+</dx-popup>

@@ -1,0 +1,1912 @@
+@import '_mixins';
+@import '_variables';
+
+.content {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.w-100 {
+  width: 100% !important;
+}
+.w-80 {
+  width: 80% !important;
+}
+.w-90 {
+  width: 90% !important;
+}
+.w-33 {
+  width: 33% !important;
+}
+.w-10 {
+  width: 10% !important;
+}
+.min-w0{
+  min-width: 0!important;
+}
+
+.w-50{
+  width: 50% !important;
+}
+.w-20px{
+   width: 20px!important;
+ }
+.w-30px{
+   width: 30px;
+ }
+
+.w-40px{
+  width: 40px;
+}
+
+.w-55px{
+  width: 55px;
+}
+.w-80px{
+  width: 80px;
+}
+.w-100px{
+  width: 100px;
+}
+.w-112px{
+  width: 112px;
+}
+.w-130px{
+  width: 130px;
+}
+.w-140px{
+  width: 140px;
+}
+.w-155px{
+   width: 155px;
+ }
+.w-165px{
+  width: 165px;
+}
+.w-194px{
+  width: 194px;
+}
+.w-220px{
+   width: 220px;
+ }
+ .w-260px{
+  width: 260px;
+}
+.w-280px{
+   width: 280px;
+ }
+ .w-340px{
+  width: 340px;
+}
+.w-350px{
+  width: 350px;
+}
+ .w-430px{
+  width: 430px !important;
+}
+ .w-450px{
+  width: 450px;
+}
+.w-500px{
+  width: 500px;
+}
+.w-680px{
+  width: 680px;
+}
+.w-800px{
+  width: 800px;
+}
+.w-900px{
+  width: 900px;
+}
+.w-fit-cnt{
+  width: fit-content !important;
+}
+
+.w-webkit-fill-available{
+  width: -webkit-fill-available;
+}
+.fl-wrap{
+  flex-wrap: wrap;
+}
+.fl-nowrap{
+  flex-wrap: nowrap!important;
+}
+.wrap{
+  .form-group{
+    min-width: 320px;
+    flex-basis: 48%;
+  }
+}
+
+.wrapLess{
+  .form-group{
+    min-width: 208px;
+    flex-basis: 32%;
+  }
+}
+.backGroundGrey {
+  background-color: $backgroundGrey;
+}
+
+.backgroundTransparent {
+  background-color: transparent !important;
+}
+
+.h-20px{
+  height: 20px!important;
+}
+.h-24px{
+  height: 24px!important;
+}
+.h-30px{
+  height: 30px!important;
+}
+.h-32px{
+  height: 32px!important;
+}
+.h-36px{
+  height: 36px!important;
+}
+.h-40px{
+  height: 40px!important;
+}
+.h-100{
+  height: 100%!important;
+}
+
+.h-100vh{
+  height: 100vh !important;
+}
+
+.h-52{
+  height: 52px!important;
+}
+.h-ft{
+  height: fit-content!important;
+}
+
+.m-t24{
+  margin-top: 24px;
+}
+
+.h-40px{
+  height: 40px!important;
+}
+.flex-start{
+  align-items: flex-start!important;
+}
+.flex-end{
+  align-items: flex-end!important;
+}
+.center{
+  align-items: center!important;
+}
+
+.al-self-end{
+  align-self: flex-end;
+}
+
+.v-al-middle {
+  vertical-align: middle!important;
+}
+
+.v-al-bottom {
+  vertical-align: bottom!important;
+}
+
+.text-align-right {
+  text-align: right!important;
+}
+
+.text-align-left {
+  text-align: left!important;
+}
+
+.text-align-center {
+  text-align: center!important;
+}
+
+.text-gray_1 {
+  color: $text-light-grey!important;
+}
+
+.float_right {
+  float: right;
+}
+
+.displayBlock{
+  display: block!important;
+}
+
+.uppercase{
+  text-transform: uppercase;
+}
+
+* {
+  outline: none;
+}
+
+/*.date-roboto-mono{
+  font-family: $date-number-font !important;
+}*/
+
+.twostrings {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  position: relative;
+  border: none;
+  text-overflow: ellipsis;
+  /*  height: 47px;*/
+}
+
+
+.fl-wrap{
+  flex-wrap: wrap!important;
+}
+.pos_absolute{
+  position: absolute;
+}
+
+.right0{
+  right: 0;
+}
+html {
+  height: 100%;
+}
+body, app-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  height: 100%;
+  max-width: 100vw;
+  line-height: $default-line-height;
+  font-family: $default-font-family !important;
+  font-size: $default-font-size;
+  color: #212121;
+  overflow-x: hidden;
+
+  app-home-page {
+    height: 100%;
+  }
+
+  app-home-page,
+  main {
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto;
+  }
+}
+
+
+
+.underline{
+  text-decoration: underline;
+}
+
+.strong {
+  font-weight: 600;
+}
+
+.hasTooltip {
+  cursor: help;
+}
+
+// быстрое доавбление флекс свойств
+.d-flex {
+  display: flex;
+}
+
+.jc-fl-st {
+  justify-content: flex-start!important;
+}
+
+.jc-sb {
+  justify-content: space-between!important;
+}
+
+.jc-c {
+  justify-content: center!important;
+}
+
+.jc-end {
+  justify-content: end!important;
+}
+
+.jc-normal {
+  justify-content: normal!important;
+}
+
+.ai-c {
+  align-items: center!important;
+}
+.ai-bl{
+  align-items: baseline!important;
+}
+.ai-nrml{
+  align-items: normal!important;
+}
+
+/* a {
+  text-decoration: none!important;
+} */
+
+.unavailableIcon {
+  content: url("/auctions/assets/img/icons/warning-circle.svg");
+}
+
+.checkIcon{
+  content: url("/auctions/assets/img/icons/Check-thin.svg");
+}
+
+.errorIcon{
+  content: url("/auctions/assets/img/icons/info-thin.svg");
+}
+
+.infoIconThin{
+  content: url("/assets/img/icons/infoIconThin.svg");
+}
+
+.errorIconThin{
+  content: url("/assets/img/icons/errorIconThin.svg");
+}
+
+.bytbLogo{
+  content: url('/auctions/assets/img/icons/bytb_logo.svg');
+}
+
+.add {
+  content: url("/auctions/assets/img/icons/icon_plus.svg");
+  padding-right: 8px;
+}
+
+.tr-rt180 {
+  transform: rotate(180deg);
+}
+
+.tr-rt90 {
+  transform: rotate(90deg);
+}
+
+.tr-rt270 {
+  transform: rotate(270deg);
+}
+
+
+h6, .h6, h5, .h5, h4, .h4, h3, .h3, h2, .h2, h1, .h1 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-weight: 500 !important;
+  line-height: 1.2;
+}
+
+/*
+  FONT weight style +  size
+*/
+
+.font-w300 {
+  font-weight: 300 !important;
+}
+
+.font-w400 {
+  font-weight: 400 !important;
+}
+
+.font-w500 {
+  font-weight: 500 !important;
+}
+
+.font-w600 {
+  font-weight: 600 !important;
+}
+
+.font-w700 {
+  font-weight: 700 !important;
+}
+
+.font-s10 {
+  font-size: 10px !important;
+}
+
+.font-s12 {
+  font-size: 12px !important;
+}
+
+.font-s13 {
+  font-size: 13px !important;
+}
+
+.font-s14 {
+  font-size: 14px !important;
+}
+
+.font-s16 {
+  font-size: 16px !important;
+}
+
+.font-s18 {
+  font-size: 18px !important;
+}
+
+.font-s20 {
+  font-size: 20px !important;
+}
+
+.font-s22 {
+  font-size: 22px !important;
+}
+
+.font-s24 {
+  font-size: 24px !important;
+}
+
+.font-s26 {
+  font-size: 26px !important;
+}
+
+.font-s32{
+  font-size: 32px !important;
+}
+
+.font-s36 {
+  font-size: 36px !important;
+}
+
+.font-s48 {
+  font-size: 48px !important;
+}
+
+.blackColor{
+  color: $mainTextColor!important;
+}
+
+.greenColor{
+  color: $mainActiveColor!important;
+}
+
+.orangeColor{
+  color: $sectionAgricultural!important;
+}
+
+.redColor{
+  color: $colorError!important;
+}
+
+/*margin / padding option*/
+.m-auto{
+  margin: 0 auto !important;
+}
+
+.m-0 {
+  margin: 0 !important;
+}
+
+.mt-0,
+.my-0 {
+  margin-top: 0 !important;
+}
+.mt--16px{
+  margin-top: -16px!important;
+}
+.mt--32px{
+  margin-top: -32px!important;
+}
+.mt-12px{
+  margin-top: 12px!important;
+}
+
+.mr-0,
+.mx-0 {
+  margin-right: 0 !important;
+}
+
+.mb-0,
+.my-0 {
+  margin-bottom: 0 !important;
+}
+
+.ml-0,
+.mx-0 {
+  margin-left: 0 !important;
+}
+
+.m-1 {
+  margin: 0.25rem !important;
+}
+
+.mt-1,
+.my-1 {
+  margin-top: 0.25rem !important;
+}
+
+.mr-1,
+.mx-1 {
+  margin-right: 0.25rem !important;
+}
+
+.mb-1,
+.my-1 {
+  margin-bottom: 0.25rem !important;
+}
+
+.ml-1,
+.mx-1 {
+  margin-left: 0.25rem !important;
+}
+
+.m-2 {
+  margin: 0.5rem !important;
+}
+
+.mt-2,
+.my-2 {
+  margin-top: 0.5rem !important;
+}
+
+.mr-2,
+.mx-2 {
+  margin-right: 0.5rem !important;
+}
+
+.mb-2,
+.my-2 {
+  margin-bottom: 0.5rem !important;
+}
+
+.ml-2,
+.mx-2 {
+  margin-left: 0.5rem !important;
+}
+
+.m-3 {
+  margin: 1rem !important;
+}
+
+.mt-3,
+.my-3 {
+  margin-top: 1rem !important;
+}
+
+.mr-3,
+.mx-3 {
+  margin-right: 1rem !important;
+}
+
+.mb-3,
+.my-3 {
+  margin-bottom: 1rem !important;
+}
+
+.ml-3,
+.mx-3 {
+  margin-left: 1rem !important;
+}
+
+.m-4 {
+  margin: 1.5rem !important;
+}
+
+.mt-4,
+.my-4 {
+  margin-top: 1.5rem !important;
+}
+
+.mr-4,
+.mx-4 {
+  margin-right: 1.5rem !important;
+}
+
+.mb-4,
+.my-4 {
+  margin-bottom: 1.5rem !important;
+}
+
+.ml-4,
+.mx-4 {
+  margin-left: 1.5rem !important;
+}
+
+.m-45 {
+  margin: 2rem !important;
+}
+
+.mt-45,
+.my-4 {
+  margin-top: 2rem !important;
+}
+
+.mr-45,
+.mx-45 {
+  margin-right: 2rem !important;
+}
+
+.mb-45,
+.my-45 {
+  margin-bottom: 2rem !important;
+}
+
+.ml-45,
+.mx-45 {
+  margin-left: 2rem !important;
+}
+
+.mt-25,
+.my-25 {
+  margin-top: 2.5rem !important;
+}
+.m-5 {
+  margin: 3rem !important;
+}
+
+.mt-5,
+.my-5 {
+  margin-top: 3rem !important;
+}
+
+.mr-5,
+.mx-5 {
+  margin-right: 3rem !important;
+}
+
+.mb-5,
+.my-5 {
+  margin-bottom: 3rem !important;
+}
+
+.ml-5,
+.mx-5 {
+  margin-left: 3rem !important;
+}
+
+.ml-30 {
+  margin-left: 30px !important;
+}
+
+
+.p-0 {
+  padding: 0 !important;
+}
+
+.pt-0,
+.py-0 {
+  padding-top: 0 !important;
+}
+
+.pr-0,
+.px-0 {
+  padding-right: 0 !important;
+}
+
+.pb-0,
+.py-0 {
+  padding-bottom: 0 !important;
+}
+
+.pl-0,
+.px-0 {
+  padding-left: 0 !important;
+}
+
+.p-1 {
+  padding: 0.25rem !important;
+}
+
+.pt-1,
+.py-1 {
+  padding-top: 0.25rem !important;
+}
+
+.pr-1,
+.px-1 {
+  padding-right: 0.25rem !important;
+}
+
+.pb-1,
+.py-1 {
+  padding-bottom: 0.25rem !important;
+}
+
+.pl-1,
+.px-1 {
+  padding-left: 0.25rem !important;
+}
+
+.p-2 {
+  padding: 0.5rem !important;
+}
+
+.pt-2,
+.py-2 {
+  padding-top: 0.5rem !important;
+}
+
+.pr-2,
+.px-2 {
+  padding-right: 0.5rem !important;
+}
+
+.pb-2,
+.py-2 {
+  padding-bottom: 0.5rem !important;
+}
+
+.pl-2,
+.px-2 {
+  padding-left: 0.5rem !important;
+}
+.py-12px, .pt-12px {
+  padding-top: 0.75rem !important;
+}
+
+.py-12px, .pb-12px {
+  padding-bottom: 0.75rem !important;
+}
+
+.p-3 {
+  padding: 1rem !important;
+}
+
+.pt-3,
+.py-3 {
+  padding-top: 1rem !important;
+}
+
+.pr-3,
+.px-3 {
+  padding-right: 1rem !important;
+}
+
+.pb-3,
+.py-3 {
+  padding-bottom: 1rem !important;
+}
+
+.pl-3,
+.px-3 {
+  padding-left: 1rem !important;
+}
+
+.p-4 {
+  padding: 1.5rem !important;
+}
+
+.pt-4,
+.py-4 {
+  padding-top: 1.5rem !important;
+}
+
+.pr-4,
+.px-4 {
+  padding-right: 1.5rem !important;
+}
+
+.pb-4,
+.py-4 {
+  padding-bottom: 1.5rem !important;
+}
+
+.pl-4,
+.px-4 {
+  padding-left: 1.5rem !important;
+}
+
+.p-5 {
+  padding: 3rem !important;
+}
+
+.pt-5,
+.py-5 {
+  padding-top: 3rem !important;
+}
+
+.pr-5,
+.px-5 {
+  padding-right: 3rem !important;
+}
+
+.pb-5,
+.py-5 {
+  padding-bottom: 3rem !important;
+}
+
+.pl-5,
+.px-5 {
+  padding-left: 3rem !important;
+}
+
+.l-h16{
+  line-height: 16px!important;
+}
+
+.l-h12{
+  line-height: 12px!important;
+}
+
+.l-h20{
+  line-height: 20px!important;
+}
+
+.l-h32{
+  line-height: 32px!important;
+}
+
+//input type checkbox
+input[type="checkbox"] {
+  accent-color: $mainActiveColorHover;
+  height: 16px;
+  width: 16px;
+  margin-right: 7px;
+  vertical-align: middle;
+}
+
+a {
+  color: $mainActiveColor!important;
+  cursor: pointer;
+}
+
+.link {
+  color: $mainTextColor!important;
+
+  &:hover {
+    color: $mainActiveColor!important;
+  }
+}
+
+.border{
+  border: 1px solid $lightGrayBackgroundColorButton;
+  border-radius: 2px;
+}
+
+.border-bottom{
+  border-bottom: 1px solid $lightGrayBackgroundColorButton;
+}
+
+.border-top{
+  border-top: 1px solid $lightGrayBackgroundColorButton;
+}
+
+
+.border-left{
+  border-left: 1px solid $lightGrayBackgroundColorButton;
+}
+
+
+.border-right{
+  border-right: 1px solid $lightGrayBackgroundColorButton;
+}
+
+.mr-left-28px{
+  margin-left: -28px;
+}
+
+.pointer{
+  cursor: pointer;
+}
+
+.cursor-default{
+  cursor: default;
+}
+
+input[type="radio"]{
+  accent-color: #4da759;
+  width: 18px;
+  height: 18px;
+  vertical-align: middle;
+}
+.errorPopup{
+  padding: 16px;
+  background-color: $backgroundColorError;
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.notificationBlue{
+  background-color: $notificationBlue;
+  padding: 12px 16px;
+  border-radius: 2px;
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.notificationOrange{
+  background-color: $sectionAgriculturalBackground;
+  padding: 12px 16px;
+  border-radius: 2px;
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.successGreen{
+  background-color: $sectionForestBackground;
+  padding: 12px 16px;
+  border-radius: 2px;
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+
+.popupContent{
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  height: 100%;
+  overflow: hidden;
+  overflow-y: hidden;
+
+
+  .buttons{
+    width: 100%;
+  }
+
+  table{
+    font-size: 12px;
+    border: 0px solid $lightGrayBackgroundColorButton;
+
+    td{
+      padding: 12px 16px;
+      border: 1px solid $lightGrayBackgroundColorButton;
+    }
+  }
+}
+
+table {
+  border: 1px solid $borderTable;
+  border-collapse: collapse;
+  color: $mainTextColor;
+
+  th, td {
+    font-size: 12px;
+    line-height: 16px;
+    padding: 12px 8px;
+
+    border: 1px solid $borderTable;
+    text-align: right;
+
+  }
+
+  th {
+    align-items: center;
+    font-weight: 400;
+    letter-spacing: 0.48px;
+    background-color: $lightGrayBackgroundColor;
+
+  }
+}
+
+.basisTable{
+  table {
+    border: none!important;
+  }
+}
+
+
+.disabled{
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+.opacity1{
+  opacity: 1;
+}
+
+.buttonsClass{
+  width: 100%;
+  display: flex;
+}
+
+.flexContent{
+  display: flex;
+  flex-direction: row;
+}
+
+.flexContent48 {
+  display: flex;
+  flex-direction: row;
+  gap: 48px;
+}
+
+.flexContent32 {
+  display: flex;
+  flex-direction: row;
+  gap: 32px;
+}
+
+.flexContent24 {
+  display: flex;
+  flex-direction: row;
+  gap: 24px;
+  justify-content: space-between;
+}
+
+.flexContent20 {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  justify-content: space-between;
+}
+
+.flexContent16{
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  padding: 0px;
+  gap: 16px;
+}
+
+.flexContent12{
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  padding: 0px;
+  gap: 12px;
+}
+
+.flexContent10{
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  padding: 0px;
+  gap: 10px;
+}
+.flexContent8{
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  padding: 0px;
+  gap: 8px;
+}
+
+.flexContent4 {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  text-align: left;
+}
+
+.flexContentColumn0 {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+}
+.flexContentColumn4 {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.flexContentColumn8{
+  display: flex;
+  flex-direction: column;
+  padding: 0px;
+  gap: 8px;
+}
+.flexContentColumn10{
+  display: flex;
+  flex-direction: column;
+  padding: 0px;
+  gap: 10px;
+}
+.flexContentColumn12{
+  display: flex;
+  flex-direction: column;
+  padding: 0px;
+  gap: 12px;
+}
+.flexContentColumn16{
+  display: flex;
+  flex-direction: column;
+  padding: 0px;
+  gap: 16px;
+}
+.flexContentColumn20 {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  justify-content: space-between;
+}
+.flexContentColumn24 {
+   display: flex;
+   flex-direction: column;
+   gap: 24px;
+   justify-content: space-between;
+ }
+
+.flexContentColumn26 {
+   display: flex;
+   flex-direction: column;
+   gap: 26px;
+   justify-content: space-between;
+ }
+
+.flexContentColumn32 {
+   display: flex;
+   flex-direction: column;
+   gap: 32px;
+   justify-content: space-between;
+ }
+.brd-none{
+  border: none!important;
+}
+.borderStep{
+  border: 1px solid $lightGrayBackgroundColorButton;
+  padding: 16px;
+  border-radius: 4px;
+}
+
+.addBasisOpen{
+  padding: 16px;
+  border-top: 1px solid $lightGrayBackgroundColorButton;
+  border-radius: 0px 0px 4px 4px;
+}
+
+.secondTextColor {
+  color: $secondTextColor;
+}
+
+.relative{
+  position: relative;
+}
+
+label{
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  color: $secondTextColor;
+}
+html {
+  height: 100%;
+}
+body, app-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  height: 100%;
+  max-width: 100vw;
+  line-height: $default-line-height;
+  font-family: $default-font-family !important;
+  font-size: $default-font-size;
+  color: #212121;
+  overflow-x: hidden;
+
+  app-home-page {
+    height: 100%;
+  }
+
+  app-home-page,
+  main {
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto;
+  }
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+  padding: 16px 24px 48px;
+  color: $mainTextColor;
+
+  .main_component {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+
+    .head {
+      h1 {
+        font-style: normal;
+        font-weight: 500;
+        font-size: 24px;
+        line-height: 32px;
+        max-width: 50%;
+        margin-bottom: 0;
+      }
+      .subtitle {
+        font-size: 14px;
+        line-height: 20px;
+        color: $secondTextColor;
+        margin: 0;
+      }
+    }
+
+    .search{
+      margin-bottom: 10px;
+    }
+
+    .borderFormTabs{
+      width: 100%;
+      border: 0;
+      box-shadow: inset 0 -1px #ddd;
+    }
+
+    .nameGoodGroup {
+      line-height: 20px;
+      margin-bottom: 12px;
+    }
+
+    hr {
+      border: 1px solid $lightGrayBackgroundColorButton;
+      margin: 0;
+    }
+
+    .toolbarTable{
+      position: absolute;
+      z-index: 10;
+
+      .toolbar {
+      width: 20px;
+      height: 16px;
+
+      &.update {
+        content: url("/auctions/assets/img/icons/updateGrid.svg");
+      }
+    }
+
+    }
+
+    .content {
+      display: flex;
+      flex-direction: row;
+      gap: 24px;
+
+
+      .body {
+        max-width: 100%;
+        width: 100%;
+        overflow: hidden;
+        overflow-x: hidden;
+
+        .body_content {
+   /*       ::ng-deep.dx-datagrid {
+            max-width: 100%;
+          }*/
+          //margin: 18px 0 48px;
+
+       /*   .column {
+            font-size: 12px;
+            line-height: 16px;
+            color: $columnNameTextColor;
+            padding: 12px 16px 12px 8px;
+          }
+*/
+          .dateTimeTemplate {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+
+            .sectionNameDateTime {
+              padding: 4px 8px;
+              border-radius: 2px;
+            }
+
+            .metal {
+              background-color: $sectionMetalBackground;
+              color: $sectionMetal;
+            }
+
+            .forest {
+              background-color: $sectionForestBackground;
+              color: $sectionForest;
+            }
+
+            .agricultural {
+              background-color: $sectionAgriculturalBackground;
+              color: $sectionAgricultural;
+            }
+
+            .promisingGoods{
+              background-color: $sectionPromisingGoodsBackground;
+              color: $sectionPromisingGoods;
+            }
+
+
+          }
+
+
+        }
+      }
+
+      .noData {
+        flex: 1 0 auto;
+        display: flex;
+        font-size: 14px;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        align-self: baseline;
+        background: $lightGrayBackgroundColor;
+        padding: 15px 0;
+        //width: 100%;
+      }
+
+    }
+  }
+}
+
+
+
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+
+  .form-group {
+    align-self: flex-start;
+    width: 100%;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: column;
+
+    label {
+      font-style: normal;
+      font-weight: 400;
+      font-size: 12px;
+      line-height: 16px;
+      color: $secondTextColor;
+      padding-bottom: 8px;
+    }
+    .optinalField{
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 16px;
+      color:$secondTextColor;
+    }
+  }
+}
+
+.textarea{
+  margin-top: 4px;
+  padding: 12px;
+  border-color: #BDBDBD;
+}
+
+.greyColor {
+  color: $headerTopColor;
+}
+
+.secondTextColor {
+  color: $secondTextColor!important;
+}
+
+.borderRed{
+    border-left: 3px solid $colorError;
+    white-space: break-spaces;
+}
+
+.breakWord{
+  word-break: break-word;
+}
+
+.box {
+  box-sizing: border-box;
+}
+
+.resultMessage{
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  gap: 8px;
+  align-items: start;
+  justify-content: space-between;
+
+  &.warningMessage{
+    background-color: $sectionAgriculturalBackground;
+  }
+
+  &.errorMessage{
+    background-color: $backgroundColorError;
+  }
+
+  .message{
+    display: flex;
+    align-self: stretch;
+    gap: 16px;
+    align-items: center;
+  }
+}
+.borderOrange{
+  border-left: 3px solid $sectionAgricultural;
+}
+
+.borderBlue{
+  border-left: 3px solid $sectionMetal;
+}
+
+.backGroundColorGray{
+background-color: $colorGray;
+}
+
+.borderGreen{
+  border-left: 3px solid $sectionForest;
+}
+.close{
+  content: url("/auctions/assets/img/icons/close.svg");
+  cursor: pointer;
+}
+a {
+  color: $mainActiveColor!important;
+  cursor: pointer;
+}
+main {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+  padding: 24px 0px 48px;
+  color: $mainTextColor;
+
+  .main_component {
+    display: flex;
+    flex-direction: column;
+    //gap: 24px;
+
+    .head {
+      h1 {
+        font-style: normal;
+        font-weight: 500;
+        font-size: 24px;
+        line-height: 32px;
+        max-width: 50%;
+        margin-bottom: 32px;
+      }
+    }
+
+    hr {
+      border: 1px solid $lightGrayBackgroundColorButton;
+      margin: 0;
+    }
+
+  }
+}
+
+.fieldName {
+  min-width: 210px;
+  width: 210px;
+  color: $secondTextColor;
+}
+
+.nameBlock {
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.description {
+  font-size: 14px;
+  line-height: 16px;
+  .propName {
+    font-size: 14px;
+    color: $headerTopColor;
+  }
+}
+
+.redStage{
+  background-color: $backgroundColorError;
+  color: $colorError;
+}
+
+.greenStage{
+  background-color: $sectionForestBackground;
+  color: $sectionForest;
+}
+
+.blueStage{
+  background-color: $sectionMetalBackground;
+  color: $sectionMetal;
+}
+
+.orangeStage{
+  background-color: $sectionAgriculturalBackground;
+  color: $sectionAgricultural;
+}
+
+.purpleStage{
+  background-color: $sectionPromisingGoodsBackground;
+  color: $sectionPromisingGoods;
+}
+
+.status {
+  height: 24px;
+  padding: 4px 8px;
+  width: fit-content;
+
+  &.default{
+    background-color: $colorGray;
+    color: $secondTextColor;
+  }
+
+  &.green{
+    background-color: $sectionForestBackground;
+    color: $sectionForest;
+  }
+
+  &.blue{
+    background-color: $sectionMetalBackground;
+    color: $sectionMetal;
+  }
+
+  &.red{
+    background-color: $backgroundColorError;
+    color: $colorError;
+  }
+}
+
+::ng-deep.disabledRow{
+  opacity: .5;
+}
+
+.deleteTag{
+  font-size: 12px;
+  padding: 4px 8px;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  border-radius: 2px;
+  background: $backgroundColorError;
+  color: $colorError;
+}
+
+.addTag{
+  font-size: 12px;
+  padding: 4px 8px;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  border-radius: 2px;
+  background: $backgroundColorGreen;
+  color:$stepActive;
+}
+
+.changeTag{
+  font-size: 12px;
+  padding: 4px 8px;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  border-radius: 2px;
+  background: $sectionMetalBackground;
+  color:$sectionMetal;
+}
+
+
+.difference{
+  background-color: #FFF2D4;
+}
+
+.pre-line {
+  white-space: pre-line;
+}
+
+.plus{
+  content: url("/auctions/assets/img/icons/icon_plus.svg");
+}
+
+.dots{
+  content: url("/auctions/assets/img/icons/dots.svg");
+}
+
+.pen{
+  content: url("/auctions/assets/img/icons/pen.svg");
+}
+
+.arrows{
+  content: url("/auctions/assets/img/icons/ArrowsLeftRight.svg");
+}
+
+.blueIcon{
+  content: url("/auctions/assets/img/icons/blueIcon.svg");
+}
+
+.replyToMess {
+  content: url("/auctions/assets/img/icons/replyToMess.svg");
+}
+
+.addProduct {
+  content: url("/auctions/assets/img/icons/icon_plus.svg");
+  padding-right: 8px;
+}
+
+.startIcon{
+  content: url("/auctions/assets/img/icons/startIcon.svg");
+}
+
+.startGreenIcon{
+  content: url("/auctions/assets/img/icons/startGreenIcon.svg");
+}
+
+.pauseIcon{
+  content: url("/auctions/assets/img/icons/pauseIcon.svg");
+}
+
+.pauseOrangeIcon{
+  content: url("/auctions/assets/img/icons/pauseOrangeIcon.svg");
+}
+
+.stopIcon{
+  content: url("/auctions/assets/img/icons/stopIcon.svg");
+}
+
+.stopRedIcon{
+  content: url("/auctions/assets/img/icons/stopRedIcon.svg");
+}
+
+.nextIcon{
+  content: url("/auctions/assets/img/icons/nextIcon.svg");
+}
+
+.nextBlueIcon{
+  content: url("/auctions/assets/img/icons/nextBlueIcon.svg");
+}
+
+.pencilEditIcon{
+  content: url("/auctions/assets/img/icons/pencilEdit.svg");
+}
+
+.whitePencilEdit{
+  content: url("/auctions/assets/img/icons/whitePencilEdit.svg");
+}
+
+.greenBack{
+  content: url("/auctions/assets/img/icons/green_back.svg");
+}
+
+.blackBack{
+  content: url("/auctions/assets/img/icons/black_back.svg");
+}
+
+.callBlack{
+  content: url("/auctions/assets/img/icons/callBlack.svg");
+  width: 24px;
+}
+
+.UnansweredMess{
+  content: url("/auctions/assets/img/icons/UnansweredMess.svg");
+}
+
+.answeredMess{
+  content: url("/auctions/assets/img/icons/answeredMessage.svg");
+}
+
+.isNotObserved{
+  content: url("/auctions/assets/img/icons/isNotObserved.svg");
+  width: 24px;
+  height: 24px;
+}
+
+.isObserved{
+  content: url("/auctions/assets/img/icons/isObserved.svg");
+  width: 24px;
+  height: 24px;
+}
+
+.arrowDown{
+  content: url("/auctions/assets/img/icons/arrowDown.svg");
+}
+
+.deleteIcon{
+  content: url("/auctions/assets/img/icons/delete.svg");
+}
+
+.blackPlus{
+  content: url("/auctions/assets/img/icons/blackPlus.svg");
+}
+
+.blackMinus{
+  content: url("/auctions/assets/img/icons/blackMinus.svg");
+}
+
+.chat{
+  content: url("/auctions/assets/img/icons/chat.svg");
+}
+
+.filtersArrow {
+  content: url("/auctions/assets/img/icons/filtersArrows.svg");
+}
+
+.reject {
+  content: url("/auctions/assets/img/icons/reject.svg");
+}
+
+.restore {
+  content: url("/auctions/assets/img/icons/restore.svg");
+}
+
+.greyInfoThin {
+  content: url("/auctions/assets/img/icons/grey-info-thin.svg");
+}
+
+.lot {
+  content: url("/auctions/assets/img/icons/lot.svg");
+}
+
+.rejectOffer{
+  content: url("/auctions/assets/img/icons/rejectOffer.svg");
+}
+
+.editPenIcon{
+  content: url("/auctions/assets/img/icons/editOffer.svg");
+}
+
+.observeOffer{
+  content: url("/auctions/assets/img/icons/observeOffer.svg");
+}
+
+.changesOffer{
+  content: url("/auctions/assets/img/icons/changesOffer.svg");
+}
+
+.depositOffer{
+  content: url("/auctions/assets/img/icons/depositOffer.svg");
+}
+
+.blackChat{
+  content: url("/auctions/assets/img/icons/blackChat.svg");
+}
+
+.greenObserveOffer{
+  content: url("/auctions/assets/img/icons/greenObserveOffer.svg");
+}
+
+.greenObserveOfferBigger{
+  content: url("/auctions/assets/img/icons/greenObserveOfferBigger.svg");
+}
+
+.fileIcon{
+  content: url("/auctions/assets/img/icons/fileIcon.svg");
+}
+
+.tradingProgress{
+  content: url("/auctions/assets/img/icons/tradingProgress.svg");
+}
+
+.register{
+  content: url("/auctions/assets/img/icons/register.svg");
+}
+
+.multibasis{
+  content: url("/auctions/assets/img/icons/multibasis.svg");
+}
+
+.trendUp{
+  content: url("/auctions/assets/img/icons/trendUp.svg");
+}
+
+.submitBid{
+  content: url("/auctions/assets/img/icons/submitBid.svg");
+}
+
+.counteroffer{
+  content: url("/auctions/assets/img/icons/counteroffer.svg");
+}
+
+.redWarningErorr{
+  content: url("/auctions/assets/img/icons/redWarningErorr.svg");
+}
+
+.line{
+  content: url("/auctions/assets/img/icons/line.svg");
+}
+
+.viewGood {
+  content: url('/auctions/assets/img/icons/view_grey.svg');
+  cursor: pointer;
+}
+
+.multibasisLotLittle{
+  content: url("/auctions/assets/img/icons/multibasisLotLittle.svg");
+}
+
+.compositeLotLittle{
+  content: url("/auctions/assets/img/icons/compositeLotLittle.svg");
+}
+
+.editPenGreen{
+  content: url("/auctions/assets/img/icons/pencilEditGreen.svg");
+}
+
+.corrected{
+  content: url("/auctions/assets/img/icons/corrected.svg");
+}
+
+.multibasisLot{
+  content: url("/auctions/assets/img/icons/multibasisLot.svg");
+}
+
+.myLeading{
+  content: url("/auctions/assets/img/icons/myLeading.svg");
+}
+
+.noMyLeading{
+  content: url("/auctions/assets/img/icons/noMyLeading.svg");
+}
+
+.counter{
+  content: url("/auctions/assets/img/icons/counter.svg");
+  width: 16px;
+  height: 16px;
+}
+
+.expandTable{
+  content: url("/auctions/assets/img/icons/expandTable.svg");
+}
+
+.calculator {
+  content: url("/auctions/assets/img/icons/calculator.svg");
+}
+
+.update {
+  content: url("/auctions/assets/img/icons/updateGrid.svg");
+}
+
+.infoThinBlack {
+  content: url("/auctions/assets/img/icons/info-thin-black.svg");
+}
+
+.greenCheck {
+  content: url("/auctions/assets/img/icons/green-check.svg");
+}
+
+.approveOffers {
+  content: url("/auctions/assets/img/icons/approveOffers.svg");
+}
+
+.counterAnalogsGreen {
+  content: url("/auctions/assets/img/icons/counterAnalogsGreen.svg");
+  width: 16px;
+  height: 16px;
+}
+
+.counterAnalogsRed {
+  content: url("/auctions/assets/img/icons/counterAnalogsRed.svg");
+  width: 16px;
+  height: 16px;
+}
+
+.analogsList {
+  content: url("/auctions/assets/img/icons/analogs-list.svg");
+}
+
+.triangle {
+  content: url("/auctions/assets/img/icons/triangle.svg");
+}
+
+.notificationIcon {
+  content: url("/auctions/assets/img/icons/notificationIcon.svg");
+}
+
+.restoredTransaction {
+  content: url("/auctions/assets/img/icons/restoredTransaction.svg");
+}
+
+.certificateIcon {
+  content: url("/auctions/assets/img/icons/certificate.svg");
+  height: 12px;
+}
+
+.isAnalog {
+  content: url("/auctions/assets/img/icons/isAnalog.svg");
+}
+
+.addedGood {
+  content: url("/auctions/assets/img/icons/addedGood.svg");
+}
+
+.childArrow {
+  content: url("/auctions/assets/img/icons/childArrow.svg");
+}

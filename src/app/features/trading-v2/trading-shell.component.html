@@ -1,0 +1,68 @@
+<main class="trading trading-v2-shell">
+  <div class="main_component">
+    @if (shellVm(); as state) {
+      @if (state.sessionInfo) {
+        <div class="trading_body flexContentColumn16">
+          <app-trading-shell-header
+            [sessionInfo]="state.sessionInfo"
+            [sessionId]="state.sessionId"
+            [user]="state.user"
+            [workerPrivileges]="state.workerPrivileges"
+            [directTabs]="state.directTabs"
+            [idDirectionRole]="state.idDirectionRole"
+            (openOtherAuctions)="openOtherAuctions()"
+            (workerMenuAction)="onChangeDropDown($event)"
+          />
+
+          <div class="tabs trading-v2-tabs">
+            <app-trading-shell-tabs
+              [shellState]="state"
+              [user]="state.user"
+              [disableTabs]="state.disableTabs"
+              [countInboxUnanswered]="(countInboxUnanswered$ | async) ?? 0"
+              (tabLinkClick)="onTabNavigated($event)"
+            />
+            @if (state.isSessionReady) {
+              <div class="trading-v2-tab-outlet">
+                <router-outlet />
+              </div>
+            }
+          </div>
+        </div>
+      }
+    }
+  </div>
+</main>
+
+<app-trading-shell-violations-popup
+  [visible]="violationsFacade.violationsPopup"
+  [warningMessage]="violationsFacade.warningMessage"
+  [isExistsViolations]="shellVm().isExistsViolations"
+  [transferingMessage]="violationsFacade.transferingMessage"
+  [currentDateForDisplay]="violationsFacade.currentDateForDisplay"
+  (closed)="violationsPopupClose()"
+  (goToPersonalPage)="goToPersonalPageIndex()"
+/>
+
+<app-trading-shell-other-auctions-popup
+  [visible]="otherAuctionsPopup"
+  [form]="form"
+  [sections]="sections"
+  [sessionsForDisplay]="sessionsForDisplay"
+  (closed)="otherAuctionsPopup = false"
+  (sectionChanged)="onChangeSection($event)"
+  (navigate)="goToOtherAuctions($event.sectionId, $event.sessionId)"
+/>
+
+<app-trading-shell-worker-dialogs
+  [admissionVisible]="popupDropDown"
+  [admissionTitle]="popupDropDownTitle"
+  [admissionForm]="admissionForm"
+  [sessionInfo]="shellVm().sessionInfo"
+  [submissionVisible]="submissionPopup"
+  [submissionType]="submissionType"
+  (admissionClosed)="onAdmissionPopupClosed()"
+  (startAdmission)="onStartAdmission()"
+  (submissionClosed)="onSubmissionPopup()"
+  (archiveTransfer)="onArchiveTransfer()"
+/>

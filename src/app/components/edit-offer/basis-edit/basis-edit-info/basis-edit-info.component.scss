@@ -1,0 +1,102 @@
+@import "../../../../../assets/scss/variables";
+@import "../../../../../assets/scss/config";
+
+.textBoxView {
+  position: absolute;
+  z-index: 11;
+  margin-top: 3px;
+  margin-left: 1px;
+}
+
+.changePosition {
+  .form-group {
+    width: 32%;
+    flex-basis: 32% !important;
+  }
+}
+
+.clear {
+  position: absolute;
+  padding: 8px;
+  right: 32px;
+  cursor: pointer;
+  z-index: 15;
+  margin: 0px 0;
+}
+
+::ng-deep.dx-texteditor.dx-editor-outlined {
+  border-radius: 4px;
+  border-color: $toggle-off;
+}
+
+::ng-deep.dx-datagrid-rowsview .dx-texteditor-input {
+  text-align: right;
+}
+
+/*.number-style{
+  ::ng-deep.dx-widget input {
+    font-family: $date-number-font !important;
+  }
+}*/
+
+.errorValue {
+  ::ng-deep.dx-widget input {
+    background-color: $backgroundColorError;
+    color: $colorError;
+  }
+}
+.greenValue {
+  ::ng-deep.dx-widget input {
+    background-color: $sectionForestBackground;
+    color: $sectionForest;
+  }
+}
+
+.orangeValue {
+  ::ng-deep.dx-widget input {
+    background-color: $sectionAgriculturalBackground;
+    color: $sectionAgricultural;
+  }
+}
+
+@media (min-width: 1920px) {
+  .changePosition {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 16px;
+
+    .form-group {
+      flex-basis: 32% !important;
+    }
+    /*  .notRequired{
+      flex-wrap: wrap;
+      width: 66%;
+
+      .form-group{
+        flex-basis: 49%;
+      }
+    }*/
+  }
+}
+
+.twostrings {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  position: relative;
+}
+
+.error-messgae {
+  position: fixed;
+  z-index: 1000000;
+  margin-top: 80px;
+  color: #fff;
+  background-color: #d9534f;
+  border-radius: 4px;
+  width: 159px;
+  text-align: center;
+  padding: 9px 9px;
+  font-size: 12px;
+  margin-right: 32px;
+}

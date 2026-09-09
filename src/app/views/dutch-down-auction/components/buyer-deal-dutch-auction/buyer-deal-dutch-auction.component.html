@@ -1,0 +1,62 @@
+<div class="buyerInformation border p-2">
+  <div class="flexContent4 jc-sb" (click)="changeBuyerInformationHidden()">
+    <span class="font-s16">{{ "trading.dealsTab.buyer" | translate }}</span>
+    <div
+      class="filtersArrow"
+      [class.tr-rt180]="!buyerInformationHidden()"
+    ></div>
+  </div>
+
+  <div [hidden]="buyerInformationHidden()">
+    <div class="flexContentColumn4 mt-3">
+      <div class="flexContent8 flex-start">
+        <div class="label">
+          {{ "trading.tradersTable.participant" | translate }}
+        </div>
+        <div class="info">
+          {{ generalInfo()?.buyerInfo?.buyerConcatedFirmName }}
+        </div>
+      </div>
+
+      <div class="flexContent8 flex-start">
+        <div class="label">{{ "general.contractType" | translate }}</div>
+        @if(generalInfo()?.buyerInfo?.buyerIdClientContractType !== null) {
+        <div class="info">
+          {{
+            generalInfo()?.buyerInfo?.buyerIdClientContractType ===
+            AGREEMENT_TYPE.Commission
+              ? ("general.commissionAgreement" | translate)
+              : generalInfo()?.buyerInfo?.buyerIdClientContractType ===
+                AGREEMENT_TYPE.Agency
+              ? ("general.agencyAgreement" | translate)
+              : "-"
+          }}
+        </div>
+        } @else {
+        <div class="info">-</div>
+        }
+      </div>
+      <div class="flexContent8 flex-start">
+        <div class="label">{{ "filters.brokerClient" | translate }}</div>
+        @if(generalInfo()?.buyerInfo?.buyerConcatedClientName) {
+
+        <div class="info">
+          {{ generalInfo()?.buyerInfo?.buyerConcatedClientName }}
+        </div>
+        } @else {
+        <div class="info">-</div>
+        }
+      </div>
+      @if(generalInfo()?.buyerInfo?.buyerBranchName) {
+      <div class="flexContent8 flex-start">
+        <div class="label">
+          {{ "general.structuralSubdivision" | translate }}
+        </div>
+        <div class="info">
+          {{ generalInfo()?.buyerInfo?.buyerBranchName }}
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+</div>

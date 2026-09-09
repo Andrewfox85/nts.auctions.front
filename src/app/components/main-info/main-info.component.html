@@ -1,0 +1,1063 @@
+<dx-scroll-view [useNative]="true" height="calc(100vh - 125px)">
+  @if (generalInfo) {
+  <div class="generalInfo flexContentColumn12 pr-1">
+    @if (generalInfo?.rejectionReason) {
+    <div class="resultMessage errorMessage borderRed h-auto">
+      <span class="message">
+        <i class="errorIcon"></i>
+        <span>{{ generalInfo?.rejectionReason }}</span>
+      </span>
+    </div>
+    }
+    @if (directSession && generalInfo?.approvalReason) {
+    <div class="resultMessage errorMessage borderRed h-auto">
+      <span class="message">
+        <i class="errorIcon"></i>
+        <span>{{ generalInfo?.approvalReason }}</span>
+      </span>
+    </div>
+    } 
+    @if (generalInfo?.isInactiveByPriceCorridor ||
+      generalInfo?.isInactiveByPriceQuotate ||
+      generalInfo?.isInactiveByUnreliable) {
+    <div class="resultMessage warningMessage borderOrange h-auto">
+      <span class="message">
+        <i class="unavailableIcon"></i>
+          @if (generalInfo?.isInactiveByPriceQuotate) {
+            <span>{{ "viewOffer.inactiveWarningPriceQuote" | translate}}</span>
+          }
+          @if (generalInfo?.isInactiveByPriceCorridor) {
+            <span>{{ "viewOffer.inactiveWarningPriceRange" | translate}}</span>
+          }
+          @if (generalInfo?.isInactiveByUnreliable) {
+            <span>{{ "viewOffer.inactiveWarningUnreliable" | translate}}</span>
+          }
+      </span>
+    </div>
+    }
+
+    <!-- Условия продажи/покупки-->
+    <div class="buySaleCond border p-2">
+      <div class="flexContent4 jc-sb" (click)="buySaleCond = !buySaleCond">
+        <div class="w-260px font-s16 d-flex">
+          <span>{{ "viewOffer.buySaleCond" | translate }}</span>
+           @if (goods?.length > 1) {
+            <i
+              class="compositeLotLittle ml-2"
+              id="compositeLot"
+            ></i>
+           }
+          <dx-tooltip
+            target="#compositeLot"
+            [showEvent]="{ name: 'mouseover', delay: 500 }"
+            hideEvent="mouseleave"
+          >
+            <div *dxTemplate="let data = data; of: 'content'">
+              {{ "viewOffer.compositeLot" | translate }}
+            </div>
+          </dx-tooltip>
+        </div>
+        <div
+          class="filtersArrow"
+          [ngClass]="{ 'tr-rt180': !buySaleCond }"
+        ></div>
+      </div>
+
+      <div [hidden]="buySaleCond">
+        <div class="flexContentColumn8 mt-3">
+         @if (deliveryConditions?.length > 0) {
+          <div
+           class="flexContent4 flex-start"
+        >
+          <div class="label d-flex">
+            <span>{{
+              "trading.offersTable.termsDeliveryTime" | translate
+            }}</span>
+             @if (uniqueDelConditions?.length > 1) {
+               <i
+                class="multibasisLotLittle ml-2"
+                id="multibasisLotLittle"
+               ></i>
+             }
+            <dx-tooltip
+              target="#multibasisLotLittle"
+              [showEvent]="{ name: 'mouseover', delay: 500 }"
+              hideEvent="mouseleave"
+            >
+              <div *dxTemplate="let data = data; of: 'content'">
+                {{ "filters.multibasisLot" | translate }}
+              </div>
+            </dx-tooltip>
+          </div>
+
+          <div class="info flexContentColumn12">
+            @if (uniqueDelConditions?.length > 1) {
+              <div
+                class="l-h20 flexContentColumn12"
+              >
+                <dx-select-box
+                  [dataSource]="uniqueDelConditions"
+                  valueExpr="concatedCondition"
+                  displayExpr="concatedCondition"
+                  height="40px"
+                  [showClearButton]="false"
+                  [value]="basisValue"
+                  (onValueChanged)="onChangeBasis($event)"
+                />
+
+                <div class="notificationBlue h-auto p-2">
+                  <span class="message flexContent8 center">
+                    <i class="blueIcon"></i>
+                    <span class="secondTextColor font-s12 l-h16">{{
+                      "viewOffer.changeTerms" | translate
+                    }}</span>
+                  </span>
+                </div>
+              </div>
+            }
+           
+            @if (uniqueDelConditions?.length == 1) {
+              <div class="l-h20">
+                {{ uniqueDelConditions[0].concatedCondition }}
+              </div>
+            }
+          </div>
+          </div>
+         }
+
+          <div class="flexContent4 flex-start">
+            <div class="label">
+              {{ "trading.offersTable.deliveryTime" | translate }}
+            </div>
+            <div class="info">
+              {{ generalInfo?.concatedDeliveryPeriod | upperCaseFirstLetter }}
+            </div>
+          </div>
+
+          <div class="flexContent4 flex-start">
+            <div class="label">
+              {{ "trading.offersTable.termsPayment" | translate }}
+            </div>
+            <div class="info">{{ generalInfo?.concatedPaymentConditions }}</div>
+          </div>
+
+          @if (user?.IsWorker && generalInfo?.purchasePurpose) {
+            <div
+              class="flexContent4 flex-start"
+            >
+              <div class="label">
+                {{ "viewOffer.purchasePurpose" | translate }}
+              </div>
+              <div class="info">{{ generalInfo?.purchasePurpose }}</div>
+            </div>
+          }
+
+          <div class="flexContent4 flex-start">
+            <div class="label">{{ "viewOffer.costVATLot" | translate }}</div>
+            <div class="info date-roboto-mono">{{ totalRowData?.costVat }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Товары -->
+    @if (currencyPrecision) {
+      <div class="goods flexContentColumn4 flex-end w-100">
+        @if (goods.length > 0) {
+          <table class="w-100">
+            <tr>
+              <th class="text-align-left w-33">
+                {{ "trading.offersTable.nameProduct" | translate }}
+              </th>
+              <th>{{ "trading.offersTable.volume" | translate }}</th>
+                @if (generalInfo?.pricingTypeId != pricingType?.formulaWithoutQuotation && !directSession) {
+                  <th>
+                    {{ "trading.offersTable.priceStep" | translate }}
+                  </th>
+                } 
+                @if (generalInfo?.pricingTypeId == pricingType?.formulaWithQuotation) {
+                  <th>
+                    {{ "trading.offersTable.quotation" | translate }}
+                  </th>
+                } 
+                @if (generalInfo?.pricingTypeId != pricingType?.price) {
+                  <th>
+                    {{ "trading.offersTable.amendment" | translate }}
+                  </th>
+                } 
+                @if (generalInfo?.pricingTypeId != pricingType?.formulaWithoutQuotation) {
+                  <th>
+                    {{ "viewOffer.priceWithoutVAT" | translate }}
+                  </th>
+                } 
+                @if (generalInfo?.pricingTypeId != pricingType?.formulaWithoutQuotation) {
+                  <th>
+                    {{ "viewOffer.costVAT" | translate }}
+                  </th>
+                }
+
+              <th class="w-40px"></th>
+            </tr>
+            <tbody>
+              <ng-container
+                *ngFor="
+                  let good of expandTable ? goods : goods.slice(0, 5);
+                  let i = index;
+                  last as last;
+                  first as first
+                "
+              >
+                <tr [ngClass]="{ viewRow: good.isOpened == true }">
+                  <!-- this.viewInfoGood == good.idGood -->
+                  <td class="text-align-left" id="name{{ good.idGood }}">
+                    <span class="twostrings">{{ good.goodName }}</span>
+                    <dx-tooltip
+                      target="#name{{ good.idGood }}"
+                      [showEvent]="{ name: 'mouseover', delay: 500 }"
+                      hideEvent="mouseleave"
+                    >
+                      <div *dxTemplate="let data = data; of: 'content'">
+                        {{ good.goodName }}
+                      </div>
+                    </dx-tooltip>
+                  </td>
+                  <td class="date-roboto-mono">
+                    {{
+                      getValue(good.goodsSpecifications, IdInterfaceField.quantity)
+                        | toNumber
+                        | ruNumberFormat
+                          : null
+                          : good.goodsSpecifications[0].fieldPrecision
+                    }}
+                    {{ good.unitName }}
+                  </td>
+                  @if (generalInfo?.pricingTypeId != pricingType?.formulaWithoutQuotation && !directSession) {
+                    <td
+                      class="date-roboto-mono"
+                    >
+                      {{
+                        getValueNumber(good.goodsSpecifications, IdInterfaceField.priceStep)
+                          | ruNumberFormat : currencyPrecision : currencyPrecision
+                      }}
+                      {{ good.currency }}
+                    </td>
+                  }
+                  @if ( generalInfo?.pricingTypeId == pricingType?.formulaWithQuotation) {
+                    <td
+                      class="date-roboto-mono"
+                    >
+                      {{
+                        getValue(good.goodsSpecifications, IdInterfaceField.quotation)
+                          | toNumber
+                          | ruNumberFormat
+                            : good.goodsSpecifications[0].fieldPrecision
+                      }}
+                      {{ good.quoteCurrency }}
+                    </td>
+                  }
+                  
+                  @if (generalInfo?.pricingTypeId != pricingType?.price) {
+                    <td
+                      class="date-roboto-mono"
+                    >
+                      {{
+                        good.getValue(good.goodsSpecifications, IdInterfaceField.amendment)
+                          | toNumber
+                          | ruNumberFormat
+                            : (good.priceAdjustment.id == 2
+                                ? this.currencyPrecision
+                                : 0)
+                      }}
+                      {{ good.priceAdjustment.id == 1 ? "%" : good.currency }}
+                    </td>
+                  }
+                 
+                  <!--       цена меняется от базиса -->
+                  @if (generalInfo?.pricingTypeId != pricingType?.formulaWithoutQuotation) {
+                    <td
+                      class="date-roboto-mono"
+                    >
+                      {{
+                        getPriceFromBasisForGood(
+                          good.goodsSpecifications[0].idDemandOfferGood
+                        ) | ruNumberFormat : currencyPrecision : currencyPrecision
+                      }}
+                      {{ good.currency }}
+                    </td>
+                  }
+                  
+                  @if (generalInfo?.pricingTypeId != pricingType?.formulaWithoutQuotation) {
+                    <td class="date-roboto-mono">
+                      {{
+                      getNumberCost(good.goodsSpecifications)
+                      | ruNumberFormat : currencyPrecision : currencyPrecision
+                      }}
+                      {{ good.currency }}
+                    </td>
+                  }
+                 
+                  <td class="w-40px">
+                    <div class="flexContent10" (click)="good.isOpened = true">
+                      <!-- onViewInfo(good) -->
+                      <i
+                        class="viewGood"
+                        [ngStyle]="{ 'pointer-events': goodInfo ? 'none' : 'all' }"
+                      ></i>
+                    </div>
+                  </td>
+                </tr>
+
+                @if (good.isOpened === true) {
+                  <ng-container>
+                    <tr>
+                      <td colspan="7" class="p-0 text-align-left">
+                        <div class="viewGoodInfo flexContentColumn12 p-2">
+                          <div class="name">
+                            <label class="blackColor">{{ good.goodName }}</label>
+                            <i class="close" (click)="good.isOpened = false"></i
+                            ><!-- viewInfoGood = null -->
+                          </div>
+  
+                          <!--                        характеристики товара из каталога-->
+                          @if (good.idGood != null) {
+                            <div class="description">
+                              @for (prop of good.properties; track prop.propertyName) {
+                                <span>
+                                  <span class="propName"> {{ prop.propertyName }}</span>
+                                  <span> {{ prop.propertyValue }}.</span>
+                                </span>
+                              }
+                            </div>
+                          }
+  
+                          <!--                        характеристики товара НСИ -->
+                          @if (good.idGood == null) {
+                            <div class="description">
+                              @for (prop of good.goodValues | goodAnalogDescription; track prop.label; let last = $last) {
+                                <span class="prop-item">
+                                  <span class="propName">{{ prop.label }}: </span>
+                                  <span>{{ prop.value }}</span>
+                                  @if (!last) { 
+                                    <span>; </span> 
+                                  }
+                                </span>
+                              }
+                            </div>
+                          }
+                          
+  
+                          <div class="flexContentColumn4">
+                            <!-- для леса отделить в отдельный подраздел фактические значения (длина/ширина и тп) -->
+                            @for (field of good.goodsSpecifications |
+                            sortActualDimensions; track field.idInterfaceField) {
+                            <div
+                              class="flexContent8 flex-start"
+                              [style.display]="
+                                ACTUAL_SIZE_READINESS_FIELDS.includes(
+                                  field.idInterfaceField
+                                )
+                                  ? 'flex'
+                                  : 'none'
+                              "
+                            >
+                              <div class="fieldName font-s14">
+                                {{ field.fieldName }}
+                              </div>
+                              <div class="font-s14">
+                                {{
+                                  field.controlFieldType == "dxSelectBox"
+                                    ? field.fieldValue
+                                    : ACTUAL_SIZE_FIELDS.includes(
+                                        field.idInterfaceField
+                                      )
+                                    ? (field.fieldValue | actualDimensions)
+                                    : field.fieldValue
+                                }}
+                              </div>
+                            </div>
+                            }
+
+                            @for (field of good.goodsSpecifications; track field.id) {
+                              <div
+                                class="flexContent8 flex-start"      
+                                display-specs
+                                [pricingTypeId]="generalInfo?.pricingTypeId"
+                                [field]="field"
+                              >
+                                <div class="fieldName font-s14">
+                                  {{ field.fieldName }}
+                                </div>
+        
+                                <div
+                                  class="font-s14"
+                                  [class.date-roboto-mono]="
+                                    field.controlFieldType === 'dxNumberBox'
+                                  "
+                                >
+                                <!-- значение мин цены берем из базиса -->
+                                @if (field.idInterfaceField === IdInterfaceField.minPrice) {
+                                  {{ getMinPriceFromBasisForGood(good.goodsSpecifications[0].idDemandOfferGood) }}
+                                } @else {
+                                  @switch (field.controlFieldType) {
+                                    @case ("dxSelectBox") {
+                                      {{ field.fieldValue }}
+                                    }
+                                    @case ("dxCheckBox") {
+                                      {{
+                                        field.fieldValue.toString() === "true"
+                                          ? ("btns.yes" | translate)
+                                          : ("btns.no" | translate)
+                                      }}
+                                    }
+                                    @case ("dxNumberBox") {
+                                      {{
+                                        field.fieldValue
+                                          | ruNumberFormat : field.fieldPrecision
+                                      }}
+                                    }
+                                    @default {
+                                      {{ field.fieldValue }}
+                                    } 
+                                 }
+                                }
+                                </div>
+                              </div>
+                            }
+                          </div>
+  
+                          <div class="flexContentColumn4">
+                            <div class="flexContent8 flex-start">
+                              <div class="fieldName font-s14">
+                                {{ "trading.offersTable.VAT" | translate }} (%)
+                              </div>
+                              <div class="font-s14 date-roboto-mono">
+                                {{ getValue(good.goodsSpecifications, IdInterfaceField.VATrate) }}
+                              </div>
+                            </div>
+  
+                            <div class="flexContent8 flex-start">
+                              <div class="fieldName font-s14">
+                                {{ "trading.offersTable.amountVAT" | translate }}
+                              </div>
+                              <div class="font-s14 date-roboto-mono">
+                                {{
+                                  getAmountVAT(good.goodsSpecifications)
+                                    | ruNumberFormat
+                                      : currencyPrecision
+                                      : currencyPrecision
+                                }}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  </ng-container>
+                }
+               
+
+                <!-- Строка Итого -->
+                @if (last) {
+                  <tr class="viewRow greenColor">
+                    <td class="text-align-left">
+                      {{ "viewOffer.total" | translate }}
+                    </td>
+                    <td class="text-align-right date-roboto-mono">
+                      {{ onSameUnits ? totalRowData?.quantity : "-" }}
+                    </td>
+                    @if (generalInfo?.pricingTypeId != pricingType?.formulaWithoutQuotation && !directSession) {
+                       <td class="text-align-right date-roboto-mono">-</td>
+                    }
+                    <td class="text-align-right date-roboto-mono">-</td>
+                    <td class="text-align-right date-roboto-mono">
+                      {{ totalRowData?.costVat }}
+                    </td>
+                    <td></td>
+                  </tr>
+                }
+              </ng-container>
+            </tbody>
+          </table>
+        }
+
+        @if (goods?.length > MAXIMUM_GOODS_LENGTH) {
+          <div
+            class="expandTableBtn w-auto"
+            (click)="expandTable = !expandTable"
+          >
+            <div class="flexContent4 p-1">
+              {{
+                expandTable
+                  ? ("viewOffer.collapseTable" | translate)
+                  : ("viewOffer.expandTable" | translate)
+              }}
+              <i class="expandTable" [ngClass]="{ 'tr-rt180': expandTable }"></i>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Дополнительная инф-ция -->
+    @if (generalInfo.detailsImportDomestic?.length > 0 ||
+        generalInfo.detailsExportForeign?.length > 0 ||
+        documents?.length > 0) {
+        <app-offers-additional-info
+          [generalInfo]="generalInfo"
+          [documents]="documents"
+          [userToken]="user?.token"
+          [directSession]="directSession">
+        </app-offers-additional-info>
+    }
+
+    <!-- Инф-ция о продавце/покупателе -->
+    @if ((user?.IsWorker || generalInfo.firmName) && !directSession) {
+      <div class="sellerInformation border p-2">
+        <div class="flexContent4 jc-sb" (click)="onBuyerInformationChange()">
+          @if (sessionInfo?.sessionInfo.idAuctionType === auctionType.simpleSellerAuction) {
+            <span class="font-s16">{{
+              "viewOffer.sellerInformation" | translate
+            }}</span>
+          } @else {
+            <span class="font-s16">{{
+              "viewDeal.buyerInformation" | translate
+            }}</span>
+          }
+
+          <div
+            class="filtersArrow"
+            [class.tr-rt180]="!sellerInformationHidden"
+          ></div>
+        </div>
+
+        <div [hidden]="buyerInformationHidden">
+          <div class="flexContentColumn4 mt-3">
+            
+            <div class="flexContent8 flex-start">
+              <div class="label">
+                {{ "trading.tradersTable.participant" | translate }}
+              </div>
+              <div class="info">{{ generalInfo.firmName }}</div>
+            </div>
+        
+            @if (generalInfo.idClientContractType != null) {
+              <div class="flexContent8 flex-start">
+                <div class="label">{{ "general.contractType" | translate }}</div>
+                <div class="info">
+                  @if (generalInfo.idClientContractType == AgreementType.Commission) {
+                    {{ "general.commissionAgreement" | translate }}
+                  } @else if (generalInfo.idClientContractType == AgreementType.Agency) {
+                    {{ "general.agencyAgreement" | translate }}
+                  }
+                </div>
+              </div>
+            }
+        
+            @if (generalInfo.clientName || uniqueDeliveryScopes) {
+              <div class="flexContent8 flex-start">
+                <div class="label">{{ "filters.brokerClient" | translate }}</div>
+                
+                @if (generalInfo.clientName) {
+                  <div class="info">
+                    {{ generalInfo.clientName }}
+                  </div>
+                }
+        
+                @if (uniqueDeliveryScopes && generalInfo.idClientContractType == AgreementType.Commission) {
+                  <div class="info">
+                    @for (client of uniqueDeliveryScopes; track client.firmClientName) {
+                      <div>{{ client.firmClientName }}</div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+        
+            @if (generalInfo.branchName) {
+              <div class="flexContent8 flex-start">
+                <div class="label">{{ "general.structuralSubdivision" | translate }}</div>
+                <div class="info">{{ generalInfo.branchName }}</div>
+              </div>
+            }
+        
+            @if (generalInfo.traderFullName) {
+              <div class="flexContent8 flex-start">
+                <div class="label">{{ "viewOffer.traderName" | translate }}</div>
+                <div class="info">{{ generalInfo.traderFullName }}</div>
+              </div>
+            }
+        
+            @if (generalInfo.traderTelephone) {
+              <div class="flexContent8 flex-start">
+                <div class="label">{{ "viewOffer.phoneNum" | translate }}</div>
+                <div class="info">{{ generalInfo.traderTelephone }}</div>
+              </div>
+            }
+        
+            @if (generalInfo.traderEmail) {
+              <div class="flexContent8 flex-start">
+                <div class="label">{{ "viewOffer.mail" | translate }}</div>
+                <div class="info">{{ generalInfo.traderEmail }}</div>
+              </div>
+            }
+        
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Инф-ция о продавце -->
+    @if (directSession || (user?.IsWorker &&
+        generalInfo?.sellerInfo?.concatedFirmName !== null)) {
+      <div class="sellerInformation border p-2">
+        <div class="flexContent4 jc-sb" (click)="onSellerInformationChange()">
+          <span class="font-s16">{{ "viewOffer.sellerInformation" | translate }}</span>
+
+          <div class="filtersArrow" [class.tr-rt180]="!sellerInformationHidden"></div>
+        </div>
+
+        <div [hidden]="sellerInformationHidden">
+          <div class="flexContentColumn4 mt-3">
+            
+            <div class="flexContent8 flex-start">
+              <div class="label">
+                {{ "trading.tradersTable.participant" | translate }}
+              </div>
+              <div class="info">{{ generalInfo?.sellerInfo?.concatedFirmName }}</div>
+            </div>
+        
+            @if (generalInfo.sellerInfo.idClientContractType != null) {
+              <div class="flexContent8 flex-start">
+                <div class="label">{{ "general.contractType" | translate }}</div>
+                <div class="info">
+                  @if (generalInfo.sellerInfo.idClientContractType === AgreementType.Commission) {
+                    {{ "general.commissionAgreement" | translate }}
+                  } @else if (generalInfo.sellerInfo.idClientContractType === AgreementType.Agency) {
+                    {{ "general.agencyAgreement" | translate }}
+                  }
+                </div>
+              </div>
+            }
+        
+            @if (generalInfo.sellerInfo.clientName || generalInfo.sellerInfo.concatedClientName || uniqueDeliveryScopes) {
+              <div class="flexContent8 flex-start">
+                <div class="label">{{ "filters.brokerClient" | translate }}</div>
+                  @if (generalInfo.sellerInfo.clientName) {
+                    <div class="info">
+                      {{ generalInfo.sellerInfo.clientName }}
+                    </div>
+                  } @else if (generalInfo.sellerInfo.concatedClientName) {
+                    <div class="info">
+                      {{ generalInfo.sellerInfo.concatedClientName }}
+                    </div>
+                  } @else if (uniqueDeliveryScopes) {
+                    <div class="info">
+                      @for (client of uniqueDeliveryScopes; track client.firmClientName) {
+                        <div>{{ client.firmClientName }}</div>
+                      }
+                    </div>
+                  }
+              </div>
+            }
+
+            @if (generalInfo.sellerInfo.branchName) {
+              <div class="flexContent8 flex-start">
+                <div class="label">
+                  {{ "general.structuralSubdivision" | translate }}
+                </div>
+                <div class="info">{{ generalInfo.sellerInfo.branchName }}</div>
+              </div>
+            }
+            @if (generalInfo.sellerInfo.traderName) {
+              <div class="flexContent8 flex-start">
+                <div class="label">{{ "viewOffer.traderName" | translate }}</div>
+                <div class="info">{{ generalInfo.sellerInfo.traderName }}</div>
+              </div>
+            }
+            @if (generalInfo.sellerInfo.traderFullName) {
+              <div class="flexContent8 flex-start">
+                <div class="label">{{ "viewOffer.traderName" | translate }}</div>
+                <div class="info">{{ generalInfo.sellerInfo.traderFullName }}</div>
+              </div>
+            }
+            @if (generalInfo.sellerInfo.traderTelephone) {
+              <div class="flexContent8 flex-start">
+                <div class="label">{{ "viewOffer.phoneNum" | translate }}</div>
+                <div class="info">{{ generalInfo.sellerInfo.traderTelephone }}</div>
+              </div>
+            }
+            @if (generalInfo.sellerInfo.traderEmail) {
+              <div class="flexContent8 flex-start">
+                <div class="label">{{ "viewOffer.mail" | translate }}</div>
+                <div class="info">{{ generalInfo.sellerInfo.traderEmail }}</div>
+              </div>
+            }
+        
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Инф-ция о покупателе -->
+    @if (directSession || (user?.IsWorker &&
+     generalInfo?.buyerInfo?.concatedFirmName !== null)) {
+      <div class="buyerInformation border p-2">
+        <div class="flexContent4 jc-sb" (click)="onBuyerInformationChange()">
+          <span class="font-s16">{{
+            "viewDeal.buyerInformation" | translate
+          }}</span>
+          <div
+            class="filtersArrow"
+            [class.tr-rt180]="!buyerInformationHidden"
+          ></div>
+        </div>
+
+        <div [hidden]="buyerInformationHidden">
+          <div class="flexContentColumn4 mt-3">
+            
+            <div class="flexContent8 flex-start">
+              <div class="label">
+                {{ "trading.tradersTable.participant" | translate }}
+              </div>
+              <div class="info">{{ generalInfo.buyerInfo.concatedFirmName }}</div>
+            </div>
+        
+            @if (generalInfo.buyerInfo.idClientContractType != null) {
+              <div class="flexContent8 flex-start">
+                <div class="label">{{ "general.contractType" | translate }}</div>
+                <div class="info">
+                  @if (generalInfo.buyerInfo.idClientContractType == AgreementType.Commission) {
+                    {{ "general.commissionAgreement" | translate }}
+                  } @else if (generalInfo.buyerInfo.idClientContractType == AgreementType.Agency) {
+                    {{ "general.agencyAgreement" | translate }}
+                  }
+                </div>
+              </div>
+            }
+        
+            @if (generalInfo.buyerInfo.concatedClientName) {
+              <div class="flexContent8 flex-start">
+                <div class="label">{{ "filters.brokerClient" | translate }}</div>
+                <div class="info">
+                  {{ generalInfo.buyerInfo.concatedClientName }}
+                </div>
+              </div>
+            }
+        
+            @if (generalInfo.buyerInfo.branchName) {
+              <div class="flexContent8 flex-start">
+                <div class="label">
+                  {{ "general.structuralSubdivision" | translate }}
+                </div>
+                <div class="info">{{ generalInfo.buyerInfo.branchName }}</div>
+              </div>
+            }
+        
+            @if (generalInfo.buyerInfo.traderName) {
+              <div class="flexContent8 flex-start">
+                <div class="label">{{ "viewOffer.traderName" | translate }}</div>
+                <div class="info">{{ generalInfo.buyerInfo.traderName }}</div>
+              </div>
+            }
+        
+            @if (generalInfo.buyerInfo.traderTelephone) {
+              <div class="flexContent8 flex-start">
+                <div class="label">{{ "viewOffer.phoneNum" | translate }}</div>
+                <div class="info">{{ generalInfo.buyerInfo.traderTelephone }}</div>
+              </div>
+            }
+        
+            @if (generalInfo.buyerInfo.traderEmail) {
+              <div class="flexContent8 flex-start">
+                <div class="label">{{ "viewOffer.mail" | translate }}</div>
+                <div class="info">{{ generalInfo.buyerInfo.traderEmail }}</div>
+              </div>
+            }
+        
+          </div>
+        </div>
+      </div>
+    }
+
+    <div class="buttons flexContent16">
+      @if (this.user?.IsWorker && !directSession && isDisabledEditButton()) {
+        <button
+          class="btn btn-outline-primary submit w-100"
+          (click)="
+            editOfferWorker(generalInfo.idDemandOffer, generalInfo.directionId)
+          "
+        >
+          {{ "btns.editApplication" | translate }}
+        </button>
+      }
+
+      @if (user?.IsWorker &&
+        directSession &&
+        sessionInfo?.idSessionPeriod == 13 &&
+        (sessionInfo.isActive || this.sessionInfo.isPaused) &&
+        [9, 12].includes(generalInfo.statusId)) {
+        <button
+          class="btn btn-outline-primary submit w-100"
+          (click)="editDirectOffer(generalInfo.idOffer)"
+        >
+          {{ "btns.editApplication" | translate }}
+        </button>
+      }
+    
+      @if (user?.IsWorker && !directSession) {
+        <button
+          class="btn btn-outline-primary w-100"
+          (click)="
+            onOpenEditPriceStep(
+              generalInfo.idDemandOffer,
+              generalInfo.directionId
+            )
+          "
+        >
+          {{ "trading.offersTable.editPriceStep" | translate }}
+        </button>
+      }
+      
+      @if (user?.IsWorker && privileges &&
+       generalInfo.statusId === statusOffersFilters.unactive) {
+        <button
+          class="btn btn-outline-primary w-100"
+          (click)="checkActivationMode('activate')"
+        >
+          {{ "trading.offersTable.activateApplication" | translate }}
+        </button>
+      }
+     
+      @if (user?.IsWorker && privileges && generalInfo.isCanReject) {
+        <button
+          class="btn btn-outline-red w-100"
+          (click)="onOpenRejectionOffer()"
+        >
+          {{ "btns.rejectApplication" | translate }}
+        </button>
+      }
+      
+      @if (user?.IsWorker && privileges && generalInfo.isCanRestoreRejected) {
+        <button
+          class="btn btn-outline-primary w-100"
+          (click)="checkActivationMode('restore')"
+        >
+          {{ "trading.offersTable.restoreApplication" | translate }}
+        </button>
+      }
+
+      @if (user?.IsWorker &&
+        (sessionInfo.idSessionPeriod === IdSessionPeriods.trading ||
+          sessionInfo.idSessionPeriod === IdSessionPeriods.tradingAndResult) &&
+        (sessionInfo.isActive || sessionInfo.isPaused) &&
+        generalInfo.bidDateFinish) {
+          <button
+            class="btn btn-outline-red w-100"
+            (click)="isVisibleRemoveBidPopup = true"
+          >
+            {{ "btns.removeLeadBid" | translate }}
+          </button>
+      }
+      
+      @if (user?.IsWorker && privileges && sessionInfo.idSessionPeriod === IdSessionPeriods.direct) {
+  
+        @if ([9, 12].includes(generalInfo.statusId)) {
+          <button
+            class="btn btn-outline-red w-100"
+            (click)="onOpenRejectionOffer()"
+          >
+            {{ "btns.rejectApplication" | translate }}
+          </button>
+        }
+      
+        @if ([1, 4, 5].includes(generalInfo.statusId)) {
+          <button
+            class="btn btn-outline-primary w-100"
+            (click)="restoreOffer()"
+          >
+            {{ "trading.offersTable.restoreApplication" | translate }}
+          </button>
+        }
+      }
+
+      @if (!user?.IsWorker && sessionInfo?.idSessionPeriod === IdSessionPeriods.direct && sessionInfo?.isActive) {
+        @if (isMine && [9, 12, 5].includes(generalInfo.statusId)) {
+          <button
+            class="btn btn-outline-primary submit w-100"
+            (click)="editDirectOffer(generalInfo.idOffer)"
+          >
+            {{ "btns.editApplication" | translate }}
+          </button>
+        }
+      
+        @if (generalInfo.isMine && [4, 5, 9, 12].includes(generalInfo.statusId)) {
+          <button
+            class="btn btn-outline-red w-100"
+            (click)="onOpenDeleteOffer()"
+          >
+            {{ "trading.directOffersTab.deleteOffer" | translate }}
+          </button>
+        }
+      }
+
+      <!--  кнопка временно убирается <button class="btn btn-outline-red w-100" *ngIf="!this.user?.IsWorker">{{'btns.deactivateOffer' | translate}}</button> -->
+      @if (!this.user?.IsWorker && isMine && !directSession &&
+       isDisabledEditButton() && sessionInfo.isActive) {
+        <button
+          class="btn btn-outline-primary submit w-100"
+          (click)="
+            onEditOffer(generalInfo.idDemandOffer, generalInfo.directionId)
+          "
+        >
+          {{ "btns.editApplication" | translate }}
+        </button>
+      }
+      @if (isViewSubmitBidToBuyButton) {
+        <button
+          class="btn btn-outline-primary w-100"
+          (click)="
+            onOpenSubmitBidToBuy(
+              generalInfo.idDemandOffer,
+              generalInfo.directionId
+            )
+          "
+        >
+          {{
+            this.sessionInfo?.sessionInfo.idAuctionType !==
+            auctionType.simpleBuyerAuction
+              ? ("trading.auctionsTab.submitBidToBuy" | translate)
+              : ("btns.apply" | translate)
+          }}
+        </button>
+      } 
+      @if (isViewSendCounterofferButton) {
+        <button
+          class="btn btn-outline-primary w-100"
+          (click)="
+            onOpenSubmitCounterOffer(
+              generalInfo.idDemandOffer,
+              generalInfo.directionId
+            )
+          "
+        >
+          {{ "trading.auctionsTab.sendСounteroffer" | translate }}
+        </button>
+      }
+    </div>
+  </div>
+  }
+</dx-scroll-view>
+
+<!-- отклонение заявок -->
+<app-rejection-offer-popup
+  [rejectionPopup]="rejectionPopup"
+  [choosenOffers]="[generalInfo]"
+  [sessionIds]="sessionIds"
+  [sessionInfo]="sessionInfo"
+  [directSession]="directSession"
+  (close)="closeRejectionPopup($event)"
+/>
+
+<!-- восстановление/активация заявок -->
+<app-restore-offer-popup
+  [restorePopup]="restorePopup"
+  [restorePopupType]="restorePopupType"
+  [choosenOffers]="[generalInfo]"
+  [sessionIds]="sessionIds"
+  [admissionOptions]="admissionOptions"
+  [sessionInfo]="sessionInfo"
+  (close)="closeRestorePopup($event)"
+/>
+
+<!-- индивидуальный шаг цены -->
+<app-edit-price-step-popup
+  [sessionIds]="sessionIds"
+  [editPriceStepPopup]="editPriceStepPopup"
+  [data]="infoForPriceStep"
+  (close)="closeEditPriceStepPopup($event)"
+/>
+
+<!-- удаление заявки АДРЕСНЫЕ -->
+<app-delete-offer-popup
+  [deletePopup]="deletePopup"
+  [choosenOffer]="[generalInfo]"
+  [sessionIds]="sessionIds"
+  (close)="closeDeletePopup($event)"
+/>
+
+<!-- уведомления тостер -->
+<dx-toast
+  [(visible)]="isVisibleToast"
+  type="info"
+  width="auto"
+  height="auto"
+  [displayTime]="5000"
+>
+  <div *dxTemplate="let data of 'content'">
+    <div class="flexContent8 center">
+      <div class="checkIcon"></div>
+      <div>{{ message }}</div>
+    </div>
+  </div>
+
+  <dxo-position my="top right" at="right top" of="window" offset="-23 50" />
+</dx-toast>
+
+<!-- снятие лидирующей ставки -->
+<dx-popup
+  contentTemplate="removeBidPopup"
+  [hideOnOutsideClick]="false"
+  [visible]="isVisibleRemoveBidPopup"
+  [showTitle]="true"
+  title="{{ 'btns.removeLeadBid' | translate }}"
+  width="455"
+  height="auto"
+  [showCloseButton]="true"
+  (onHiding)="isVisibleRemoveBidPopup = false"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  />
+
+  <div *dxTemplate="let data of 'removeBidPopup'">
+    <div class="flexContentColumn16">
+      <div class="flexContentColumn4">
+        <span>{{ "viewOffer.removingLeadBidSumbit" | translate }}</span>
+      </div>
+
+      <div class="buttonsClass flexContent20">
+        <button class="btn btn-primary submit w-50" (click)="removeLeadBid()">
+          {{ "btns.removeLeadBid" | translate }}
+        </button>
+        <button
+          class="btn btn-outline-primary btn-inherit w-50"
+          (click)="isVisibleRemoveBidPopup = false"
+        >
+          {{ "btns.close" | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</dx-popup>
+
+<!--Дополнительное предупреждение при переносе заявок при проверке текущего состояния режима активации заявок в связке с торговым периодом-->
+
+@if (popupIsActivatedTransferToBids) {
+  <app-check-activation-mode
+  [tradeTypeId]="this.sessionInfo?.sessionInfo.idAuctionType"
+  [title]="'trading.offersTable.restoreApplication' | translate"
+  (onContinue)="
+    $event ? this.checkAdmissionProcessed('restore') : null;
+    this.popupIsActivatedTransferToBids = false
+  "
+/>
+}
+  
+<!-- модалка с результатом действия-->
+<app-result-popup
+  [resultPopup]="resultPopup"
+  [resultPopupType]="'activate'"
+  [resultData]="resultData"
+  [choosenOffers]="resultData?.chooseOffers"
+  [sessionsParam]="sessionsParam"
+></app-result-popup>

@@ -1,0 +1,226 @@
+<dx-popup
+  contentTemplate="volumePopup"
+  [hideOnOutsideClick]="false"
+  [visible]="volumePopup"
+  [showTitle]="true"
+  title="{{ 'trading.directOffersTab.permittedVolume' | translate }}"
+  [width]="volumeType == 0 ? 560 : 1200"
+  height="auto"
+  [showCloseButton]="true"
+  (onShowing)="onShowing($event)"
+  (onHiding)="closePopup()"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+  <div *dxTemplate="let data of 'volumePopup'">
+    <div class="flexContentColumn16 flex-end">
+      <div class="d-flex">
+        <button
+          class="btn h-32px secondary-btn w-280px"
+          id="updateGrid"
+          (click)="getVolume()"
+        >
+          <div class="flexContent8 ai-c blackColor">
+            <div class="toolbar update"></div>
+            {{ "filters.updatedIn" | translate }}
+            <div class="date-roboto-mono font-s12">
+              {{
+                this.currentTimeDateOnPopup
+                  | date : "HH:mm dd.MM.yyyy" : "+0300"
+              }}
+            </div>
+          </div>
+        </button>
+      </div>
+
+      <!-- статичная таблица -->
+      <div *ngIf="volumeType == 0" class="w-100">
+        <table class="w-100" *ngIf="volumeData">
+          <tr>
+            <th class="text-align-left w-80px">
+              {{ "trading.auctionsTab.unit" | translate }}
+            </th>
+            <th class="w-140px">
+              {{ "trading.directOffersTab.totalPermittedVolume" | translate }}
+            </th>
+            <th class="w-112px">
+              {{ "trading.directOffersTab.approvedOffers" | translate }}
+            </th>
+            <th class="w-112px">
+              {{ "trading.directOffersTab.rest" | translate }}
+            </th>
+          </tr>
+
+          <tbody>
+            <tr *ngFor="let v of volumeData">
+              <td class="text-align-left">{{ v.nameUnit }}</td>
+              <td class="date-roboto-mono">{{ v.volumeAvailable }}</td>
+              <td class="date-roboto-mono">{{ v.volumeApprove }}</td>
+              <td class="date-roboto-mono">{{ v.volumeRemaining }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- динамическая таблица -->
+      <div *ngIf="volumeType == 1" class="w-100">
+        <dx-data-grid
+          #dataGridRef
+          [dataSource]="volumeData"
+          [showBorders]="false"
+          [showColumnLines]="true"
+          [allowColumnResizing]="true"
+          [allowColumnReordering]="true"
+          [showRowLines]="true"
+          [width]="100 + '%'"
+          appLocalizeContextMenu
+        >
+          <dxo-header-filter
+            [visible]="true"
+            [allowSearch]="true"
+          ></dxo-header-filter>
+          <dxo-column-fixing [enabled]="true"></dxo-column-fixing>
+
+          <dxo-scrolling mode="standard" [scrollByContent]="true">
+          </dxo-scrolling>
+
+          <dxo-paging [pageSize]="numberEntriesPage[1]"></dxo-paging>
+          <dxo-pager
+            [visible]="true"
+            [allowedPageSizes]="numberEntriesPage"
+            displayMode="compact"
+            [showPageSizeSelector]="true"
+          >
+          </dxo-pager>
+
+          <!-- № -->
+          <dxi-column
+            caption="№"
+            cssClass="column date-roboto-mono myCellFixShadowLeft text-align-left"
+            width="60"
+            [allowHiding]="false"
+            alignment="left"
+            [allowFiltering]="false"
+            [fixed]="true"
+            [allowFixing]="false"
+            cellTemplate="cellTemplateRowNumber"
+          >
+          </dxi-column>
+
+          <div *dxTemplate="let data of 'cellTemplateRowNumber'">
+            <div>{{ data.row.rowIndex + 1 }}</div>
+          </div>
+
+          <!-- ДИНАМИКА -->
+          <dxi-column
+            *ngFor="let i of dynamicFields"
+            caption="{{ i.showName }}"
+            dataField="{{ i.fieldName }}"
+            cssClass="column text-align-left"
+            width="180"
+            cellTemplate="cellTemplate"
+            [calculateFilterExpression]="calculateFilterExpressionDynamic"
+          >
+            <dxo-header-filter
+              [dataSource]="getDataSourceDynFilter(i.fieldName)"
+            >
+            </dxo-header-filter>
+          </dxi-column>
+
+          <div *dxTemplate="let data of 'cellTemplate'">
+            <div *ngFor="let i of dynamicFields">
+              <div *ngIf="i.fieldName == data.column.dataField">
+                <span class="twostrings">{{
+                  getDynValue(data.data.dynamicFields, i.fieldName)
+                }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Единица измерения -->
+          <dxi-column
+            caption="{{ 'trading.auctionsTab.unit' | translate }}"
+            dataField="nameUnit"
+            cssClass="column date-roboto-mono text-align-left"
+            width="110"
+            alignment="left"
+            [allowFiltering]="true"
+          >
+          </dxi-column>
+
+          <!-- Базис поставки -->
+          <dxi-column
+            caption="{{ 'general.deliveryBasis' | translate }}"
+            dataField="nameBasis"
+            cssClass="column  text-align-left"
+            width="215"
+            alignment="left"
+            [allowSorting]="true"
+            [allowFiltering]="true"
+            cellTemplate="cellTemplateBasis"
+          >
+          </dxi-column>
+
+          <div *dxTemplate="let data of 'cellTemplateBasis'">
+            <div>
+              {{ data.data.nameBasis }} {{ data.data.nameClarification }}
+            </div>
+          </div>
+
+          <!-- Место поставки -->
+          <dxi-column
+            caption="{{ 'trading.directOffersTab.deliveryPlace' | translate }}"
+            dataField="namePlace"
+            cssClass="column  text-align-left"
+            width="150"
+            alignment="left"
+            [allowSorting]="true"
+            [allowFiltering]="true"
+          >
+          </dxi-column>
+
+          <!-- Общий разрешенный объем -->
+          <dxi-column
+            caption="{{
+              'trading.directOffersTab.totalPermittedVolume' | translate
+            }}"
+            dataField="volumeAvailable"
+            cssClass="column  text-align-right"
+            width="150"
+            alignment="left"
+            [allowSorting]="true"
+            [allowFiltering]="true"
+          >
+          </dxi-column>
+
+          <!-- Одобрено -->
+          <dxi-column
+            caption="{{ 'trading.directOffersTab.approvedOffers' | translate }}"
+            dataField="volumeApprove"
+            cssClass="column  text-align-right"
+            width="150"
+            alignment="left"
+            [allowSorting]="true"
+            [allowFiltering]="true"
+          >
+          </dxi-column>
+
+          <!-- Остаток -->
+          <dxi-column
+            caption="{{ 'trading.directOffersTab.rest' | translate }}"
+            dataField="volumeRemaining"
+            cssClass="column myCellFixShadowRight text-align-right"
+            [fixed]="true"
+            width="120"
+            [allowFiltering]="true"
+            [allowFixing]="false"
+            fixedPosition="right"
+            [allowHiding]="false"
+          >
+          </dxi-column>
+        </dx-data-grid>
+      </div>
+    </div>
+  </div>
+</dx-popup>

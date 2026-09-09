@@ -1,0 +1,701 @@
+<div
+  class="flexContentColumn20"
+  [ngClass]="{ addBasisOpen: basisValue.length > 0 }"
+>
+  <dx-validation-group name="basisGroup" class="form">
+    <form [formGroup]="basisForm" class="flexContentColumn20">
+      <div class="changePosition flexContent16 d-flex w-100 fl-wrap wrap">
+        <div class="form-group">
+          <label>{{
+            deliveryBasis.length > 0 && !this.basisValue[0]?.isMain
+              ? ("editOffer.deliveryConditions.additionalbasis" | translate)
+              : ("editOffer.deliveryConditions.coreBasis" | translate)
+          }}</label>
+          <dx-select-box
+            [dataSource]="delivery"
+            displayExpr="basisName"
+            valueExpr="linkId"
+            height="40px"
+            placeholder="{{ 'filters.selection' | translate }}"
+            formControlName="basis"
+            (onValueChanged)="onChangeBasis($event.value)"
+            [class.disabled]="isDisabledBasis"
+          >
+            <!--  !!!!потом добавят:[disabled]="this.deliveryBasis.indexOf(this.basisValue[0])!= -1 && this.deliveryBasis.indexOf(this.basisValue[0]) < this.deliveryBasisOffer?.length"-->
+            <dx-validator>
+              <dxi-validation-rule type="required"></dxi-validation-rule>
+            </dx-validator>
+          </dx-select-box>
+        </div>
+
+        <!--        <div class="flexContent16" >-->
+        <div class="form-group" *ngIf="basisChooseValue?.placeTypeId">
+          <label>{{ basisChooseValue.placeName }}</label>
+          <div class="flexContentColumn4">
+            <!--    text-box перекрывает drop-down-box, чтобы было видно значение из выпадающего списка или поля ввода(добавить)    -->
+            <dx-text-box
+              placeholder="{{ 'filters.selection' | translate }}"
+              [showClearButton]="true"
+              class="textBoxView brd-none"
+              [readOnly]="true"
+              [disabled]="
+                editRuleInIntersections(37) ==
+                  editingRules.editingIsNotAvailable ||
+                (editRuleInIntersections(37) ==
+                  editingRules.addingValueFromReferenceBook &&
+                  this.deliveryBasis.indexOf(this.basisValue[0]) != -1 &&
+                  this.deliveryBasis.indexOf(this.basisValue[0]) <
+                    this.deliveryBasisOffer?.length)
+              "
+              width="{{ dropdownbox.offsetWidth - 70 }}"
+              [value]="this.EnterPlaceName"
+            >
+            </dx-text-box>
+
+            <div #dropdownbox class="relative">
+              <div class="clear" *ngIf="EnterPlaceName?.length > 0">
+                <i class="clearIcon" (click)="clearPlaceName()"></i>
+              </div>
+              <dx-drop-down-box
+                valueExpr="idLink"
+                displayExpr="valueName"
+                placeholder="{{ 'filters.selection' | translate }}"
+                height="40px"
+                [showClearButton]="false"
+                [dataSource]="placeDataBasis"
+                formControlName="placeName"
+                [ngClass]="{
+                  disabled:
+                    editRuleInIntersections(37) ==
+                      editingRules.editingIsNotAvailable ||
+                    (editRuleInIntersections(37) ==
+                      editingRules.addingValueFromReferenceBook &&
+                      this.deliveryBasis.indexOf(this.basisValue[0]) != -1 &&
+                      this.deliveryBasis.indexOf(this.basisValue[0]) <
+                        this.deliveryBasisOffer?.length)
+                }"
+                (onOpened)="onOpenedDropDown()"
+              >
+                <div
+                  *dxTemplate="let data of 'content'"
+                  class="flexContentColumn8"
+                >
+                  <div class="search">
+                    <dx-text-box
+                      placeholder="{{ 'filters.searchLabel' | translate }}"
+                      [(value)]="searchValue"
+                      [showClearButton]="true"
+                      (onValueChanged)="searchTxtBoxValueChange($event)"
+                    >
+                      <dx-validator>
+                        <dxi-validation-rule
+                          type="custom"
+                          message="{{
+                            'errors.minLengthBasisPlaceSearch' | translate
+                          }}"
+                          [ignoreEmptyValue]="true"
+                          [reevaluate]="true"
+                          [validationCallback]="lengthValidationSearch"
+                        >
+                        </dxi-validation-rule>
+                      </dx-validator>
+                      <!--                        valueChangeEvent="keyup"-->
+                      <dxi-button
+                        name="search"
+                        location="before"
+                        [options]="searchIcon"
+                      ></dxi-button>
+                      <dxi-button name="clear"></dxi-button>
+                    </dx-text-box>
+                  </div>
+
+                  <dx-scroll-view [useNative]="true" height="calc(100% - 40px)">
+                    <dx-tree-view
+                      [dataSource]="placeDataBasis"
+                      [animationEnabled]="false"
+                      dataStructure="plain"
+                      keyExpr="idLink"
+                      parentIdExpr="idLinkParent"
+                      selectionMode="single"
+                      showCheckBoxesMode="normal"
+                      [selectNodesRecursive]="false"
+                      displayExpr="valueName"
+                      [selectByClick]="true"
+                      [searchEditorOptions]=""
+                      [searchEnabled]="false"
+                      [searchExpr]="'valueName'"
+                      [searchTimeout]="3000"
+                      itemTemplate="itemTemplate"
+                      (onInitialized)="saveInstance($event)"
+                      (onItemSelectionChanged)="onChangePlaceType($event)"
+                    >
+                      <div *dxTemplate="let item of 'itemTemplate'">
+                        <div [class.disabled]="item.disableCountries">{{ item.valueName }}</div>
+                      </div>
+                    </dx-tree-view>
+                  </dx-scroll-view>
+                  <!--                      [searchValue]="searchValue"-->
+                  <!--                      (onContentReady)="onContentReady($event)"-->
+                  <!--                      (searchValueChange)="stratSpinner($event)"-->
+                  <!--    <a (click)="openPopupAddPlace = true;"
+                     *ngIf="basisChooseValue.placeTypeId != 1">{{ 'btns.add' | translate }}</a>-->
+                </div>
+                <dx-validator>
+                  @if (basisChooseValue.isRequiredPlace) {
+                  <dxi-validation-rule type="required" />
+                  }
+                </dx-validator>
+              </dx-drop-down-box>
+            </div>
+            @if (!basisChooseValue.isRequiredPlace) {
+            <div class="optinalField">
+              {{ "general.optionalField" | translate }}
+            </div>
+            }
+          </div>
+        </div>
+        <!--Для погранпереходов, портов и ж/д станций выбор идёт или из справочника или произвольный ввод-->
+        @if (basisChooseValue?.placeTypeId == 1) {
+        <div class="form-group">
+          <label>{{
+            "editOffer.deliveryConditions.specifyingLocation" | translate
+          }}</label>
+          <div class="flexContentColumn4">
+            <dx-text-box
+              placeholder="{{ 'general.enter' | translate }}"
+              [showClearButton]="true"
+              height="40px"
+              formControlName="specifyingLocation"
+              maxLength="250"
+              [class.disabled]="isDisabledSpecifyingLocation()
+              "
+              (onValueChanged)="onChangeSpecifyingLocation($event)"
+            >
+            </dx-text-box>
+            <div class="optinalField">
+              {{ "general.optionalField" | translate }}
+            </div>
+          </div>
+        </div>
+        }
+        <!--        </div>-->
+      </div>
+
+      <div class="flexContentColumn16 w-100">
+        <div class="flexContent24">
+          @if (isActiveQuotation && this.sessionsIds.idSessionPeriod ===
+          IdSessionPeriods.pretrading) {
+          <dx-button
+            class="btn-withoutBorder"
+            (onClick)="setPricesQuote($event)"
+            >{{ "editOffer.deliveryConditions.setPricesQuote" | translate }}
+          </dx-button>
+          } @if (isActiveCorridor && this.sessionsIds.idSessionPeriod ===
+          IdSessionPeriods.pretrading) {
+          <dx-button class="btn-withoutBorder" (onClick)="setPriceRange($event)"
+            >{{ "editOffer.deliveryConditions.priceRange" | translate }}
+          </dx-button>
+          }
+        </div>
+        <dx-data-grid
+          #dataGridGood
+          [showBorders]="false"
+          [dataSource]="basisGoods"
+          [showColumnLines]="true"
+          [showRowLines]="true"
+          appLocalizeContextMenu
+        >
+          <dxo-sorting mode="none"></dxo-sorting>
+          <!--        (editingChange)="changePrice = $event.changes"-->
+          <dxi-column dataField="idGood" [visible]="false"></dxi-column>
+
+          <dxi-column
+            caption="{{ 'general.productService' | translate }}"
+            dataField="goodName"
+            cssClass="column"
+            cellTemplate="nameTemplate"
+            [allowEditing]="false"
+          >
+          </dxi-column>
+          <div *dxTemplate="let item of 'nameTemplate'">
+            <div class="twostrings" id="name{{ item.data.idGood }}">
+              {{ item.data.goodName }}
+            </div>
+
+            <dx-tooltip
+              target="#name{{ item.data.idGood }}"
+              [showEvent]="{ name: 'mouseenter', delay: 500 }"
+              hideEvent="mouseleave"
+            >
+              <div
+                *dxTemplate="let data = data; of: 'content'"
+                class="whiteTextColor text-align-left"
+              >
+                {{ item.data.goodName }}
+              </div>
+            </dx-tooltip>
+          </div>
+
+          <dxi-column
+            caption="{{ 'trading.offersTable.volume' | translate }}"
+            dataField="volume"
+            cssClass="column date-roboto-mono "
+            cellTemplate="quantityTemplate"
+            alignment="right"
+          >
+          </dxi-column>
+          <div
+            *dxTemplate="let item of 'quantityTemplate'"
+            class="flexContent4 jc-end"
+          >
+            <div>
+              {{
+                item.data.volume
+                  | ruNumberFormat : null : item.data.volumePrecision
+              }}
+            </div>
+            <div>{{ item.data.unitName }}</div>
+          </div>
+
+          <dxi-column
+            *ngIf="pricingType == pricingTypeConst?.formulaWithQuotation"
+            caption="{{ 'trading.offersTable.quotation' | translate }}"
+            dataField="quotation"
+            cssClass="column"
+            [allowEditing]="false"
+            cellTemplate="quotationTemplate"
+          >
+          </dxi-column>
+          <div
+            *dxTemplate="let item of 'quotationTemplate'"
+            class="flexContent10 text-align-right ai-c jc-end number-style"
+          >
+            <div>
+              {{ item.data?.quotation | ruNumberFormat }}
+              {{ item.data.quoteCurrency.name }}
+            </div>
+          </div>
+
+          @if (pricingType != pricingTypeConst?.price) {
+          <dxi-column
+            caption="{{ 'trading.offersTable.amendment' | translate }}"
+            dataField="amendment"
+            cssClass="column"
+            [allowEditing]="false"
+            cellTemplate="amendmentTemplate"
+          >
+          </dxi-column>
+          }
+
+          <div
+            *dxTemplate="let item of 'amendmentTemplate'"
+            class="flexContent10 text-align-right ai-c jc-end number-style"
+          >
+            <dx-number-box
+              dxNumberBoxClear
+              placeholder="0"
+              [height]="32"
+              [value]="item.data.amendment"
+              [disabled]="
+                !(deliveryBasis.length > 0 && !this.basisValue[0]?.isMain) ||
+                editRuleInIntersections(54) ==
+                  editingRules.editingIsNotAvailable
+              "
+              (onValueChanged)="onChangeAmendment($event, item.data.idGood)"
+              cssClass="date-roboto-mono"
+            >
+              <dxo-format type="fixedPoint" [precision]="2"></dxo-format>
+            </dx-number-box>
+            <div>
+              {{ item.data.priceAdjustment.id == 1 ? "%" : item.data.currency }}
+            </div>
+          </div>
+
+          <dxi-column
+            *ngIf="pricingType == pricingTypeConst?.formulaWithQuotation"
+            caption="{{ 'viewOffer.priceWithoutVAT' | translate }}"
+            dataField="cost"
+            cssClass="column text-align-right"
+            dataType="number"
+            cellTemplate="priceWithoutVATQuotationTemplate"
+          >
+          </dxi-column>
+          <div
+            *dxTemplate="let item of 'priceWithoutVATQuotationTemplate'"
+            class="flexContent10 text-align-right ai-c jc-end number-style"
+          >
+            <dx-number-box
+              dxNumberBoxClear
+              placeholder="0"
+              [height]="32"
+              [value]="priceAmendment(item.data)"
+              [disabled]="true"
+              cssClass="date-roboto-mono "
+            >
+              <dxo-format type="fixedPoint" [precision]="2"></dxo-format>
+            </dx-number-box>
+            <div>
+              {{
+                item.data.currency?.name
+                  ? item.data.currency?.name
+                  : item.data.currency
+              }}
+            </div>
+          </div>
+
+          <dxi-column
+            *ngIf="pricingType == pricingTypeConst?.price"
+            caption="{{ 'viewOffer.priceWithoutVAT' | translate }}"
+            dataField="cost"
+            cssClass="column text-align-right"
+            width="25%"
+            dataType="number"
+            cellTemplate="priceWithoutVATTemplate"
+          >
+          </dxi-column>
+          <div
+            *dxTemplate="let item of 'priceWithoutVATTemplate'"
+            class="flexContent10 text-align-right ai-c jc-end number-style"
+            [ngClass]="{
+              greenValue: item.data.change,
+              errorValue: item.data.error || item.data.range,
+            }"
+          >
+            @if (item.data.range) {
+            <div class="errorIconThin" id="warning{{ item.data.idGood }}">
+              <dx-tooltip
+                target="#warning{{ item.data.idGood }}"
+                [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                hideEvent="mouseleave"
+              >
+                <div
+                  *dxTemplate="let data = data; of: 'content'"
+                  class="whiteTextColor text-align-left"
+                >
+                  {{
+                    "editOffer.deliveryConditions.tooltipPriceRangeMinprice"
+                      | translate
+                  }}
+                  {{
+                    item.data.minPrice
+                      ? item.data.minPrice + " " + item.data.currency
+                      : "-"
+                  }}
+                  <br />{{
+                    "editOffer.deliveryConditions.tooltipPriceRangeMaxprice"
+                      | translate
+                  }}
+                  {{
+                    item.data.maxPrice
+                      ? item.data.maxPrice + " " + item.data.currency
+                      : "-"
+                  }}
+                </div>
+              </dx-tooltip>
+            </div>
+            } @if(isShowMinPriceHint()) {
+            <div class="error-messgae">
+              {{ "errors.minPriceError" | translate }}
+            </div>
+            }
+            <dx-number-box
+              #numberBox
+              dxNumberBoxClear
+              placeholder="0"
+              [height]="32"
+              [value]="item.data.cost"
+              [disabled]="
+                this.editRuleInIntersections(3) ==
+                  editingRules.editingIsNotAvailable &&
+                this.deliveryBasis.indexOf(this.basisValue[0]) != -1 &&
+                this.deliveryBasis.indexOf(this.basisValue[0]) <
+                  this.deliveryBasisOffer?.length
+              "
+              [min]="
+                editRuleInIntersections(3) == editingRules.increaseValue
+                  ? getGoodsSpecifications(
+                      getOriginalGood(item.data.idGood).goodsSpecifications,
+                      3
+                    ).fieldValueNumber
+                  : 0.01
+              "
+              [max]="
+                editRuleInIntersections(3) == editingRules.decreaseValue
+                  ? getGoodsSpecifications(
+                      getOriginalGood(item.data.idGood).goodsSpecifications,
+                      3
+                    ).fieldValueNumber
+                  : null
+              "
+              cssClass="date-roboto-mono"
+              (onValueChanged)="
+                onChangePrices(
+                  $event,
+                  item.data.idGood,
+                  numberBox,
+                  item.data.minPrice
+                )
+              "
+              (onKeyDown)="keyDown(item.data.idGood)"
+            >
+              <dxo-format type="fixedPoint" [precision]="2"></dxo-format>
+              <dx-validator>
+                <!--поле Цена без НДС, если есть Мин. цена (торги на понижение) -->
+                @if (isMinPrice) {
+                <dxi-validation-rule
+                  type="custom"
+                  [validationCallback]="minPriceValidation.bind(this, item.data.minPrice)"
+                  message="{{ 'errors.minPriceError' | translate }}"
+                ></dxi-validation-rule>
+                }
+              </dx-validator>
+            </dx-number-box>
+            <div>
+              {{
+                item.data.currency?.name
+                  ? item.data.currency?.name
+                  : item.data.currency
+              }}
+            </div>
+          </div>
+
+          @if (isMinPrice) {
+            <dxi-column
+              caption="{{ 'trading.offersTable.minPrice' | translate }}"
+              dataField="minPrice"
+              cssClass="column date-roboto-mono "
+              alignment="right"
+              cellTemplate="minPriceWithoutVATTemplate"
+            >
+            </dxi-column>
+            }
+            <div
+              *dxTemplate="let item of 'minPriceWithoutVATTemplate'"
+              class="flexContent10 text-align-right ai-c jc-end number-style"
+            >
+              <dx-number-box
+                dxNumberBoxClear
+                placeholder="0"
+                [height]="32"
+                [value]="item.data.minPrice"
+                [disabled]="
+                  this.editRuleInIntersections(IdInterfaceField.minPrice) ===
+                    editingRules.editingIsNotAvailable &&
+                  this.deliveryBasis.indexOf(this.basisValue[0]) != -1 &&
+                  this.deliveryBasis.indexOf(this.basisValue[0]) <
+                    this.deliveryBasisOffer?.length
+                "
+                [min]="
+                  editRuleInIntersections(IdInterfaceField.minPrice) ==
+                  editingRules.increaseValue
+                    ? getGoodsSpecifications(
+                        getOriginalGood(item.data.idGood).goodsSpecifications,
+                        IdInterfaceField.minPrice
+                      ).fieldValueNumber
+                    : null
+                "
+                [max]="
+                  editRuleInIntersections(IdInterfaceField.minPrice) ==
+                  editingRules.decreaseValue
+                    ? getGoodsSpecifications(
+                        getOriginalGood(item.data.idGood).goodsSpecifications,
+                        IdInterfaceField.minPrice
+                      ).fieldValueNumber
+                    : null
+                "
+                (onValueChanged)="onChangeMinPrices($event, item.data.idGood)"
+                (onKeyDown)="keyDown(item.data.idGood)"
+              >
+                <dxo-format type="fixedPoint" [precision]="2"></dxo-format>
+              </dx-number-box>
+              <div>
+                {{
+                  item.data.currency?.name
+                    ? item.data.currency?.name
+                    : item.data.currency
+                }}
+              </div>
+            </div>
+
+
+          <dxi-column
+            *ngIf="pricingType != pricingType?.formulaWithoutQuotation"
+            caption="{{ 'trading.offersTable.costVAT' | translate }}"
+            dataField="costVat"
+            cssClass="column date-roboto-mono"
+            cellTemplate="costVATTemplate"
+            alignment="right"
+          >
+          </dxi-column>
+          <div
+            *dxTemplate="let item of 'costVATTemplate'"
+            class="flexContent4 jc-end"
+          >
+            <div>
+              {{
+                item.data?.costVat
+                  | ruNumberFormat
+                    : item.data.currencyPrecision
+                    : item.data.currencyPrecision
+              }}
+            </div>
+            <div>
+              {{
+                item.data.currency?.name
+                  ? item.data.currency?.name
+                  : item.data.currency
+              }}
+            </div>
+          </div>
+
+          <dxo-toolbar [visible]="false"></dxo-toolbar>
+        </dx-data-grid>
+      </div>
+
+      <div class="flexContent20 buttonsClass jc-end">
+        <dx-button (onClick)="onSaveBasis($event)">
+          <button class="btn btn-primary submit w-194px">
+            {{ "btns.save" | translate }}
+          </button>
+        </dx-button>
+        <!--        <button class="btn btn-outline-primary submit w-155px" *ngIf="this.basisValue?.length > 0" (click)="OnDeleteBasis()">{{'btns.delete' | translate}}</button>-->
+        <button
+          class="btn btn-outline-primary"
+          [ngClass]="{ 'w-155px': basisValue.length == 0 }"
+          (click)="OnClose()"
+        >
+          {{
+            basisValue.length > 0
+              ? ("btns.cancelEdit" | translate)
+              : ("btns.close" | translate)
+          }}
+        </button>
+      </div>
+    </form>
+  </dx-validation-group>
+</div>
+
+<dx-popup
+  contentTemplate="popup-content"
+  [(visible)]="openPopupAddPlace"
+  [hideOnOutsideClick]="false"
+  [showTitle]="true"
+  title="{{ 'editOffer.deliveryConditions.addDeliveryLocation' | translate }}"
+  [showCloseButton]="true"
+  height="auto"
+  width="auto"
+>
+  <div *dxTemplate="let data of 'popup-content'">
+    <form class="flexContentColumn20">
+      <div class="form-group">
+        <label>{{ basisChooseValue.placeName }}</label>
+        <dx-text-box
+          #location
+          placeholder="{{ 'general.enter' | translate }}"
+          [showClearButton]="true"
+          width="294"
+          height="40px"
+          [(value)]="enterPlace"
+          (onInitialized)="setFocus($event)"
+        >
+        </dx-text-box>
+      </div>
+      <div class="flexContent20 buttonsClass jc-end w-100">
+        <button
+          class="btn btn-primary submit w-50"
+          (click)="onChangePlaceTypeByEnter()"
+        >
+          {{ "btns.save" | translate }}
+        </button>
+        <button
+          class="btn btn-outline-primary submit w-50"
+          (click)="openPopupAddPlace = false"
+        >
+          {{ "btns.close" | translate }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!--(onInitialized)="$event."-->
+</dx-popup>
+
+<dx-popup
+  id="error"
+  contentTemplate="errorContent"
+  [(visible)]="error"
+  [hideOnOutsideClick]="false"
+  [showTitle]="true"
+  title="{{
+    errorState == 1
+      ? ('errors.error' | translate)
+      : ('errors.message' | translate)
+  }}"
+  maxWidth="450px"
+  height="auto"
+  [showCloseButton]="true"
+  (onHidden)="this.isButtonPriceQuote = false"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+  <div *dxTemplate="let data of 'errorContent'">
+    <div class="flexContentColumn32">
+      @if (errorState == 1) {
+      <div class="borderRed errorPopup">
+        <i class="errorIcon"></i>
+        <div [innerHTML]="this.messageError"></div>
+      </div>
+      } @if (errorState == 0) {
+      <div class="borderOrange errorPopup">
+        <i class="unavailableIcon"></i>
+        <div [innerHTML]="this.messageError"></div>
+      </div>
+      } @if (this.isButtonPriceQuote) {
+      <div class="buttons flexContent24 buttonsClass jc-end">
+        @if (isButtonPriceQuote) {
+        <dx-button
+          (onClick)="setPricesQuote($event); onCloseError()"
+          class="w-50"
+        >
+          <button class="btn btn-primary submit w-100">
+            {{ "btns.set" | translate }}
+          </button>
+        </dx-button>
+        }
+        <button class="btn btn-outline-primary w-50" (click)="onCloseError()">
+          {{ "btns.close" | translate }}
+        </button>
+      </div>
+      }
+    </div>
+  </div>
+</dx-popup>
+
+<dx-toast
+  [(visible)]="isVisibleToast"
+  [type]="this.typeToast == 'success' ? 'success' : 'info'"
+  [width]="350"
+  [height]="80"
+  [displayTime]="7000"
+>
+  <div *dxTemplate="let data of 'content'">
+    <div class="l-h20">{{ messageToast }}</div>
+  </div>
+  <dxo-position
+    my="top right"
+    at="right top"
+    of="window"
+    offset="-23 50"
+  ></dxo-position>
+</dx-toast>
+
+<dx-load-panel
+  shadingColor="rgba(0,0,0,0.4)"
+  [(visible)]="loadingVisible"
+  [showIndicator]="true"
+  [showPane]="true"
+  [shading]="true"
+  [hideOnOutsideClick]="false"
+>
+</dx-load-panel>

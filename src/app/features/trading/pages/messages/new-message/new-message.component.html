@@ -1,0 +1,176 @@
+<dx-popup
+  contentTemplate="popupContent"
+  [hideOnOutsideClick]="false"
+  [visible]="true"
+  [showTitle]="true"
+  title="{{
+    this.popupType === 'createNewMessage'
+      ? ('btns.createNewMess' | translate)
+      : ('trading.messagesTab.replyToMessage' | translate)
+  }}"
+  width="600"
+  height="auto"
+  maxHeight="900"
+  [showCloseButton]="true"
+  (onHiding)="setUrgentMessage()"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  />
+
+  <div *dxTemplate="let data of 'popupContent'">
+    <div class="flexContentColumn32">
+      <dx-tabs
+        [dataSource]="[
+          'filters.myTemplates' | translate,
+          'filters.sectionTemplates' | translate
+        ]"
+        [selectedIndex]="0"
+        (onItemClick)="this.myTemplate = $event.itemIndex; getTemplates()"
+      />
+
+      <div class="flexContentColumn16">
+        @if (writeToAllTraders) {
+        <div class="notificationBlue p-2">
+          {{ "trading.messagesTab.messageWillSentToAllTraders" | translate }}
+        </div>
+        } @if (!replyMessage) {
+        <div class="flexContentColumn8">
+          <label>{{ "trading.traders" | translate }}</label>
+          <dx-select-box
+            [dataSource]="this.participants"
+            valueExpr="this"
+            displayExpr="traderFullName"
+            height="40px"
+            placeholder="{{ 'filters.searchByTraders' | translate }}"
+            [showClearButton]="false"
+            [searchEnabled]="true"
+            [searchExpr]="['traderFullName', 'firmName']"
+            [minSearchLength]="3"
+            [showDataBeforeSearch]="true"
+            [(value)]="trader"
+            [disabled]="writeToAllTraders"
+          />
+        </div>
+        } @if (replyMessage) {
+        <div class="flexContentColumn8">
+          <div class="flexContent8">
+            <div class="font-w500">{{ replyMessage.trader }}</div>
+            <div>
+              {{
+                replyMessage.time
+                  | excelDate : true
+                  | date : "HH:mm:ss" : "+0000"
+              }}
+            </div>
+          </div>
+
+          <div class="traderMessage">
+            {{ replyMessage.message }}
+          </div>
+        </div>
+        }
+
+        <div class="flexContentColumn8">
+          <label>{{ "filters.availableTemplates" | translate }}</label>
+
+          <div class="l-h20 template">
+            @if (condEditButton()) {
+            <div class="flexContent8 actions">
+              <i class="editPenIcon" (click)="onEditTemplate('edit')"></i>
+              <i class="deleteIcon" (click)="onDeleteTemplate()"></i>
+            </div>
+            }
+
+            <dx-select-box
+              [dataSource]="this.templates"
+              valueExpr="this"
+              displayExpr="name"
+              height="40px"
+              placeholder="{{ 'filters.searchByTemplates' | translate }}"
+              [showClearButton]="false"
+              [searchEnabled]="true"
+              [searchExpr]="['name']"
+              [minSearchLength]="3"
+              [maxLength]="100"
+              [showDataBeforeSearch]="true"
+              [value]="chooseTempl"
+              (onValueChanged)="
+                chooseTempl = $event.value; message = $event.value.text
+              "
+            />
+            <!-- -->
+          </div>
+        </div>
+
+        @if (myTemplate === 0) {
+        <button
+          class="btn btn-withoutBorder w-fit-cnt h-20px"
+          id="chooseGoodLink"
+          (click)="onEditTemplate('create')"
+        >
+          <span class="addProduct"></span
+          >{{ "btns.createNewTemplate" | translate }}
+        </button>
+        }
+      </div>
+      <!--    (click)="chooseGoodForm = !chooseGoodForm; onShowProducts(); onChooseNomenclature($event)"-->
+
+      <div class="flexContentColumn8">
+        <div class="flexContent20">
+          <div class="label">
+            {{
+              "trading.messagesTab.message"
+                | translate
+                | upperCaseFirstLetter
+            }}
+          </div>
+          <div>
+            {{ this.message?.length > 0 ? this.message?.length : 0 }}/1000
+          </div>
+        </div>
+
+        <dx-text-area
+          height="124px"
+          placeholder="{{ 'general.text' | translate }}"
+          maxLength="1000"
+          [(value)]="message"
+          valueChangeEvent="keyup"
+        />
+      </div>
+
+      <div class="buttons flexContent24 buttonsClass center jc-normal">
+        <button
+          class="btn btn-primary submit w-100px"
+          (click)="onSendMessage()"
+          [disabled]="
+            !message ||
+            message?.length == 0 ||
+            (trader == null && !writeToAllTraders && !this.replyMessage)
+          "
+        >
+          {{ "btns.send" | translate }}
+        </button>
+
+        @if (popupType === 'createNewMessage') {
+        <div class="flexContent8">
+          <dx-check-box
+            text="{{ 'trading.messagesTab.writeToAllTraders' | translate }}"
+            iconSize="20px"
+            [(value)]="writeToAllTraders"
+            (onValueChanged)="trader = null"
+          />
+        </div>
+        }
+
+        <div class="flexContent8">
+          <dx-check-box
+            text="{{ 'trading.messagesTab.urgentMessage' | translate }}"
+            iconSize="20px"
+            [(value)]="urgentMessage"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</dx-popup>

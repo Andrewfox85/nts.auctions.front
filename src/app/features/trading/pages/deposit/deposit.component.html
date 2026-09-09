@@ -1,0 +1,247 @@
+<main class="deposit">
+  <div class="main_component">
+    <div class="content">
+      @if (deposit()) {
+      <div class="body">
+        <div class="deposit-body-wrapper">
+          <div class="body_content">
+            <dx-data-grid
+              [dataSource]="deposit()"
+              [showBorders]="false"
+              [showColumnLines]="true"
+              [allowColumnResizing]="true"
+              [allowColumnReordering]="true"
+              [showRowLines]="true"
+              appLocalizeContextMenu
+            >
+              <dxo-filter-panel [visible]="true" />
+
+              <dxo-header-filter [visible]="true" [allowSearch]="true" />
+
+              <dxo-filter-row [visible]="true" />
+
+              <dxo-paging [pageSize]="numberEntriesPage[1]" />
+
+              <dxo-state-storing
+                [enabled]="true"
+                type="localStorage"
+                storageKey="deposit"
+              />
+
+              <dxo-pager
+                [visible]="true"
+                [allowedPageSizes]="numberEntriesPage"
+                displayMode="compact"
+                [showPageSizeSelector]="true"
+                [showInfo]="true"
+                [infoText]="infoText"
+              />
+
+              @if (this.isAddressSession()) {
+              <dxi-column
+                caption="{{ 'trading.offersTable.direction' | translate }}"
+                dataField="directionName"
+                cssClass="column text-align-left"
+                [minWidth]="300"
+                allowSorting="true"
+                [allowFiltering]="true"
+              />
+              } @if (user()?.IsWorker) {
+              <dxi-column
+                caption="{{ 'trading.tradersTable.participant' | translate }}"
+                dataField="firmNameShort"
+                cssClass="column text-align-left"
+                [minWidth]="300"
+                allowSorting="true"
+                [allowFiltering]="true"
+                cellTemplate="cellTemplateFirm"
+              />
+              }
+
+              <div *dxTemplate="let data of 'cellTemplateFirm'">
+                <div>
+                  @if (data.data.firmRegNumber) {
+                  <span
+                    >{{ data.data.firmRegNumber }} -
+                    {{ data.data.firmNameShort }}</span
+                  >
+                  }
+                </div>
+              </div>
+
+              <dxi-column
+                caption="{{ 'filters.brokerClient' | translate }}"
+                dataField="clientNameShort"
+                cssClass="column text-align-left"
+                [minWidth]="300"
+                allowSorting="true"
+                [allowFiltering]="true"
+                cellTemplate="cellTemplateClient"
+              />
+
+              <div *dxTemplate="let data of 'cellTemplateClient'">
+                <div>
+                  @if (data.data.clientRegNumber) {
+                  <span
+                    >{{ data.data.clientRegNumber }} -
+                    {{ data.data.clientNameShort }}</span
+                  >
+                  }
+                </div>
+              </div>
+
+              <dxi-column
+                caption="{{ 'trading.depositTable.freeDeposit' | translate }}"
+                dataField="depositSumFreeTotal"
+                cssClass="column date-roboto-mono text-align-right"
+                [minWidth]="270"
+                allowSorting="true"
+                [allowHeaderFiltering]="true"
+                [allowFiltering]="false"
+                cellTemplate="cellTemplateFreeDeposit"
+              />
+
+              <div *dxTemplate="let data of 'cellTemplateFreeDeposit'">
+                <div>
+                  <span>{{
+                    data.data.depositSumFreeTotal
+                      | ruNumberFormat : data.data.currencyPrecision
+                  }}</span>
+                </div>
+              </div>
+
+              <dxi-column
+                caption="{{
+                  'trading.depositTable.currentFreeDeposit' | translate
+                }}"
+                dataField="depositSumFreeCurr"
+                cssClass="column date-roboto-mono text-align-right"
+                [minWidth]="270"
+                allowSorting="true"
+                [allowHeaderFiltering]="true"
+                [allowFiltering]="false"
+                cellTemplate="cellTemplateFreeDepositCurr"
+              />
+
+              <div *dxTemplate="let data of 'cellTemplateFreeDepositCurr'">
+                <div>
+                  <span>{{
+                    data.data.depositSumFreeCurr
+                      | ruNumberFormat : data.data.currencyPrecision
+                  }}</span>
+                </div>
+              </div>
+
+              <dxi-column
+                caption="{{
+                  'trading.depositTable.currentBlockedDeposit' | translate
+                }}"
+                dataField="depositSumLockCurr"
+                cssClass="column date-roboto-mono text-align-right"
+                [minWidth]="270"
+                allowSorting="true"
+                [allowHeaderFiltering]="true"
+                [allowFiltering]="false"
+                cellTemplate="cellTemplateDepositSumLockCurr"
+              />
+
+              <div *dxTemplate="let data of 'cellTemplateDepositSumLockCurr'">
+                <div>
+                  <span>{{
+                    data.data.depositSumLockCurr
+                      | ruNumberFormat : data.data.currencyPrecision
+                  }}</span>
+                </div>
+              </div>
+
+              <dxi-column
+                caption="{{ 'filters.currency' | translate }}"
+                dataField="currencyName"
+                cssClass="column date-roboto-mono text-align-left"
+                [minWidth]="120"
+                allowSorting="true"
+                [allowHeaderFiltering]="true"
+                [allowFiltering]="false"
+              />
+
+              @if (user()?.IsWorker) {
+              <dxi-column
+                caption="{{ 'trading.regsTable.depositControl' | translate }}"
+                cssClass="column text-align-left"
+                dataField="isControlDeposit"
+                [minWidth]="160"
+                allowSorting="true"
+                [allowHeaderFiltering]="true"
+                [allowFiltering]="false"
+                cellTemplate="cellTemplateDepositControl"
+              />
+              }
+
+              <div *dxTemplate="let data of 'cellTemplateDepositControl'">
+                <div class="d-flex center">
+                  @if (user()?.IsWorker) {
+                  <dx-switch
+                    switchedOffText=""
+                    switchedOnText=""
+                    [value]="data.data.isControlDeposit"
+                    [disabled]="
+                      data.data.isControlDeposit == null ||
+                      (this.sessionInfo().idSessionPeriod == 13 &&
+                        !data.data.isControlAllowedToChange)
+                    "
+                    (onValueChanged)="
+                      changeControlDep(
+                        $event,
+                        data.data.firmId,
+                        data.data.clientId,
+                        data.data.directionId
+                      )
+                    "
+                  />
+                  }
+
+                  <!--  закоменчено в рамках #10371 <span *ngIf="!user?.IsWorker" class="mr-2"  [ngClass]="{'greenColor': data.data.isControlDeposit}">{{data.data.isControlDeposit ? ('general.enabled' | translate) : ('general.off' | translate)}}</span> -->
+
+                  @if (data.data.isMaxDepositPayed) {
+                  <div class="greyInfoThin" id="info{{ data.data.clientId }}">
+                    <dx-tooltip
+                      target="#info{{ data.data.clientId }}"
+                      [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                      hideEvent="mouseleave"
+                    >
+                      <div
+                        *dxTemplate="let data = data; of: 'content'"
+                        class="whiteTextColor text-align-left"
+                      >
+                        {{ "trading.depositTable.maxDepositPayed" | translate }}
+                      </div>
+                    </dx-tooltip>
+                  </div>
+                  }
+                </div>
+              </div>
+            </dx-data-grid>
+          </div>
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+</main>
+
+<dx-toast
+  [(visible)]="isVisibleToast"
+  [type]="type()"
+  width="auto"
+  height="auto"
+  [displayTime]="5000"
+>
+  <div *dxTemplate="let data of 'content'">
+    <div class="flexContent8 center">
+      <div class="checkIcon"></div>
+      <div>{{ message() }}</div>
+    </div>
+  </div>
+
+  <dxo-position my="top right" at="right top" of="window" offset="-23 50" />
+</dx-toast>

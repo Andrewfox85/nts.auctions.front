@@ -1,0 +1,36 @@
+@import '../../../../../../assets/scss/constants';
+
+table {
+  .viewRow {
+    background-color: $layerHoverTable;
+  }
+
+  .viewGoodInfo {
+    padding: 16px;
+    background: $layerHoverTable;
+    color: $mainTextColor;
+
+    .name {
+      display: flex;
+      flex-direction: row;
+      gap: 16px;
+      justify-content: space-between;
+
+      label {
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 20px;
+      }
+    }
+
+    .description {
+      font-size: 14px;
+      line-height: 20px;
+
+      .propName {
+        font-size: 14px;
+        color: $headerTopColor;
+      }
+    }
+  }
+}

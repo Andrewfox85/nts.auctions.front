@@ -1,0 +1,21 @@
+@if (!this.isOpenChat()) {
+<app-header />
+}
+
+<app-sidebar />
+
+<main>
+  <router-outlet />
+</main>
+
+@if (!this.isOpenChat()) {
+<app-footer />
+}
+
+<error-popup />
+
+<loader-panel />
+
+<toast />
+
+<popup-sidebar />

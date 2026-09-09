@@ -1,0 +1,85 @@
+@import "src/assets/scss/constants.scss";
+@import "src/assets/scss/_overwriteDevExpress";
+
+.chatWidth {
+  max-width: 950px;
+}
+
+.logo {
+  content: url("/auctions/assets/img/icons/user_circle_active.svg");
+  width: 60px;
+}
+
+.traderWidthLogo {
+  width: 44px !important;
+}
+
+.phoneNumber {
+  align-content: end;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.borderBottom {
+  padding: 0 8px 16px;
+  border-bottom: 1px solid $toggle-off;
+}
+
+.height88 {
+  height: 88vh;
+}
+
+.height-auto {
+  height: auto;
+}
+
+.mes {
+  ::ng-deep.dx-button-mode-outlined {
+    border: none;
+  }
+
+  .markedMessage {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+  }
+
+  .message {
+    padding: 8px 16px;
+    align-items: center;
+    background: $lightGrayBackgroundColor;
+    max-width: 770px;
+    position: relative;
+
+    &.trader {
+      border-radius: 0 4px 4px 4px;
+    }
+
+    &.broker {
+      border-radius: 4px 0 4px 4px;
+    }
+  }
+
+  .reply {
+    width: 100%;
+    align-items: flex-start;
+    padding: 8px 16px 20px 16px;
+    border-radius: 0 2px 2px 0;
+    background: $darkGrey;
+    border-left: 2px solid $mainActiveColor;
+  }
+
+  .urgent {
+    background-color: $urgentMessage;
+  }
+
+  .system {
+    background-color: $sectionMetalBackground;
+  }
+}
+
+.urgentLabel {
+  padding: 2px 4px;
+  color: $sectionAgricultural;
+  background-color: $urgentMessage;
+}

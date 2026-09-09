@@ -1,0 +1,27 @@
+<dx-popup
+  contentTemplate="deletePopup"
+  [hideOnOutsideClick]="false"
+  [visible]="deletePopup"
+  [showTitle]="true"
+  title="{{ 'trading.directOffersTab.deleteOffer' | translate}}"
+  width="400"
+  height="auto"
+  [showCloseButton]="true"
+  (onShowing)="onShowing($event)"
+  (onHiding)="closePopup()"
+>
+  <dxo-animation [show]="{easing: 'ease-in-out', type:'fadeIn', duration: 150}"></dxo-animation>
+  <div *dxTemplate="let data of 'deletePopup'"> 
+    <div class="flexContentColumn16">
+        <div>
+           <span>{{ 'trading.directOffersTab.deleteOfferSubmission' | translate }}</span>
+        </div>
+        <div class="buttons flexContent24 buttonsClass">
+              <button class="btn btn-primary submit w-50" (click)="deleteOffer()">{{'btns.delete' | translate}}</button>
+              <button class="btn btn-outline-primary w-50" (click)="closePopup()">{{'btns.close' | translate}}</button>
+        </div>
+    </div>
+  </div>
+</dx-popup>
+
+

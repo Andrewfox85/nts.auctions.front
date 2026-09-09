@@ -1,0 +1,273 @@
+<div class="m-auto height88 jc-c d-flex chatWidth">
+  <div class="jc-end flexContentColumn24">
+    <!--    <dx-scroll-view class="mt-25 height-auto" [useNative]="true">-->
+    <div
+      #scrollMe
+      [scrollTop]="scrollMe.scrollHeight"
+      [ngStyle]="{ 'overflow-y': 'auto', height: 'xyz' }"
+    >
+      <div class="flexContentColumn24 jc-end" id="divMessages">
+        @for (chat of messages; track message) {
+        <div>
+          <!--      от трейдера сообщения-->
+          @if (!chat.isInbox) {
+          <div class="flexContent8 flex-start jc-end mr-1">
+            <div class="flexContentColumn4">
+              <div class="flexContent8 w-100 jc-end center" #nameInfo>
+                <div>
+                  {{
+                    chat.dateMessage
+                      | excelDate : true
+                      | date : "HH:mm:ss" : "+0000"
+                  }}
+                </div>
+                <!--                <div *ngIf="!chat.idMessage">{{chat.dateMessage | date:'HH:mm:ss' : "+0300"}}</div>-->
+              </div>
+
+              <div class="flex-start mes flexContentColumn8">
+                <div
+                  class="message trader flexContentColumn8 flex-start"
+                  [ngStyle]="{ 'min-width': nameInfo.offsetWidth + 'px' }"
+                >
+                  <!--              Ответ на сообщение-->
+
+                  @if (chat?.idParent) {
+                  <div class="reply flexContentColumn8">
+                    <div class="replyToMess h-24px"></div>
+
+                    <div class="flexContentColumn4">
+                      <div
+                        [innerHTML]="returnParentsMessage(chat?.idParent).text"
+                      ></div>
+
+                      <div class="flexContent4">
+                        <span>{{ "general.broker" | translate }}</span>
+
+                        <span>{{
+                          returnParentsMessage(chat?.idParent)?.dateMessage
+                            | excelDate : true
+                            | date : "HH:mm:ss" : "+0000"
+                        }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  }
+
+                  <span [innerHTML]="chat.text"></span>
+                </div>
+              </div>
+            </div>
+            <div class="logo traderWidthLogo"></div>
+          </div>
+          }
+
+          <!--      Сообщение от маклера-->
+          @if (chat.isInbox) {
+          <div class="flexContent8 flex-start">
+            <div class="bytbLogo traderWidthLogo"></div>
+
+            <div class="flexContentColumn4">
+              <div class="flexContent8 w-fit-cnt center" #brokerNameInfo>
+                <div class="font-w500 font-s14">
+                  {{
+                    chat?.isSystem
+                      ? ("trading.messagesTab.systemMessage" | translate)
+                      : ("general.broker" | translate)
+                  }}
+                </div>
+                <div>
+                  {{
+                    chat.dateMessage
+                      | excelDate : true
+                      | date : "HH:mm:ss" : "+0000"
+                  }}
+                </div>
+
+                @if (chat?.isImportant) {
+                <div class="urgentLabel">
+                  {{ "trading.messagesTab.urgent" | translate }}
+                </div>
+                }
+              </div>
+              <div class="flexContent8 flex-start mes">
+                <div
+                  class="message broker flexContentColumn8 flex-start"
+                  [ngStyle]="{ 'min-width': brokerNameInfo.offsetWidth + 'px' }"
+                  [ngClass]="{
+                    urgent: chat?.isImportant,
+                    system: chat?.isSystem
+                  }"
+                >
+                  <!--              Ответ на сообщение-->
+                  @if (chat?.idParent) {
+                  <div class="reply flexContentColumn8">
+                    <div class="replyToMess h-24px"></div>
+
+                    <div class="flexContentColumn4">
+                      <div
+                        [innerHTML]="returnParentsMessage(chat?.idParent).text"
+                      ></div>
+                      <div class="flexContent4 font-s12">
+                        <span>{{ this.user?.userInfo.traderFullName }}</span>
+                        <span>{{
+                          returnParentsMessage(chat?.idParent)?.dateMessage
+                            | excelDate : true
+                            | date : "HH:mm:ss" : "+0000"
+                        }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  }
+
+                  <span [innerHTML]="chat.text"></span>
+                </div>
+
+                <div id="reply{{ chat.idMessage }}">
+                  <div
+                    class="replyToMess pointer"
+                    (click)="this.replyMessageInfo = chat; popupReply = true"
+                  ></div>
+                </div>
+
+                <dx-tooltip
+                  target="#reply{{ chat.idMessage }}"
+                  [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                  hideEvent="mouseleave"
+                >
+                  <div
+                    *dxTemplate="let data = data; of: 'content'"
+                    class="whiteTextColor text-align-left"
+                  >
+                    {{ "trading.messagesTab.replyToMessage" | translate }}
+                  </div>
+                </dx-tooltip>
+              </div>
+            </div>
+          </div>
+          }
+        </div>
+        }
+      </div>
+    </div>
+
+    <!--    </dx-scroll-view>-->
+
+    <div class="flexContentColumn16">
+      <div class="flexContentColumn8">
+        <div class="d-flex jc-end">
+          <label
+            >{{
+              this.message?.length > 0 ? this.message?.length : 0
+            }}/1000</label
+          >
+        </div>
+
+        <dx-text-area
+          height="124px"
+          width="950px"
+          placeholder="{{ 'general.text' | translate }}"
+          maxLength="1000"
+          [(value)]="message"
+          valueChangeEvent="keyup"
+          (onEnterKey)="
+            !message || message?.length === 0 ? null : onSendMessage()
+          "
+        />
+      </div>
+
+      <div class="buttons flexContent24 buttonsClass center jc-normal">
+        <button
+          class="btn btn-primary submit w-100px"
+          [disabled]="!message || message?.length === 0"
+          (click)="onSendMessage()"
+        >
+          {{ "btns.send" | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--ответить на сообщение-->
+<dx-popup
+  contentTemplate="popupTemplate"
+  [hideOnOutsideClick]="false"
+  [visible]="popupReply"
+  [showTitle]="true"
+  title="{{ 'trading.messagesTab.replyToMessage' | translate }}"
+  width="600"
+  height="auto"
+  maxHeight="900"
+  [showCloseButton]="true"
+  (onHiding)="popupReply = false; this.messageReply = ''"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  />
+
+  <div *dxTemplate="let data of 'popupTemplate'">
+    <div class="flexContentColumn24">
+      <div class="flexContentColumn16">
+        <div class="flexContentColumn8">
+          <div class="flexContent8">
+            <div>{{ "general.broker" | translate }}</div>
+
+            <div>
+              {{
+                this.replyMessageInfo?.dateMessage
+                  | excelDate : true
+                  | date : "HH:mm:ss" : "+0000"
+              }}
+            </div>
+          </div>
+          <div
+            class="messageReply"
+            [innerHTML]="this.replyMessageInfo?.text"
+          ></div>
+        </div>
+
+        <div class="flexContentColumn8">
+          <div class="flexContent24">
+            {{ "errors.message" | translate }}
+
+            <div class="d-flex jc-end">
+              <label
+                >{{
+                  this.messageReply?.length > 0 ? this.messageReply?.length : 0
+                }}/1000</label
+              >
+            </div>
+          </div>
+
+          <dx-text-area
+            height="120px"
+            width="auto"
+            placeholder="{{ 'general.text' | translate }}"
+            maxLength="1000"
+            [(value)]="messageReply"
+            valueChangeEvent="keyup"
+          />
+        </div>
+      </div>
+
+      <div class="buttons flexContent24 buttonsClass">
+        <button
+          class="btn btn-primary submit w-fit-cnt"
+          [disabled]="!messageReply || messageReply?.length === 0"
+          (click)="onReply(this.replyMessageInfo?.idMessage)"
+        >
+          {{ "btns.send" | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</dx-popup>
+
+<dx-load-panel
+  shadingColor="rgba(0,0,0,0.4)"
+  [(visible)]="loadingVisible"
+  [showIndicator]="true"
+  [showPane]="true"
+  [shading]="true"
+  [hideOnOutsideClick]="false"
+/>

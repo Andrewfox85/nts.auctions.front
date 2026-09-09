@@ -1,0 +1,52 @@
+@import "src/assets/scss/_constants.scss";
+
+main,
+.main_component,
+.trading_body,
+.tabs,
+dx-tab-panel::ng-deep {
+  height: 100%;
+}
+
+.session {
+  background-color: $lightGrayBackgroundColor;
+}
+
+.action_btn {
+  .btn {
+    height: 40px;
+    min-width: 40px;
+    width: 40px;
+  }
+}
+
+.padding {
+  padding: 12px 16px !important;
+}
+
+::ng-deep.dx-dropdownbutton-action.dx-button .dx-button-content {
+  padding: 0;
+  width: 40px;
+}
+
+::ng-deep.dx-dropdownbutton .dx-button {
+  border: none;
+}
+
+::ng-deep.dx-buttongroup-item.dx-button.dx-button-mode-outlined.dx-state-active,
+::ng-deep.dx-buttongroup-item.dx-button.dx-button-mode-outlined.dx-state-focused {
+  background-color: $mainActiveColor;
+}
+
+.overflowText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: table-cell;
+  width: 100%;
+}
+
+.size16 {
+  width: 16px;
+  height: 16px;
+}

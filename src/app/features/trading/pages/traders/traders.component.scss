@@ -1,0 +1,36 @@
+@import "src/assets/scss/_constants.scss";
+
+main,
+.main_component,
+.content,
+.tabs,
+dx-tab-panel::ng-deep {
+  height: 100%;
+}
+
+@media print {
+  ::ng-deep.dx-overlay-content.dx-popup-normal.dx-popup-draggable.dx-resizable.dx-popup-flex-height {
+    height: auto !important;
+    width: 200mm !important;
+    left: -840px !important;
+    top: -200px !important;
+  }
+
+  ::ng-deep.dx-toolbar.dx-widget.dx-visibility-change-handler.dx-collection.dx-popup-title.dx-has-close-button {
+    display: none !important;
+  }
+
+  ::ng-deep.dx-popup-content {
+    margin: 10px !important;
+  }
+
+  .buttons {
+    display: none;
+  }
+}
+
+.link {
+  font-weight: 600;
+  text-decoration: underline;
+  color: $mainActiveColor !important;
+}

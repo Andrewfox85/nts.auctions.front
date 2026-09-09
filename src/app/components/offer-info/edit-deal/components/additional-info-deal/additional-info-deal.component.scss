@@ -1,0 +1,14 @@
+@import '../../../../../../assets/scss/constants';
+
+.label {
+  width: 220px;
+  color: $secondTextColor;
+}
+
+.info {
+  width: calc(100% - 220px);
+}
+
+.text {
+  width: calc(100% - 220px);
+}

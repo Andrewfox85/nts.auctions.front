@@ -1,0 +1,492 @@
+<div class="notificationOrange mb-3" *ngIf="this.minAddBasis()">
+  <span class="flexContent8">
+    <span class="unavailableIcon"></span>
+    <span>{{ "counterOffers.noticeChangedBasis" | translate }}</span>
+  </span>
+</div>
+
+<dx-scroll-view [useNative]="true" height="calc(100vh - 125px)">
+  <div class="flexContentColumn8" *ngIf="deliveryBasisCommon">
+    <div
+      *ngFor="let delivery of deliveryBasisCommon; let i = index"
+      class="accordion mb-3"
+    >
+      <dx-accordion
+        [dataSource]="[delivery]"
+        [multiple]="true"
+        [collapsible]="true"
+        [animationDuration]="300"
+        id="accordion-container"
+      >
+        <div *dxTemplate="let basis of 'title'">
+          <div class="flexContent20">
+            <div
+              class="font-s12 l-h16"
+              [ngClass]="{
+                flexContentColumn8: basis.isMain,
+                flexContent8: !basis.isMain
+              }"
+            >
+              <div *ngIf="basis.isMain">
+                {{ "viewOffer.coreBasis" | translate }}
+              </div>
+              <div>
+                {{
+                  basis.concatedCondition
+                }}
+              </div>
+            </div>
+            <div
+              class="flexContent16 accordionButton fl-wrap ai-c"
+              [ngClass]="{ 'h-40px': basis.isMain }"
+            >
+              @if (isVisibleEditPencil(i)) {
+              <dx-button
+                (onClick)="
+                  onEditBasis(
+                    $event,
+                    basis,
+                    basis.idBasisLink,
+                    basis.placeName || null
+                  )
+                "
+                [disabled]="
+                  !(
+                    (addBasisValue && openBasis.length == 0) ||
+                    !(addBasisValue && openBasis.length > 0)
+                  )
+                "
+              >
+                <i
+                  [ngStyle]="{
+                    'pointer-events': addBasisValue ? 'none' : 'all'
+                  }"
+                  class="editPenGreen"
+                  [ngClass]="{
+                    disabled: !(
+                      (addBasisValue && openBasis.length == 0) ||
+                      !(addBasisValue && openBasis.length > 0)
+                    )
+                  }"
+                ></i
+              ></dx-button>
+              <dx-button
+                (onClick)="onDeleteBasisPopup($event, basis)"
+                *ngIf="i >= this.deliveryBasis.length"
+                [disabled]="
+                  !(
+                    (addBasisValue && openBasis.length == 0) ||
+                    !(addBasisValue && openBasis.length > 0)
+                  )
+                "
+              >
+                <i
+                  [ngStyle]="{
+                    'pointer-events': addBasisValue ? 'none' : 'all'
+                  }"
+                  class="deleteIcon"
+                  [ngClass]="{
+                    disabled: !(
+                      (addBasisValue && openBasis.length == 0) ||
+                      !(addBasisValue && openBasis.length > 0)
+                    )
+                  }"
+                ></i>
+              </dx-button>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div *dxTemplate="let basis of 'item'; let index = index">
+          <div
+            *ngIf="openBasis.length == 0 || openBasis[0] != basis"
+            class="basisTable"
+          >
+            <dx-data-grid
+              [dataSource]="basis.goods"
+              class="deliveryBasisGrid"
+              [showColumnLines]="true"
+              [showRowLines]="true"
+              appLocalizeContextMenu
+            >
+              <dxi-column
+                caption="{{ 'trading.offersTable.nameProduct' | translate }}"
+                dataField="goodName"
+                cssClass="column"
+                cellTemplate="nameTemplate"
+              >
+              </dxi-column>
+              <div *dxTemplate="let item of 'nameTemplate'">
+                <div class="twostrings" id="name{{ item.data.idBasisLink }}">
+                  {{ item.data.goodName }}
+                </div>
+
+                <dx-tooltip
+                  target="#name{{ item.data.idBasisLink }}"
+                  [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                  hideEvent="mouseleave"
+                >
+                  <div
+                    *dxTemplate="let data = data; of: 'content'"
+                    class="whiteTextColor text-align-left"
+                  >
+                    {{ item.data.goodName }}
+                  </div>
+                </dx-tooltip>
+              </div>
+
+              <dxi-column
+                caption="{{ 'trading.offersTable.volume' | translate }}"
+                dataField="volume"
+                cssClass="column date-roboto-mono "
+                cellTemplate="quantityTemplate"
+                alignment="right"
+              >
+              </dxi-column>
+              <div
+                *dxTemplate="let item of 'quantityTemplate'"
+                class="flexContent4 jc-end"
+              >
+                <div>
+                  {{
+                    item.data.volume
+                      | ruNumberFormat : null : item.data.volumePrecision
+                  }}
+                </div>
+                <div>{{ item.data.unitName }}</div>
+              </div>
+
+              <dxi-column
+                *ngIf="pricingTypeId == pricingType?.formulaWithQuotation"
+                caption="{{ 'trading.offersTable.quotation' | translate }}"
+                dataField="quotation"
+                cssClass="column date-roboto-mono "
+                cellTemplate="quotationTemplate"
+                alignment="right"
+              >
+              </dxi-column>
+              <div
+                *dxTemplate="let item of 'quotationTemplate'"
+                class="flexContent4 jc-end"
+              >
+                <div>
+                  {{
+                    item.data.quotation
+                      | toNumber
+                      | ruNumberFormat : item.data.quoteCurrencyPrecision
+                  }}
+                </div>
+                <div>{{ item.data.quoteCurrency }}</div>
+              </div>
+
+              <dxi-column
+                *ngIf="pricingTypeId != pricingType?.price"
+                caption="{{ 'trading.offersTable.amendment' | translate }}"
+                dataField="amendment"
+                cssClass="column date-roboto-mono "
+                cellTemplate="amendmentTemplate"
+                alignment="right"
+              >
+              </dxi-column>
+              <div
+                *dxTemplate="let item of 'amendmentTemplate'"
+                class="flexContent4 jc-end"
+              >
+                <div>
+                  {{
+                    item.data.amendment
+                      | toNumber
+                      | ruNumberFormat : item.data.currencyPrecision
+                  }}
+                </div>
+                <div>
+                  {{
+                    item.data.priceAdjustment == 1 ? "%" : item.data.currency
+                  }}
+                </div>
+              </div>
+
+              <dxi-column
+                *ngIf="pricingTypeId != pricingType?.formulaWithoutQuotation"
+                caption="{{
+                  'trading.offersTable.priceWithoutVAT' | translate
+                }}"
+                dataField="cost"
+                cssClass="column date-roboto-mono "
+                cellTemplate="priceWithoutVATTemplate"
+                alignment="right"
+              >
+              </dxi-column>
+              <div
+                *dxTemplate="let item of 'priceWithoutVATTemplate'"
+                id="price{{ item.data.idGood }}_{{ i }}"
+                class="flexContent4 jc-end h-100"
+                [ngClass]="{
+                  errorValue: item.data?.error || item.data.isMinPriceError,
+                  infoValue: item.data?.range
+                }"
+              >
+                <!--            <span id="priceInfo{{item.data.idGood}}_{{i}}" class="flexContent4 jc-end">-->
+                <div>
+                  {{
+                    item.data?.cost
+                      | toNumber
+                      | ruNumberFormat : item.data.currencyPrecision
+                  }}
+                </div>
+                <div>{{ item.data.currency }}</div>
+
+                <!--            </span>-->
+                <dx-tooltip
+                  *ngIf="item.data.isMinPriceError"
+                  target="#price{{ item.data.idGood }}_{{ i }}"
+                  [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                  hideEvent="mouseleave"
+                >
+                  <div
+                    *dxTemplate="let data = data; of: 'content'"
+                    class="whiteTextColor text-align-left"
+                  >
+                    {{ "editOffer.minPriceOnMainBasis" | translate }}
+                  </div>
+                </dx-tooltip>
+
+                <div
+                  class="errorIconThin"
+                  id="error{{ item.data.idGood }}_{{ i }}"
+                  *ngIf="item.data?.error"
+                >
+                  <dx-tooltip
+                    target="#error{{ item.data.idGood }}_{{ i }}"
+                    [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                    hideEvent="mouseleave"
+                  >
+                    <div
+                      *dxTemplate="let data = data; of: 'content'"
+                      class="whiteTextColor text-align-left"
+                    >
+                      {{
+                        "editOffer.deliveryConditions.priceQuoteTooltip"
+                          | translate
+                      }}
+                      {{ item.data.quotation }} {{ item.data.currency }}
+                    </div>
+                  </dx-tooltip>
+                </div>
+
+                <div
+                  class="infoIconThin"
+                  id="warning{{ item.data.idGood }}_{{ i }}"
+                  *ngIf="item.data?.range"
+                >
+                  <dx-tooltip
+                    target="#warning{{ item.data.idGood }}_{{ i }}"
+                    [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                    hideEvent="mouseleave"
+                  >
+                    <div
+                      *dxTemplate="let data = data; of: 'content'"
+                      class="whiteTextColor text-align-left"
+                    >
+                      {{
+                        "editOffer.deliveryConditions.tooltipPriceRangeMinprice"
+                          | translate
+                      }}
+                      {{
+                        item.data.minPrice
+                          ? item.data.minPrice + " " + item.data.currency
+                          : "-"
+                      }}<br />{{
+                        "editOffer.deliveryConditions.tooltipPriceRangeMaxprice"
+                          | translate
+                      }}
+                      {{
+                        item.data.maxPrice
+                          ? item.data.maxPrice + " " + item.data.currency
+                          : "-"
+                      }}
+                    </div>
+                  </dx-tooltip>
+                </div>
+              </div>
+
+              @if (isMinPrice) {
+                <dxi-column
+                  caption="{{ 'trading.offersTable.minPrice' | translate }}"
+                  dataField="minPrice"
+                  cssClass="column date-roboto-mono "
+                  alignment="right"
+                  cellTemplate="minPriceWithoutVATTemplate"
+                >
+                </dxi-column>
+                }
+                <div
+                  *dxTemplate="let item of 'minPriceWithoutVATTemplate'"
+                  class="flexContent4 jc-end"
+                >
+                  <div>
+                    {{
+                      item.data?.minPrice
+                        | toNumber
+                        | ruNumberFormat : item.data.currencyPrecision
+                    }}
+                  </div>
+                  <div>{{ item.data.currency }}</div>
+                </div>
+  
+
+              <dxi-column
+                *ngIf="pricingTypeId != pricingType?.formulaWithoutQuotation"
+                caption="{{ 'trading.offersTable.costVAT' | translate }}"
+                dataField="costVat"
+                cssClass="column date-roboto-mono"
+                cellTemplate="costVATTemplate"
+                alignment="right"
+              >
+              </dxi-column>
+              <div
+                *dxTemplate="let item of 'costVATTemplate'"
+                class="flexContent4 jc-end"
+              >
+                <div>
+                  {{
+                    item.data?.costVat
+                      | toNumber
+                      | ruNumberFormat
+                        : item.data.currencyPrecision
+                        : item.data.currencyPrecision
+                  }}
+                </div>
+                <div>{{ item.data.currency }}</div>
+              </div>
+
+              <dxo-summary>
+                <dxi-total-item
+                  column="costVat"
+                  cssClass="greenColor date-roboto-mono d-flex jc-end"
+                  summaryType="sum"
+                  [customizeText]="
+                    summaryFormatterService.getTotalBasedCustomizeText(
+                      'editOffer.deliveryConditions.totalBased',
+                      basis?.goods?.[0]?.currency,
+                      basis?.goods?.[0]?.currencyPrecision
+                    )
+                  "
+                  alignment="right"
+                  showInColumn="costVat"
+                >
+                </dxi-total-item>
+              </dxo-summary>
+            </dx-data-grid>
+          </div>
+          <div *ngIf="addBasisValue && openBasis[0] == basis">
+            <ng-container *ngTemplateOutlet="addBasis"></ng-container>
+          </div>
+        </div>
+      </dx-accordion>
+    </div>
+
+    <!--если редактирование заявки-->
+    <ng-template #addBasis>
+      <app-basis-edit-info
+        [deliveryBasisOffer]="this.deliveryBasis"
+        [deliveryBasis]="deliveryBasisCommon"
+        [deliveryConditions]="deliveryConditions"
+        [goodsList]="goods"
+        [vatValue]="this.vat"
+        [basisValue]="openBasis ? openBasis : null"
+        [isMinPriceOnBasicBasis]="generalInfo.isMinPriceMainBasis"
+        [pricingType]="pricingTypeId"
+        [isActiveQuotation]="isActiveQuotation"
+        [isActiveCorridor]="isActiveCorridor"
+        [editRulesIntersections]="editRulesIntersections"
+        [goodsOriginal]="goodsOriginal"
+        [paymentTypeId]="pricingTypeId"
+        [sessionsIds]="{
+          sectionId: sessionIds.sectionId,
+          direction: generalInfo.directionId,
+          sessionId: sessionIds.sessionId,
+          modelId: generalInfo.idModel,
+          idSessionPeriod: sessionIds.idSessionPeriod,
+          idAuctionType: sessionIds.idAuctionType,
+          marketTypesIds: sessionIds.marketTypesIds
+        }"
+        (saveBasis)="saveBasis($event)"
+      >
+        <!--        -->
+      </app-basis-edit-info>
+    </ng-template>
+
+    <div class="blockWithBorder" *ngIf="viewAddBasis()">
+      <div
+        class="flexContentColumn8 ai-c"
+        *ngIf="
+          !(addBasisValue && openBasis.length == 0) ||
+          (addBasisValue && openBasis.length > 0)
+        "
+        [ngClass]="{
+          disabled: !(
+            (addBasisValue && openBasis.length == 0) ||
+            !(addBasisValue && openBasis.length > 0)
+          )
+        }"
+      >
+        <div class="noData" *ngIf="deliveryBasis.length == 0">
+          {{ "editOffer.deliveryConditions.addDeliveryTime" | translate }}
+        </div>
+        <button
+          class="btn btn-outline-primary w-100"
+          style="vertical-align: top"
+          aria-disabled="true"
+          (click)="this.addBasisValue = true"
+        >
+          <span class="addProduct"></span
+          >{{ "editOffer.deliveryConditions.addDeliveryTime" | translate }}
+        </button>
+      </div>
+
+      <div *ngIf="addBasisValue && openBasis.length == 0" class="border p-2">
+        <ng-container *ngTemplateOutlet="addBasis"></ng-container>
+      </div>
+    </div>
+  </div>
+</dx-scroll-view>
+
+<dx-popup
+  contentTemplate="deleteBasisContent"
+  [(visible)]="deleteBasis"
+  [hideOnOutsideClick]="false"
+  [showTitle]="true"
+  title="{{ 'editOffer.deliveryConditions.removingBasis' | translate }}"
+  width="510"
+  height="auto"
+  maxHeight="900"
+  [showCloseButton]="true"
+  (onHiding)="deleteBasis = false"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+  <div
+    *dxTemplate="let data of 'deleteBasisContent'"
+    class="flexContentColumn20"
+  >
+    <div class="flexContentColumn8" *ngIf="this.deleteBasis">
+      <div>
+        {{ "editOffer.deliveryConditions.removingBasisText" | translate }}
+      </div>
+    </div>
+    <div class="buttonsClass flexContent20">
+      <button class="btn btn-primary submit w-50" (click)="onDeleteBasis()">
+        {{ "btns.delete" | translate }}
+      </button>
+      <button
+        class="btn btn-outline-primary btn-inherit w-50"
+        (click)="deleteBasis = false"
+      >
+        {{ "btns.cancel" | translate }}
+      </button>
+    </div>
+  </div>
+</dx-popup>

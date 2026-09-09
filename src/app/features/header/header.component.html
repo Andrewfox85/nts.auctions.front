@@ -1,0 +1,545 @@
+<header>
+  <div class="header_top d-flex jc-end">
+    <div class="header_top__right">
+      <div class="date">
+        <p>{{ "header.minsk" | translate }}:</p>
+        <p>
+          {{ formattedDate }}, 
+          {{ formattedTime }}
+        </p>
+      </div>
+
+      <div style="padding-left: 10px">
+        <dx-drop-down-button
+          [items]="language"
+          [text]="selectLang"
+          keyExpr="value"
+          width="70px"
+          displayExpr="name"
+          (onItemClick)="changeLang($event)"
+        />
+      </div>
+    </div>
+  </div>
+
+  <div class="header_top-line d-flex jc-sb ai-c">
+    <div class="header_top-line__left d-flex ai-c">
+      @if ('header.top_line.logo' | translate) {
+      <div class="logo" (click)="goToMain()">
+        <img
+          alt="logo"
+          src="./assets/img/{{ 'header.top_line.logo' | translate }}.svg"
+        />
+      </div>
+      }
+      <nav class="main_nav" (click)="$event.stopPropagation()">
+        <ul class="d-flex">
+          <li>
+            <!-- HOME -->
+            <a [href]="strLandingPage">
+              {{ "general.homePage" | translate }}
+            </a>
+          </li>
+
+          <!-- CATALOG -->
+          <li #catalog>
+            <div (click)="toggleMenu('catalog')">
+              {{ "header.top_line.menu.catalog" | translate }}
+            </div>
+            <div>
+              @if (activeMenu === 'catalog') {
+              <div class="flexContentColumn4 first-submenu">
+                <ul class="flexContentColumn4">
+                  <li class="blackColor">
+                    <a
+                      [href]="strCatalogueDemand"
+                    >
+                      {{"header.top_line.menu.demandCatalog" | translate}}
+                    </a>
+                  </li>
+
+                  <li class="blackColor">
+                    <a
+                      [href]="strCatalogueOffer">
+                      {{"header.top_line.menu.offersCatalog" | translate}}
+                    </a>
+                  </li>
+
+                  @if (user?.token) {
+                  <li class="blackColor">
+                    <a
+                      [href]="personalPageCatalogueUrl"
+                      target="_self"
+                      class="blackColor"
+                    >
+                      {{"header.top_line.menu.goodsCatalog" | translate}}</a>
+                  </li>
+                  }
+                </ul>
+              </div>
+              }
+            </div>
+          </li>
+
+          <!-- SESSIONS -->
+          @if (!user?.token || !this.user.IsWorker) {
+          <li>
+            <a [href]="strSessionShedule"
+               target="_self"
+               (click)="$event.stopPropagation()">
+                {{ "header.top_line.menu.sessionsSchedule" | translate }}
+            </a>
+          </li>
+          }
+          @if (user?.IsWorker) {
+          <li #session>
+            <div (click)="toggleMenu('sessions')">
+              {{ "header.top_line.menu.sessions" | translate }}
+            </div>
+            @if (activeMenu === 'sessions') {
+            <div>
+              <div class="flexContentColumn4 first-submenu">
+                <ul class="flexContentColumn4">
+                  @if (demandOfferManagementGetPrivilegus || demandOfferManagementEditPrivilegus) {
+                  <li class="blackColor">
+                    <a
+                      class="mainTextColor d-flex w-100"
+                      [href]="strSessionShedule"
+                      target="_self"
+                      (click)="$event.stopPropagation()"
+                      >
+                      {{ "header.top_line.menu.sessionsSchedule" | translate }}
+                    </a>
+                  </li>
+                  }
+                  @if (compositeSesManNewPrivilegus) {
+                  <li #subsession>
+                    <div class="blackColor flexContent8 pr-1 subItem"
+                         (click)="toggleSubMenu('sessionsNts')">
+                      {{ "header.top_line.menu.sessionManNts" | translate }}
+                      <i class="filtersArrow tr-rt90"></i>
+                    </div>
+
+                    @if (activeSubMenu === 'sessionsNts') {
+                    <ul class="second-submenu sessions">
+                      <li class="blackColor">
+                        <a
+                          [href]="strSessions"
+                          target="_self"
+                          (click)="$event.stopPropagation()"
+                          class="mainTextColor d-flex w-100"
+                          >{{ "header.top_line.menu.sessions" | translate }}</a
+                        >
+                      </li>
+                      <li class="blackColor">
+                        <a
+                          [href]="strSessionsTemplate"
+                          target="_self"
+                          (click)="$event.stopPropagation()"
+                          class="mainTextColor d-flex w-100"
+                          >{{
+                            "header.top_line.menu.sessionsTempl" | translate
+                          }}</a
+                        >
+                      </li>
+                    </ul>
+                    }
+                  </li>
+                  }
+                  @if (user?.IsWorker && compositeSesManPrivilegus) {
+                  <li class="blackColor">
+                    <a
+                      [href]="personalPageSessionManageUrl"
+                      target="_self"
+                      (click)="$event.stopPropagation()">
+                      {{"header.top_line.menu.sessionManOld" | translate}}
+                    </a>
+                  </li>
+                  }
+                </ul>
+              </div>
+            </div>
+            }
+          </li>
+          }
+
+          <!-- OFFERS -->
+          @if (user?.token) {
+          <li #offers>
+            <div (click)="toggleMenu('offers')">
+              {{ "btns.offers" | translate }}
+            </div>
+            @if (activeMenu === 'offers') {
+            <div>
+              <div class="flexContentColumn4 first-submenu">
+                <ul class="flexContentColumn4">
+                  @if (sections().length > 0) {
+                  <li #suboffers>
+                    <div class="blackColor flexContent8 pr-1 subItem"
+                         (click)="toggleSubMenu('offersList')">
+                      {{ "header.top_line.menu.offers" | translate }}
+                      <i class="filtersArrow tr-rt90"></i>
+                    </div>
+                    @if (activeSubMenu === 'offersList') {
+                    <ul class="second-submenu">
+                      @for (section of sections(); track section.id) {
+                      <li class="blackColor">
+                        <a
+                          [href]="getOfferManagementUrl(Number(section.id))"
+                          target="_self"
+                          (click)="$event.stopPropagation()">
+                          <span id="{{ section.id }}">{{ section.name }}</span>
+                        </a>
+                      </li>
+                      }
+                    </ul>
+                    }
+                  </li>
+                  }
+                  @if (user?.IsWorker &&
+                  (demandOfferManagementModelsGetPrivilegus ||
+                  demandOfferManagementModelsEditPrivilegus)) {
+                  <li class="blackColor">
+                    <a [href]="strModels"
+                       target="_self"
+                       (click)="$event.stopPropagation()"
+                       class="mainTextColor d-flex w-100">
+                      {{ "header.top_line.menu.modelBuilder" | translate }}
+                    </a>
+                  </li>
+                  }
+                  @if (user?.IsWorker &&
+                  (demandOfferManagementRulesGetPrivilegus ||
+                  demandOfferManagementRulesEditPrivilegus)) {
+                  <li class="blackColor">
+                    <a [href]="strRules"
+                       target="_self"
+                       (click)="$event.stopPropagation()"
+                       class="mainTextColor d-flex w-100">
+                      {{ "header.top_line.menu.rulesBuilder" | translate }}
+                    </a>
+                  </li>
+                  }
+                  <!-- ARCHIVE -->
+                  @if (user.IsWorker) {
+                  <li #subArchive>
+                    <div class="blackColor flexContent8 pr-1 jc-sb subItem"
+                         (click)="toggleSubMenu('archive')">
+                      {{ "header.top_line.menu.archiveSessions" | translate }}
+                      <i class="filtersArrow tr-rt90"></i>
+                    </div>
+                    @if (activeSubMenu === 'archive') {
+                    <div>
+                      <ul class="second-submenu-archive">
+                        <li class="blackColor">
+                          <a
+                            [href]="strUnrealizedVolumes"
+                            target="_self"
+                            (click)="$event.stopPropagation()">
+                            {{"header.top_line.menu.unrealizedVolumes" | translate}}</a>
+                        </li>
+                        <li class="blackColor">
+                          <a
+                            [href]="strReportDeals"
+                            target="_self"
+                            (click)="$event.stopPropagation()">
+                            {{"header.top_line.menu.reportDeals" | translate}}
+                          </a>
+                        </li>
+                        <li class="blackColor">
+                          <a
+                            [href]="strReportTradingSessionOrders"
+                            target="_self"
+                            (click)="$event.stopPropagation()">
+                            {{ "header.top_line.menu.reportTradingSessionOrders"| translate }}
+                          </a>
+                        </li>
+                        <li class="blackColor">
+                          <a
+                            [href]="strReportBiddingProcess"
+                            target="_self"
+                            (click)="$event.stopPropagation()">
+                            {{ "header.top_line.menu.reportBiddingProcess"| translate }}
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                    }
+                  </li>
+                  }
+                </ul>
+              </div>
+            </div>
+            }
+          </li>
+          }
+
+          @if (user?.token) {
+          <li>
+            <a [href]="strAuctions"
+               target="_self"
+               (click)="$event.stopPropagation()">
+              <span class="greenColor">{{"header.top_line.menu.auctions" | translate}}</span>
+            </a>
+          </li>
+          }
+          @if (user?.token || (user?.IsWorker && compositeAdmissionPrivilegus)) {
+          <li>
+            <a [href]="getPersonalPageAdmissionUrl"
+               target="_self"
+               (click)="$event.stopPropagation()">
+              {{ "header.top_line.menu.admission" | translate }}
+            </a>
+          </li>
+          }
+          @if (user?.token) {
+          <li>
+            <a [href]="getPersonalPageIndexUrl"
+               target="_self"
+               (click)="$event.stopPropagation()">
+              {{ "header.top_line.menu.personalSection" | translate }}
+            </a>
+          </li>
+          }
+        </ul>
+      </nav>
+    </div>
+    <div class="header_top-line__right d-flex">
+      <div class="info_block user unauthorized">
+        <div (click)="loginUAS()" id="user" #account>
+          @if (!authorized) {
+          <span class="text">
+            <button class="btn btn-outline-primary submit">
+              {{ "login_form.enter" | translate }}
+            </button>
+          </span>
+          }
+          @if (authorized) {
+          <button class="show-exported" (click)="showExportedList($event)">
+            <ng-container
+              *ngTemplateOutlet="iconExportStatus[currentState]"
+            ></ng-container>
+          </button>
+          <a
+            [href]="getPersonalPageNotifyingUrl"
+            target="_self"
+            (click)="$event.stopPropagation()">
+            <ng-container
+              *ngTemplateOutlet="notifying"
+            ></ng-container>
+          </a>
+          <span class="text">
+            <div class="icon" (click)="toggleMenu('about'); $event.stopPropagation()"></div>
+          </span>
+          }
+        </div>
+        @if (activeMenu === 'about') {
+          <div class="user__dropdown">
+            <div class="logo-user-wrapper">
+              <div class="logo"></div>
+              <div class="user-company">
+                <p class="font-s14 font-w500">
+                  {{ user.userInfo?.traderFullName }}
+                </p>
+              </div>
+            </div>
+            <div class="company">
+              <span class="font-w500 font-s12" style="color: #787878">Компания</span>
+              <p class="p-0 mt-1 font-w600">{{ user?.userInfo?.firmName }}</p>
+            </div>
+            <div class="reg_number">
+                  <span class="font-w500 font-s12" style="color: #787878">
+                    {{ "login_form.reg_number" | translate }}</span>
+              <p class="p-0 mt-1 font-w600">
+                {{ user.userInfo?.traderRegNum }}
+              </p>
+            </div>
+
+            @if (user.userInfo?.validTo) {
+              <div class="font-s12 secondTextColor l-h16">
+                <i class="certificateIcon"></i>
+                <span>
+                    {{ "login_form.certificateValidityPeriod" | translate }}</span>
+                <span class="font-w500">
+                  {{
+                    user.userInfo?.validTo
+                      | excelDate : true
+                      | date : "dd.MM.yyyy" : "+0000"
+                  }}
+                </span>
+              </div>
+            }
+
+            <div (click)="logOut()" class="d-flex jc-c m-2 btn">
+              <a>{{ "login_form.log-out" | translate }}</a>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</header>
+
+<ng-container #popupExportRequestListcontainer></ng-container>
+<ng-template #deafultIconExport>
+  <svg
+    width="24"
+    height="44"
+    viewBox="0 0 24 44"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <g clip-path="url(#clip0_3920_15798)">
+      <path
+        d="M4.5 22H11.25"
+        stroke="#424242"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+      <path
+        d="M4.5 16H17.25"
+        stroke="#424242"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+      <path
+        d="M4.5 28H9.75"
+        stroke="#424242"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+      <path
+        d="M13.5 25.75L17.25 29.5L21 25.75"
+        stroke="#424242"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+      <path
+        d="M17.25 29.5V20.5"
+        stroke="#424242"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </g>
+    <defs>
+      <clipPath id="clip0_3920_15798">
+        <rect width="24" height="24" fill="white" transform="translate(0 10)" />
+      </clipPath>
+    </defs>
+  </svg>
+</ng-template>
+<ng-template #pendingIconExport>
+  <svg
+    width="36"
+    height="36"
+    viewBox="0 0 36 36"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <rect width="36" height="36" rx="18" fill="#4CAF50" fill-opacity="0.1" />
+    <g clip-path="url(#clip0_3964_2022)">
+      <path
+        d="M10.5 18H17.25"
+        stroke="#4CAF50"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+      <path
+        d="M10.5 12H23.25"
+        stroke="#4CAF50"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+      <path
+        d="M10.5 24H15.75"
+        stroke="#4CAF50"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+      <path
+        d="M19.5 21.75L23.25 25.5L27 21.75"
+        stroke="#4CAF50"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+      <path
+        d="M23.25 25.5V16.5"
+        stroke="#4CAF50"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </g>
+    <defs>
+      <clipPath id="clip0_3964_2022">
+        <rect width="24" height="24" fill="white" transform="translate(6 6)" />
+      </clipPath>
+    </defs>
+  </svg>
+</ng-template>
+<ng-template #successIconExport>
+  <svg
+    width="36"
+    height="36"
+    viewBox="0 0 36 36"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <rect width="36" height="36" rx="18" fill="#4CAF50" fill-opacity="0.1" />
+    <g clip-path="url(#clip0_3974_2147)">
+      <path
+        d="M10.5 18H17.25"
+        stroke="#4CAF50"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+      <path
+        d="M10.5 12H23.25"
+        stroke="#4CAF50"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+      <path
+        d="M10.5 24H15.75"
+        stroke="#4CAF50"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+      <path
+        d="M19.5 21.75L23.25 25.5L27 21.75"
+        stroke="#4CAF50"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+      <path
+        d="M23.25 25.5V16.5"
+        stroke="#4CAF50"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </g>
+    <circle cx="29" cy="5" r="4.5" fill="#E53935" stroke="white" />
+    <defs>
+      <clipPath id="clip0_3974_2147">
+        <rect width="24" height="24" fill="white" transform="translate(6 6)" />
+      </clipPath>
+    </defs>
+  </svg>
+</ng-template>
+<ng-template #notifying>
+  <svg width="32px" height="32px" viewBox="-2.8 -6.8 41.60 41.60" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#424242" stroke="#424242" stroke-width="0.704"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g id="icomoon-ignore"> </g> <path d="M25.074 21.375v-8.568c0-4.462-3.229-8.162-7.474-8.915v-0.681c0-0.589-0.478-1.066-1.066-1.066h-1.066c-0.589 0-1.066 0.477-1.066 1.066v0.684c-4.237 0.761-7.453 4.458-7.453 8.912v8.568l-3.742 3.029v1.729h25.59v-1.729l-3.721-3.029zM27.729 25.066h-23.457v-0.154l3.742-3.029v-9.077c0-4.41 3.587-7.997 7.997-7.997 4.409 0 7.997 3.587 7.997 7.997v9.075l3.721 3.029v0.155z" fill="rgb(66, 66, 66)"> </path> <path d="M15.999 29.856c1.473 0 2.669-1.192 2.669-2.666h-5.335c0.001 1.473 1.195 2.666 2.667 2.666z" fill="rgb(66, 66, 66)"> </path> </g></svg>
+</ng-template>

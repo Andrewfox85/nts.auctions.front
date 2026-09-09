@@ -1,0 +1,7 @@
+@import "src/assets/scss/_constants.scss";
+
+.registrations-body-wrapper {
+  ::ng-deep.dx-datagrid-filter-panel {
+    left: 0 !important;
+  }
+}

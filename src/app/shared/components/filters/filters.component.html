@@ -1,0 +1,854 @@
+<aside class="filters">
+  @if (filtersOn?.hideFilters) {
+  <div>
+    <div
+      class="hideFilters"
+      (click)="hideFilters = !hideFilters"
+      [class.hide]="hideFilters"
+    >
+      <div class="icon" id="showFilters"></div>
+
+      @if (hideFilters) {
+      <dx-tooltip
+        target="#showFilters"
+        [showEvent]="{ name: 'mouseenter', delay: 500 }"
+        hideEvent="mouseleave"
+      >
+        <div *dxTemplate="let data = data; of: 'content'">
+          {{ "filters.showFilters" | translate }}
+        </div>
+      </dx-tooltip>
+      }
+
+      <div class="text">{{ "filters.hideFilters" | translate }}</div>
+    </div>
+  </div>
+  }
+
+  <form
+    [formGroup]="filtersForm"
+    class="group_filters"
+    [class.hideAllFilters]="hideFilters"
+  >
+    <div class="form-content-wrapper">
+      <!-- -страница Трейдеры -->
+      @if(filtersOn?.tradersIn || filtersOn?.tradersOut){
+        <div class="group">
+          <div class="form-group">
+            <div class="input-group">
+              <label>{{ "filters.traders" | translate }}</label>
+              <div class="checkboxes">
+                @if(filtersOn?.tradersIn){
+                  <dx-check-box
+                    text="{{ 'filters.tradersIn' | translate }}"
+                    iconSize="20px"
+                    formControlName="tradersIn"
+                  >
+                  </dx-check-box>
+                } @if(filtersOn?.tradersOut){
+                <dx-check-box
+                  text="{{ 'filters.tradersOut' | translate }}"
+                  iconSize="20px"
+                  formControlName="tradersOut"
+                >
+                </dx-check-box>
+              }
+              </div>
+            </div>
+          </div>
+        </div>
+      } @if(filtersOn?.directionBuy || filtersOn?.directionSale){
+        <div class="group">
+          <div class="form-group">
+            <div class="input-group">
+              <label>{{ "filters.directionOffersRegs" | translate }}</label>
+              <div class="checkboxes">
+                @if(filtersOn?.directionBuy){
+                  <dx-check-box
+                    text="{{ 'filters.directionBuy' | translate }}"
+                    iconSize="20px"
+                    formControlName="directionBuy"
+                  >
+                  </dx-check-box>
+                } @if(filtersOn?.directionSale){
+                <dx-check-box
+                  text="{{ 'filters.directionSale' | translate }}"
+                  iconSize="20px"
+                  formControlName="directionSale"
+                >
+                </dx-check-box>
+              }
+              </div>
+            </div>
+          </div>
+        </div>
+      } @if(filtersOn?.offers || filtersOn?.registrations){
+        <div class="group">
+          <div class="form-group">
+            <div class="input-group">
+              <label>{{ "filters.offersRegs" | translate }}</label>
+              <div class="checkboxes">
+                @if(filtersOn?.offers){
+                  <dx-check-box
+                    text="{{ 'filters.offers' | translate }}"
+                    iconSize="20px"
+                    formControlName="offers"
+                  >
+                  </dx-check-box>
+                } @if(filtersOn?.registrations){
+                <dx-check-box
+                  text="{{ 'filters.registrations' | translate }}"
+                  iconSize="20px"
+                  formControlName="registrations"
+                >
+                </dx-check-box>
+              }
+              </div>
+            </div>
+          </div>
+        </div>
+      } @if( filtersOn?.activeStatus || filtersOn?.unactiveStatus ||
+      filtersOn?.rejectedStatus){
+        <div class="group">
+          <div class="form-group">
+            <div class="input-group">
+              <label>{{ "filters.statusOffersRegs" | translate }}</label>
+              <div class="checkboxes">
+                @if(filtersOn?.activeStatus){
+                  <dx-check-box
+                    text="{{ 'filters.active' | translate }}"
+                    iconSize="20px"
+                    formControlName="activeStatus"
+                  >
+                  </dx-check-box>
+                } @if(filtersOn?.unactiveStatus){
+                <dx-check-box
+                  text="{{ 'filters.unactive' | translate }}"
+                  iconSize="20px"
+                  formControlName="unactiveStatus"
+                >
+                </dx-check-box>
+              } @if(filtersOn?.rejectedStatus){
+                <dx-check-box
+                  text="{{ 'filters.rejected' | translate }}"
+                  iconSize="20px"
+                  formControlName="rejectedStatus"
+                >
+                </dx-check-box>
+              }
+              </div>
+            </div>
+          </div>
+        </div>
+      } @if (filtersOn?.directionOffers) {
+        <div class="group">
+          <div class="form-group">
+            <div class="input-group">
+              <label>{{ "filters.directionOffers" | translate }}</label>
+
+              <div class="checkboxes">
+                <div>
+                <span class="flexContent8">
+                  <input
+                    type="radio"
+                    name="directionOffers"
+                    id="sale"
+                    formControlName="directionOffers"
+                    [value]="IdDirection.sale"
+                    (click)="changeDirection()"
+                  />
+
+                  <label for="sale" class="pb-0 blackColor font-s14">
+                    {{ "filters.directionSale" | translate }}
+                  </label>
+                </span>
+                </div>
+
+                <div>
+                <span class="flexContent8">
+                  <input
+                    type="radio"
+                    name="directionOffers"
+                    id="buy"
+                    formControlName="directionOffers"
+                    [value]="IdDirection.buy"
+                    (click)="changeDirection()"
+                  />
+
+                  <label for="buy" class="pb-0 blackColor font-s14">
+                    {{ "filters.directionBuy" | translate }}
+                  </label>
+                </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      } @if (filtersOn?.statusOffers) {
+        <div class="group">
+          <div class="form-group">
+            <div class="input-group">
+              <label>{{ "filters.statusOffers" | translate }}</label>
+
+              <div class="checkboxes">
+                <div>
+                <span
+                  class="flexContent8"
+                  [class.disabled]="offersGroupByStatus?.active?.length === 0"
+                >
+                  <input
+                    type="radio"
+                    name="statusOffers"
+                    id="active"
+                    formControlName="statusOffers"
+                    [value]="statusOffersFilters.active"
+                  />
+
+                  <label for="active" class="pb-0 blackColor font-s14">
+                    {{ "filters.active" | translate }} ({{
+                      offersGroupByStatus
+                        ? offersGroupByStatus.active?.length ?? 0
+                        : 0
+                    }})
+                  </label></span
+                >
+                </div>
+
+                <div>
+                <span
+                  class="flexContent8"
+                  [class.disabled]="offersGroupByStatus?.unactive?.length === 0"
+                >
+                  <input
+                    type="radio"
+                    name="statusOffers"
+                    id="unactive"
+                    formControlName="statusOffers"
+                    [value]="statusOffersFilters.unactive"
+                  />
+
+                  <label for="unactive" class="pb-0 blackColor font-s14">
+                    {{ "filters.unactive" | translate }} ({{
+                      offersGroupByStatus
+                        ? offersGroupByStatus.unactive?.length ?? 0
+                        : 0
+                    }})
+                  </label></span
+                >
+                </div>
+
+                <div>
+                <span
+                  class="flexContent8"
+                  [class.disabled]="offersGroupByStatus?.rejected?.length === 0"
+                >
+                  <input
+                    type="radio"
+                    name="statusOffers"
+                    id="rejected"
+                    formControlName="statusOffers"
+                    [value]="statusOffersFilters.rejectedBeforeBid"
+                  />
+
+                  <label for="rejected" class="pb-0 blackColor font-s14">
+                    {{ "filters.rejected" | translate }} ({{
+                      offersGroupByStatus
+                        ? offersGroupByStatus.rejected?.length ?? 0
+                        : 0
+                    }})
+                  </label></span
+                >
+                </div>
+              </div>
+
+              <hr />
+            </div>
+          </div>
+        </div>
+      } @if (filtersOn?.statusDirectOffers) {
+        <div class="group">
+          <div class="form-group">
+            <div class="input-group">
+              <label>{{ "filters.statusOffers" | translate }}</label>
+
+              <div class="checkboxes">
+                <div>
+                <span
+                  class="flexContent8"
+                  [class.disabled]="offersGroupByStatus?.backlogged?.length === 0"
+                >
+                  <input
+                    type="radio"
+                    name="statusDirectOffers"
+                    id="backlogged"
+                    formControlName="statusDirectOffers"
+                    [value]="statusDirectOffersFilters.backlogged"
+                  />
+
+                  <label for="backlogged" class="pb-0 blackColor font-s14">
+                    {{ "trading.directOffersTab.backlogged" | translate }} ({{
+                      offersGroupByStatus
+                        ? offersGroupByStatus?.backlogged?.length ?? 0
+                        : 0
+                    }})</label
+                  ></span
+                >
+                </div>
+
+                <div>
+                <span
+                  class="flexContent8"
+                  [class.disabled]="offersGroupByStatus?.reviewed?.length === 0"
+                >
+                  <input
+                    type="radio"
+                    name="statusDirectOffers"
+                    id="reviewed"
+                    formControlName="statusDirectOffers"
+                    [value]="statusDirectOffersFilters.reviewed"
+                  />
+
+                  <label for="reviewed" class="pb-0 blackColor font-s14">
+                    {{ "trading.directOffersTab.reviewed" | translate }} ({{
+                      offersGroupByStatus
+                        ? offersGroupByStatus.reviewed?.length ?? 0
+                        : 0
+                    }})</label
+                  ></span
+                >
+                </div>
+
+                <div>
+                <span
+                  class="flexContent8"
+                  [class.disabled]="offersGroupByStatus?.rejected?.length === 0"
+                >
+                  <input
+                    type="radio"
+                    name="statusDirectOffers"
+                    id="rejected"
+                    formControlName="statusDirectOffers"
+                    [value]="statusDirectOffersFilters.rejectedBeforeBid"
+                  />
+
+                  <label for="rejected" class="pb-0 blackColor font-s14">
+                    {{ "trading.directOffersTab.rejected" | translate }} ({{
+                      offersGroupByStatus
+                        ? offersGroupByStatus.rejected?.length ?? 0
+                        : 0
+                    }})</label
+                  ></span
+                >
+                </div>
+
+                <div>
+                <span
+                  class="flexContent8"
+                  [class.disabled]="offersGroupByStatus?.unapproved?.length === 0"
+                >
+                  <input
+                    type="radio"
+                    name="statusDirectOffers"
+                    id="unapproved"
+                    formControlName="statusDirectOffers"
+                    [value]="statusDirectOffersFilters.unapproved"
+                  />
+
+                  <label for="unapproved" class="pb-0 blackColor font-s14">
+                    {{ "trading.directOffersTab.unapproved" | translate }} ({{
+                      offersGroupByStatus
+                        ? offersGroupByStatus.unapproved?.length ?? 0
+                        : 0
+                    }})</label
+                  ></span
+                >
+                </div>
+
+                <div>
+                <span
+                  class="flexContent8"
+                  [class.disabled]="offersGroupByStatus?.approved?.length === 0"
+                >
+                  <input
+                    type="radio"
+                    name="statusDirectOffers"
+                    id="approved"
+                    formControlName="statusDirectOffers"
+                    [value]="statusDirectOffersFilters.approved"
+                  />
+
+                  <label for="approved" class="pb-0 blackColor font-s14">
+                    {{ "trading.directOffersTab.approved" | translate }} ({{
+                      offersGroupByStatus
+                        ? offersGroupByStatus.approved?.length ?? 0
+                        : 0
+                    }})</label
+                  ></span
+                >
+                </div>
+              </div>
+
+              <hr />
+            </div>
+          </div>
+        </div>
+      } @if (filtersOn?.statusDirectOffersTr) {
+        <div class="group">
+          <div class="form-group">
+            <div class="input-group">
+              <label>{{ "filters.statusOffers" | translate }}</label>
+
+              <div class="checkboxes">
+                <div>
+                <span
+                  class="flexContent8"
+                  [class.disabled]="offersGroupByStatus?.submitted?.length === 0"
+                >
+                  <input
+                    type="radio"
+                    name="statusDirectOffersTr"
+                    id="submitted"
+                    formControlName="statusDirectOffersTr"
+                    [value]="statusDirectOffersFiltersTr.submitted"
+                  />
+
+                  <label for="submitted" class="pb-0 blackColor font-s14">
+                    {{ "trading.directOffersTab.submitted" | translate }} ({{
+                      offersGroupByStatus
+                        ? offersGroupByStatus.submitted?.length ?? 0
+                        : 0
+                    }})</label
+                  ></span
+                >
+                </div>
+
+                <div>
+                <span
+                  class="flexContent8"
+                  [class.disabled]="offersGroupByStatus?.rejected?.length === 0"
+                >
+                  <input
+                    type="radio"
+                    name="statusDirectOffersTr"
+                    id="rejected"
+                    formControlName="statusDirectOffersTr"
+                    [value]="statusDirectOffersFiltersTr.rejectedBeforeBid"
+                  />
+
+                  <label for="rejected" class="pb-0 blackColor font-s14">
+                    {{ "trading.directOffersTab.rejected" | translate }} ({{
+                      offersGroupByStatus
+                        ? offersGroupByStatus.rejected?.length ?? 0
+                        : 0
+                    }})</label
+                  >
+                </span>
+                </div>
+
+                <div>
+                <span
+                  class="flexContent8"
+                  [class.disabled]="offersGroupByStatus?.approved?.length === 0"
+                >
+                  <input
+                    type="radio"
+                    name="statusDirectOffersTr"
+                    id="approved"
+                    formControlName="statusDirectOffersTr"
+                    [value]="statusDirectOffersFiltersTr.approved"
+                  />
+
+                  <label for="approved" class="pb-0 blackColor font-s14">
+                    {{ "trading.directOffersTab.approved" | translate }} ({{
+                      offersGroupByStatus
+                        ? offersGroupByStatus.approved?.length ?? 0
+                        : 0
+                    }})</label
+                  >
+                </span>
+                </div>
+              </div>
+
+              <hr />
+            </div>
+          </div>
+        </div>
+      } @if (filtersOn?.deals) {
+        <div class="group">
+          <div class="form-group">
+            <div class="input-group">
+              <label>{{ "trading.deals" | translate }}</label>
+
+              <div class="checkboxes">
+                <div>
+                <span class="flexContent8">
+                  <input
+                    type="radio"
+                    name="deals"
+                    id="fixed"
+                    formControlName="deals"
+                    [value]="statusDeals.fixed"
+                  />
+
+                  <label for="active" class="pb-0 blackColor font-s14">
+                    {{ "filters.fixed" | translate }}
+                  </label>
+                </span>
+                </div>
+
+                <div>
+                <span class="flexContent8">
+                  <input
+                    type="radio"
+                    name="deals"
+                    id="denied"
+                    formControlName="deals"
+                    [value]="statusDeals.denied"
+                  />
+
+                  <label for="unactive" class="pb-0 blackColor font-s14">
+                    {{ "filters.denied" | translate }}
+                  </label>
+                </span>
+                </div>
+              </div>
+              <hr />
+            </div>
+          </div>
+        </div>
+      } @if (filtersOn?.displayCurrency) {
+        <div class="group">
+          <div class="form-group">
+            <div class="input-group">
+              <label>{{ "filters.displayСurrency" | translate }}</label>
+
+              <div>
+                <dx-select-box
+                  [dataSource]="displayCurrency"
+                  valueExpr="id"
+                  displayExpr="name"
+                  width="280px"
+                  height="40px"
+                  placeholder="{{ 'filters.selection' | translate }}"
+                  formControlName="displayCurrency"
+                  [searchEnabled]="true"
+                  [showClearButton]="false"
+                  [showDataBeforeSearch]="true"
+                  [minSearchLength]="1"
+                  (onValueChanged)="onCurrChanged($event)"
+                >
+                </dx-select-box>
+              </div>
+            </div>
+          </div>
+        </div>
+      } @if (filtersOn?.myDeals || filtersOn?.observedDeals ||
+      filtersOn?.unreliableRegister || filtersOn?.priceAdjustmentDeals ||
+      filtersOn?.simpleLotDeals || filtersOn?.compositeLotDeals) {
+        <div class="group">
+          <div class="form-group">
+            <div class="input-group">
+              <label>{{ "filters.displayDeals" | translate }}</label>
+              <div class="checkboxes">
+                @if (filtersOn?.myDeals) {
+                  <dx-check-box
+                    text="{{ 'filters.myTransactions' | translate }}"
+                    iconSize="20px"
+                    formControlName="myTransactions"
+                  >
+                  </dx-check-box>
+                } @if (filtersOn?.observedDeals) {
+                <div class="flexContent4">
+                  <dx-check-box
+                    text="{{ 'filters.observed' | translate }}"
+                    iconSize="20px"
+                    formControlName="observedDeals"
+                  >
+                  </dx-check-box>
+
+                  <i class="greenObserveOffer"></i>
+                </div>
+              } @if (filtersOn?.myDeals) {
+                <hr class="w-100 m-0" />
+              } @if (filtersOn?.unreliableRegister) {
+                <dx-check-box
+                  text="{{ 'filters.registerUnreliable' | translate }}"
+                  iconSize="20px"
+                  formControlName="unreliableRegister"
+                >
+                </dx-check-box>
+              } @if (filtersOn?.priceAdjustmentDeals) {
+                <dx-check-box
+                  text="{{ 'filters.priceAdjustment' | translate }}"
+                  iconSize="20px"
+                  formControlName="priceAdjustmentDeals"
+                >
+                </dx-check-box>
+              } @if (filtersOn?.simpleLotDeals) {
+                <dx-check-box
+                  text="{{ 'filters.simpleLot' | translate }}"
+                  iconSize="20px"
+                  formControlName="simpleLotDeals"
+                >
+                </dx-check-box>
+              } @if (filtersOn?.compositeLotDeals) {
+                <div class="flexContent4">
+                  <dx-check-box
+                    text="{{ 'filters.compositeLot' | translate }}"
+                    iconSize="20px"
+                    formControlName="compositeLotDeals"
+                  >
+                  </dx-check-box>
+                  <i class="lot"></i>
+                </div>
+              }
+              </div>
+            </div>
+          </div>
+        </div>
+      } @if (filtersOn?.internal || filtersOn?.external || filtersOn?.export ||
+      filtersOn?.import) {
+        <div class="group">
+          <div class="form-group">
+            <div class="input-group">
+              <label>{{ "filters.marketType" | translate }}</label>
+              <div class="checkboxes">
+                @if (filtersOn?.internal) {
+                  <dx-check-box
+                    text="{{ 'filters.internal' | translate }}"
+                    iconSize="20px"
+                    formControlName="internal"
+                  >
+                  </dx-check-box>
+                } @if (filtersOn?.external) {
+                <dx-check-box
+                  text="{{ 'filters.external' | translate }}"
+                  iconSize="20px"
+                  formControlName="external"
+                >
+                </dx-check-box>
+              } @if (filtersOn?.export) {
+                <dx-check-box
+                  text="{{ 'filters.export' | translate }}"
+                  iconSize="20px"
+                  formControlName="export"
+                >
+                </dx-check-box>
+              } @if (filtersOn?.import) {
+                <dx-check-box
+                  text="{{ 'filters.import' | translate }}"
+                  iconSize="20px"
+                  formControlName="import"
+                >
+                </dx-check-box>
+              }
+              </div>
+            </div>
+          </div>
+        </div>
+      } @if( filtersOn?.isMine || filtersOn?.bidding || filtersOn?.observed ||
+      filtersOn?.corrected || filtersOn?.counter || filtersOn?.priceAdjustment ||
+      filtersOn?.multibasis || filtersOn?.simpleLot || filtersOn?.compositeLot ||
+      filtersOn?.individualPriceStep || filtersOn?.counterAnalogs ||
+      filtersOn?.reviewedAnalogs || filtersOn?.unreviewedAnalogs){
+        <div class="group">
+          <div class="form-group">
+            <div class="input-group">
+              <label>{{ "filters.displayOffers" | translate }}</label>
+              <div class="checkboxes">
+                @if(filtersOn?.isMine){
+                  <dx-check-box
+                    text="{{ 'filters.myOffers' | translate }}"
+                    iconSize="20px"
+                    formControlName="isMine"
+                  >
+                  </dx-check-box>
+                }
+
+                <div class="flexContent4">
+                  @if(filtersOn?.observed){
+                    <dx-check-box
+                      text="{{ 'filters.observed' | translate }}"
+                      iconSize="20px"
+                      formControlName="observed"
+                    >
+                    </dx-check-box>
+                  }
+                  <i class="greenObserveOffer"></i>
+                </div>
+
+                @if(nameOfCachePage === 'auctions'){
+                  <hr class="mt-0" />
+                } @if(filtersOn?.bidding){
+                <dx-check-box
+                  text="{{ 'trading.auctionsTab.bidding' | translate }}"
+                  iconSize="20px"
+                  formControlName="bidding"
+                >
+                </dx-check-box>
+              } @if(filtersOn?.counter){
+                <div class="flexContent4">
+                  @if(filtersOn?.counter){
+                    <dx-check-box
+                      text="{{ 'filters.counter' | translate }}"
+                      iconSize="20px"
+                      formControlName="counter"
+                    >
+                    </dx-check-box>
+                  }
+
+                  <i class="counter"></i>
+                </div>
+              } @if(filtersOn?.corrected){
+                <div class="flexContent4">
+                  @if(filtersOn?.corrected){
+                    <dx-check-box
+                      text="{{ 'trading.auctionsTab.corrected' | translate }}"
+                      iconSize="20px"
+                      formControlName="corrected"
+                    >
+                    </dx-check-box>
+                  }
+
+                  <i class="corrected"></i>
+                </div>
+              } @if(filtersOn?.corrected && nameOfCachePage === 'auctions'){
+                <hr class="mt-0" />
+              } @if(filtersOn?.counterAnalogs){
+                <dx-check-box
+                  text="{{ 'analogsList.counterAnalogs' | translate }}"
+                  iconSize="20px"
+                  formControlName="counterAnalogs"
+                >
+                </dx-check-box>
+              } @if(filtersOn?.reviewedAnalogs){
+                <div class="flexContent4">
+                  @if(filtersOn?.reviewedAnalogs){
+                    <dx-check-box
+                      text="{{ 'analogsList.reviewedAnalogs' | translate }}"
+                      iconSize="20px"
+                      formControlName="reviewedAnalogs"
+                    >
+                    </dx-check-box>
+                  }
+
+                  <i class="counterAnalogsGreen"></i>
+                </div>
+              } @if(filtersOn?.unreviewedAnalogs){
+                <div class="flexContent4">
+                  @if(filtersOn?.unreviewedAnalogs){
+                    <dx-check-box
+                      text="{{ 'analogsList.unreviewedAnalogs' | translate }}"
+                      iconSize="20px"
+                      formControlName="unreviewedAnalogs"
+                    >
+                    </dx-check-box>
+                  }
+
+                  <i class="counterAnalogsRed"></i>
+                </div>
+                @if(filtersOn?.counterAnalogs && nameOfCachePage === 'auctions'){
+                  <hr class="mt-0" />
+                } } @if(filtersOn?.priceAdjustment){
+                <dx-check-box
+                  text="{{ 'filters.priceAdjustment' | translate }}"
+                  iconSize="20px"
+                  formControlName="priceAdjustment"
+                >
+                </dx-check-box>
+              } @if(filtersOn?.multibasis){
+                <div class="flexContent4">
+                  @if(filtersOn?.multibasis){
+                    <dx-check-box
+                      text="{{ 'filters.multibasisOffers' | translate }}"
+                      iconSize="20px"
+                      formControlName="multibasis"
+                    >
+                    </dx-check-box>
+                  }
+
+                  <i class="multibasisLot"></i>
+                </div>
+              } @if(filtersOn?.simpleLot){
+                <dx-check-box
+                  text="{{ 'filters.simpleLot' | translate }}"
+                  iconSize="20px"
+                  formControlName="simpleLot"
+                >
+                </dx-check-box>
+              }
+
+                <div class="flexContent4">
+                  @if(filtersOn?.compositeLot){
+                    <dx-check-box
+                      text="{{ 'filters.compositeLot' | translate }}"
+                      iconSize="20px"
+                      formControlName="compositeLot"
+                    >
+                    </dx-check-box>
+                  }
+                  <i class="lot"></i>
+                </div>
+
+                @if(filtersOn?.individualPriceStep){
+                  <dx-check-box
+                    text="{{ 'filters.individualPriceStep' | translate }}"
+                    iconSize="20px"
+                    formControlName="individualPriceStep"
+                  >
+                  </dx-check-box>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      } @if (filtersOn?.ownFunds || filtersOn?.publicProcurement) {
+        <div class="group">
+          <div class="form-group">
+            <div class="input-group">
+              <label>{{ "filters.fundingSource" | translate }}</label>
+
+              <div class="checkboxes">
+                @if (filtersOn?.ownFunds) {
+                  <dx-check-box
+                    text="{{ 'filters.ownFunds' | translate }}"
+                    iconSize="20px"
+                    formControlName="ownFunds"
+                  />
+                } @if (filtersOn?.publicProcurement) {
+                <dx-check-box
+                  text="{{ 'filters.publicProcurement' | translate }}"
+                  iconSize="20px"
+                  formControlName="publicProcurement"
+                />
+              }
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+    <div
+      floatingActionButtons
+      class="w-280px filters-action-buttons"
+    >
+      <div class="buttons-block flexContentColumn16">
+        <button
+          type="button"
+          class="btn btn-primary submit"
+          (click)="sendFiltersData()"
+        >
+          {{ "filters.showResults" | translate }}
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-outline-primary submit"
+          (click)="clearFilters()"
+        >
+          {{ "filters.reset" | translate }}
+        </button>
+      </div>
+    </div>
+  </form>
+</aside>

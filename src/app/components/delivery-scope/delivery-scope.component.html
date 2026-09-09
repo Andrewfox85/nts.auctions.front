@@ -1,0 +1,239 @@
+<dx-scroll-view [useNative]="true" height="calc(100vh - 125px)" *ngIf="type != 'counterRegister'">
+<div class="flexContentColumn32">
+    <div *ngFor="let scope of deliveryScopes">
+      <dx-data-grid
+        [dataSource]="scope[1]"
+        [showBorders]="false"
+        [showColumnLines]="true"
+        [showRowLines]="true"
+        (onCellPrepared)="onCellPreparedDelivScope($event, goods?.length, isDeliveryScopeGraded)"
+        appLocalizeContextMenu
+      >
+
+        <div *dxTemplate="let item of 'headerTemplate'" class="flexContent4 center">
+
+          <div class="flexContent16 ai-c" *ngIf="type == 'compareOffer'">
+            <span class="changeTag" *ngIf="this.deliveryScopes?.length >0 && !changeScope(scope[1])">{{'general.changed' | translate}}</span>
+          </div>
+
+          <div> {{scope[1][0].firmClientName}}</div>
+        </div>
+
+        <dxi-column
+          headerCellTemplate="headerTemplate"
+          dataField="goodName"
+          cssClass="column text-align-left"
+          alignment="left"
+          cellTemplate="goodNameWithTooltip"
+        >
+        </dxi-column>
+
+        <div *dxTemplate="let item of 'goodNameWithTooltip'">
+          <div id="name{{item.data.idFirmClient}}{{item.data.idDemandOfferGood}}">{{item.data.goodName}}</div>
+          <dx-tooltip target="#name{{item.data.idFirmClient}}{{item.data.idDemandOfferGood}}"
+                      [showEvent]="{name: 'mouseenter', delay: 500}"
+                      hideEvent="mouseleave">
+            <div *dxTemplate="let data = data; of: 'content'">
+              <div class="properties">
+                <span>{{item.data.properties}}</span>
+              </div>
+            </div>
+          </dx-tooltip>
+        </div>
+
+        <dxi-column
+          headerCellTemplate="headerSummaryTemplate"
+          width="25%"
+          dataField="volume"
+          cssClass="column text-align-right"
+          alignment="right"
+          cellTemplate="volumeTemplate"
+        ></dxi-column>
+
+        <div *dxTemplate="let item of 'volumeTemplate'" class="flexContent4 jc-end">
+          <div class="number-style">
+            {{(item.data.volume | toNumber) | ruNumberFormat: null : 4 }}
+          </div>
+          <div>{{item.data.unitName}}</div>
+        </div>
+
+        <div *dxTemplate="let item of 'headerSummaryTemplate'">
+          <div *ngIf="onSameUnits()">
+            {{ 'general.total' | translate }}:
+            {{
+              isDeliveryScopeGraded ?
+                scope[DELIVERY_SCOPE_ITEMS.SCOPE_INFO][0].volume :
+                (scope[DELIVERY_SCOPE_ITEMS.SCOPE_INFO] | sumVolume: 'volume')
+                | ruNumberFormat
+            }}
+            {{ scope[DELIVERY_SCOPE_ITEMS.SCOPE_INFO][0].unitName }}
+          </div>
+        </div>
+      </dx-data-grid>
+    </div>
+</div>
+</dx-scroll-view>
+
+<dx-scroll-view [useNative]="true" height="calc(100vh - 125px)" *ngIf="type == 'counterRegister'">
+  <div class="flexContentColumn16">
+    <div *ngFor="let scopes of deliveryScopes">
+      <table class="w-100">
+        <thead>
+          <tr>
+            <th class="text-align-left">{{ scopes[DELIVERY_SCOPE_ITEMS.SCOPE_INFO][0].firmClientName }}</th>
+            <th>{{ 'btns.sell' | translate }}</th>
+            @if (!isDeliveryScopeGraded) {
+              <th>{{ 'counterOffers.counterOffer' | translate }}</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+        <ng-container *ngFor="let scope of scopes[1]; let i=index; last as last" style=" overflow-y: auto">
+          <tr>
+            <td class="text-align-left">
+              <div id="name{{scope.idFirmClient}}{{scope.idDemandOfferGood}}" class="twostrings">{{scope.goodName}}</div>
+              <dx-tooltip target="#name{{scope.idFirmClient}}{{scope.idDemandOfferGood}}"
+                          [showEvent]="{name: 'mouseenter', delay: 500}"
+                          hideEvent="mouseleave">
+                <div *dxTemplate="let data = data; of: 'content'">
+                  <div class="properties">
+                    <span>{{scope.properties}}</span>
+                  </div>
+                </div>
+              </dx-tooltip>
+            </td>
+            @if (
+              (isDeliveryScopeGraded && i === 0) ||
+              !isDeliveryScopeGraded
+            ) {
+              <td
+                [attr.rowspan]="isDeliveryScopeGraded ? goods.length : null"
+                class="paddingNumberBoxCell"
+                [width]="'25%'"
+              >
+                <div class="flexContent8 center jc-end">
+                  <div class="number-style">
+                    {{ (scope.volume | toNumber) | ruNumberFormat: null : 4 }}
+                  </div>
+                  <div>{{ scope.unitName }}</div>
+                </div>
+              </td>
+            }
+
+            @if (!isDeliveryScopeGraded) {
+              <td class="paddingNumberBoxCell " [width]="'25%'"
+                  [ngClass]="{'difference': (scope.volume | toNumber) !== (scope.volumeCounter | toNumber)}">
+                <div class="flexContent8 center jc-end">
+                  <div class="number-style">
+                    {{ (scope.volumeCounter | toNumber)| ruNumberFormat: null : 4 }}
+                  </div>
+                  <div>{{ scope.unitName }}</div>
+                </div>
+              </td>
+            }
+
+          </tr>
+
+          <tr *ngIf="last && onSameUnits() && !isDeliveryScopeGraded" class="viewRow">
+            <td class="text-align-left greenColor">{{'editOffer.totalByShipper' | translate}}</td>
+            <td class="text-align-right date-roboto-mono greenColor">
+              <span class="flexContent8 jc-end">
+                <span>
+                {{(totalRowData[scopes[0]])| ruNumberFormat: null : precisionVolume }}
+                </span>
+
+              <div>{{scope.unitName}}</div></span>
+            </td>
+
+            @if (!isDeliveryScopeGraded) {
+              <td class="text-align-right date-roboto-mono greenColor"
+                  [ngClass]="{'difference': totalRowData[scopes[0]] != totalRowDataCounter[scopes[0]]}">
+              <span class="flexContent8 jc-end">
+              <span>
+                {{ (totalRowDataCounter[scopes[0]]) | ruNumberFormat: null : precisionVolume }}
+              </span>
+              <div>{{ scope.unitName }}</div></span>
+              </td>
+            }
+          </tr>
+        </ng-container>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+   <!-- Всего по грузоотправителям    -->
+   <div class="flexContentColumn10 mt-3">
+    <div class="l-h20">{{'editOffer.totalByShippers' | translate}} </div>
+
+    <table class="w-100">
+      <thead>
+      <tr>
+        <th class="text-align-left">{{'trading.offersTable.nameProduct' | translate}} </th>
+        <th class="text-align-right" [width]="'25%'">{{'counterOffers.quantitySch' | translate}} </th>
+        @if (!isDeliveryScopeGraded) {
+          <th class="text-align-right" [width]="'25%'">{{ 'counterOffers.quantityCounterOffers' | translate }}</th>
+        }
+      </tr>
+      </thead>
+      <tbody>
+      <ng-container *ngFor="let good of goods; let i=index; last as last" style=" overflow-y: auto">
+        <tr>
+          <td class="text-align-left">{{good.goodName}}</td>
+          <td class="text-align-right">
+            <span class="flexContent8 jc-end">
+            <div>
+              {{getVolumeValue(good.goodsSpecifications) | ruNumberFormat: null : precisionVolume }}
+            </div>
+            <div>
+              {{good.unitName}}
+            </div>
+            </span>
+          </td>
+
+          @if (!isDeliveryScopeGraded) {
+            <td class="text-align-right"
+                [ngClass]="{'difference': getVolumeValue(good.goodsSpecifications) != getCounterVolumeValue(good.goodsSpecifications[0].idDemandOfferGood)}">
+            <span class="flexContent8 jc-end">
+              <div>{{ getCounterVolumeValue(good.goodsSpecifications[0].idDemandOfferGood) | ruNumberFormat: null : precisionVolume }}
+              </div>
+
+              <div>
+                {{ good.unitName }}
+              </div>
+            </span>
+            </td>
+          }
+        </tr>
+
+
+        <tr *ngIf="last && onSameUnits()" class="viewRow">
+          <td class="text-align-left greenColor">{{'general.totalCommon' | translate}}</td>
+          <td class="text-align-right greenColor">
+            <span class="flexContent8 jc-end">
+              <div>
+                {{(this.totalGoodsFromOffer) | ruNumberFormat: null : precisionVolume }}
+              </div>
+
+              <div>
+                {{good.unitName}}
+              </div>
+            </span></td>
+
+          @if (!isDeliveryScopeGraded) {
+            <td class="text-align-right greenColor" [class.difference]="totalGoodsFromOffer != totalGoodsFromCounter">
+             <span class="flexContent8 jc-end">
+              <div>{{ (this.totalGoodsFromCounter) | ruNumberFormat: null : precisionVolume }}
+             </div>
+
+             <div>
+              {{ good.unitName }}
+             </div>
+            </span>
+            </td>
+          }
+        </tr>
+      </ng-container>
+    </table>
+  </div>
+</dx-scroll-view>

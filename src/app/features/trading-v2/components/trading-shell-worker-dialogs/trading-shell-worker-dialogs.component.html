@@ -1,0 +1,193 @@
+<dx-popup
+  contentTemplate="admissionPopup"
+  [hideOnOutsideClick]="false"
+  [visible]="admissionVisible"
+  [showTitle]="true"
+  [title]="admissionTitle"
+  width="455"
+  height="auto"
+  [showCloseButton]="true"
+  (onHiding)="onAdmissionClose()"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  />
+
+  <div *dxTemplate="let data of 'admissionPopup'">
+    <div class="flexContentColumn32">
+      <form [formGroup]="admissionForm" class="flexContentColumn16">
+        @if (!sessionInfo?.isAdmissionFinished) {
+          <div>
+            {{ 'trading.startAdmissionToExchangeTrading' | translate }}
+            {{ 'trading.startAdmissionSettings' | translate }}:
+          </div>
+        }
+        @if (sessionInfo?.isAdmissionFinished) {
+          <div class="flexContentColumn8">
+            <span>{{
+              'trading.startAdmissionToExchangeTrading' | translate
+            }}</span>
+
+            <span>
+              <dx-radio-group
+                [items]="[
+                  {
+                    id: 'forAllApplicationsRegistrations',
+                    name: 'trading.forAllApplicationsRegistrations' | translate
+                  },
+                  {
+                    id: 'onRejectedApplicationsRegistrations',
+                    name:
+                      'trading.onRejectedApplicationsRegistrations' | translate
+                  }
+                ]"
+                valueExpr="id"
+                displayExpr="name"
+                formControlName="radioButton"
+              />
+            </span>
+            <span>{{ 'trading.startAdmissionSettings' | translate }}:</span>
+          </div>
+        }
+
+        <div class="border w-100">
+          <div class="item border-bottom flexContent8 p-3 jc-sb center">
+            <span>{{
+              'trading.regsTable.violationsControl' | translate | lowercase
+            }}</span>
+
+            <dx-switch
+              switchedOffText=""
+              switchedOnText=""
+              formControlName="isAdmissionControlViols"
+            />
+          </div>
+
+          <div class="w-100">
+            <div class="item border-bottom flexContent8 p-3 jc-sb center">
+              <span>{{
+                'trading.regsTable.depositControl' | translate | lowercase
+              }}</span>
+
+              <dx-switch
+                switchedOffText=""
+                switchedOnText=""
+                formControlName="isAdmissionControlDeposit"
+                (onValueChanged)="
+                  admissionForm.controls['specialAdmissionProcedure'].patchValue(
+                    false
+                  )
+                "
+              />
+            </div>
+          </div>
+
+          <div class="w-100">
+            <div class="item flexContent8 p-3 jc-sb center">
+              <span>{{
+                'trading.regsTable.specialAdmissionProcedure'
+                  | translate
+                  | lowercase
+              }}</span>
+
+              <dx-switch
+                switchedOffText=""
+                switchedOnText=""
+                formControlName="specialAdmissionProcedure"
+                [disabled]="
+                  !admissionForm.controls['isAdmissionControlDeposit']?.value
+                "
+              />
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <div class="flexContent16 w-100">
+        <button
+          type="button"
+          class="btn btn-primary w-50"
+          [disabled]="
+            sessionInfo?.sessionStageId === sessionStage.admissionComleted ||
+            sessionInfo?.idSessionPeriod !== IdSessionPeriods.pretrading
+          "
+          (click)="startAdmission.emit()"
+        >
+          {{ 'btns.startAdmission' | translate }}
+        </button>
+        <button
+          type="button"
+          class="btn btn-outline-primary w-50"
+          (click)="onAdmissionDismiss()"
+        >
+          {{ 'btns.close' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</dx-popup>
+
+<dx-popup
+  contentTemplate="submissionPopup"
+  [hideOnOutsideClick]="false"
+  [visible]="submissionVisible"
+  [showTitle]="true"
+  title="{{ 'trading.moveToArchive' | translate }}"
+  width="490"
+  height="auto"
+  [showCloseButton]="true"
+  (onHiding)="onSubmissionClose()"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  />
+
+  <div *dxTemplate="let data of 'submissionPopup'">
+    <div class="flexContentColumn24">
+      @if (
+        !sessionInfo?.isAllowedTargetedTransact && submissionType == 'endSession'
+      ) {
+        <div>
+          {{ 'trading.transferToArchiveMess' | translate }}
+        </div>
+      }
+      @if (
+        (sessionInfo?.isAllowedTargetedTransact &&
+          submissionType == 'intermediatetransfer') ||
+        (sessionInfo?.isAllowedTargetedTransact &&
+          sessionInfo?.idSessionPeriod != 13 &&
+          submissionType == 'endSession')
+      ) {
+        <div>
+          {{ 'trading.endMainTradingMess' | translate }}
+        </div>
+      }
+      @if (
+        sessionInfo?.idSessionPeriod == 13 &&
+        sessionInfo?.isAllowedTargetedTransact &&
+        submissionType == 'endSession'
+      ) {
+        <div>
+          {{ 'trading.transferToArchiveMess' | translate }}
+        </div>
+      }
+
+      <div class="flexContent16 w-100">
+        <button
+          type="button"
+          class="btn btn-primary w-50"
+          (click)="archiveTransfer.emit()"
+        >
+          {{ 'btns.transfer' | translate }}
+        </button>
+        <button
+          type="button"
+          class="btn btn-outline-primary w-50"
+          (click)="onSubmissionDismiss()"
+        >
+          {{ 'btns.close' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</dx-popup>

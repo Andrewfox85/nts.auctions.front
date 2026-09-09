@@ -1,0 +1,90 @@
+<footer>
+  <div class="footer_wrapper">
+    <div class="footer_top-line">
+      <div class="info_block">
+        <h5>{{ "footer.top_line.first.title" | translate }}</h5>
+        <div class="flexContentColumn16">
+          <div class="flexContent24">
+            <a href="https://www.butb.by/" target="_blank">{{
+              "footer.top_line.first.link_1" | translate
+            }}</a>
+          </div>
+          <div class="flexContent24">
+            <a href="https://pp.butb.by/pp" target="_blank">{{
+              "footer.top_line.first.link_2" | translate
+            }}</a>
+          </div>
+        </div>
+      </div>
+      <div class="info_block">
+        <h5>{{ "footer.top_line.second.title" | translate }}</h5>
+        <div class="flexContentColumn16">
+          <div class="flexContent24">
+            <p>{{ "footer.top_line.second.link_1" | translate }}</p>
+          </div>
+          <div class="flexContent24">
+            <p>{{ "footer.top_line.second.link_2" | translate }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="info_block">
+        <h5>{{ "footer.top_line.third.title" | translate }}</h5>
+        <div class="flexContentColumn16">
+          <div class="content_row1">
+            <a href="tel:375333093231">+375 (33) 309-32-31</a>
+            <a href="tel:168"
+              >168 {{ "footer.top_line.third.link_1" | translate }}</a
+            >
+          </div>
+          <div class="content_row1">
+            <a href="tel:375293093232">+375 (29) 309-32-32</a>
+            <a routerLink="/feedback">{{
+              "footer.top_line.third.link_2" | translate
+            }}</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="info_block">
+        <h5>{{ "footer.top_line.fouth.title" | translate }}</h5>
+        <div class="flexContentColumn16">
+          <div class="content_row2">
+            <a
+              href="https://www.butb.by/shedule/metalloproduktsiya/"
+              target="_blank"
+              >{{ getSectionNameByType(sectionsTypes.METALL) }}</a
+            >
+            <a
+              href="https://www.butb.by/shedule/lesoproduktsiya/"
+              target="_blank"
+              >{{ getSectionNameByType(sectionsTypes.TIMBER) }}</a
+            >
+          </div>
+          <div class="content_row2">
+            <a
+              href="https://www.butb.by/shedule/selkhozproduktsiya/"
+              target="_blank"
+              >{{ getSectionNameByType(sectionsTypes.AGRI) }}</a
+            >
+            <a
+              href="https://www.butb.by/shedule/perspektivnye-tovary/"
+              target="_blank"
+              >{{ getSectionNameByType(sectionsTypes.PERSPECTIVE) }}</a
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer_bottom-line">
+      <div class="d-flex jc-sb ai-c w-100">
+        <div class="copyright">© 2005-{{currentYear()}}, {{ "footer.bottom_line.copy" | translate }}</div>
+
+        <div class="version">
+          {{ "footer.bottom_line.version" | translate }} {{ buildNumber() }}
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,33 @@
+<dx-popup
+  [hideOnOutsideClick]="false"
+  [visible]="true"
+  [showTitle]="true"
+  title="{{ 'counterOffers.counterOffers' | translate }}:
+         {{ 'trading.offersTable.lot' | translate }} №
+         {{ fullInfo.generalInfo?.lotNumber }}
+    "
+  width="900"
+  height="85vh"
+  [showCloseButton]="true"
+  (onHiding)="viewInSingleCurrencyPopup.emit(false)"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+  <div>
+    <app-view-counter-offer
+      [fullInfo]="fullInfo"
+      [tabIndex]="tabIndex"
+      [isMine]="false"
+      [idOffer]="idOffer"
+      [deliveryConditions]="deliveryConditions"
+      [goodsOriginal]="goodsOriginal"
+      [editRulesIntersections]="editRulesIntersections"
+      [uniqueDeliveryScopes]="uniqueDeliveryScopes"
+      [idDemandOffer]="idDemandOffer"
+      [isAllowAnalog]="isAllowAnalog"
+      [deletedScope]="deletedScope"
+      [dataForReq]="dataForReq"
+    ></app-view-counter-offer>
+  </div>
+</dx-popup>

@@ -1,0 +1,53 @@
+<dx-popup
+  contentTemplate="rejectionPopup"
+  [hideOnOutsideClick]="false"
+  [visible]="rejectionPopup"
+  [showTitle]="true"
+  title="{{ 'trading.offersTable.rejectionOfferTitle' | translate}}"
+  width="600"
+  height="auto"
+  [showCloseButton]="true"
+  (onHiding)="closePopup()"
+>
+  <dxo-animation [show]="{easing: 'ease-in-out', type:'fadeIn', duration: 150}"></dxo-animation>
+  <div *dxTemplate="let data of 'rejectionPopup'">
+    <div class="flexContentColumn16">
+        <form [formGroup]="rejectForm">
+
+            <div>
+             <span>{{ 'trading.offersTable.chooseOffers' | translate }} {{choosenOffers?.length}}</span>
+            </div>
+
+            <div class="flexContentColumn8 w-100">
+              <div class="flexContent20">
+                <label>{{ 'trading.offersTable.rejectionReason' | translate }}</label>
+                <label>{{this.rejectReason?.length > 0 ? this.rejectReason?.length : 0 }}/500</label>
+              </div>
+              <dx-text-area
+                height="124px"
+                placeholder="{{ 'general.text' | translate }}"
+                maxLength="500"
+                [(value)]="rejectReason"
+                valueChangeEvent="keyup"
+                formControlName="reason"
+              >
+              </dx-text-area>
+            </div>
+
+            <div class="buttons flexContent24 buttonsClass">
+              <button class="btn btn-primary submit w-50" [disabled]="!rejectForm.valid" (click)="rejectOffer()">{{'btns.removeMackler' | translate}}</button>
+              <button class="btn btn-outline-primary w-50" (click)="closePopup()">{{'btns.close' | translate}}</button>
+          </div>
+        </form>
+    </div>
+  </div>
+</dx-popup>
+
+<app-result-popup
+  [resultPopup]="resultPopup"
+  [resultPopupType]="'reject'"
+  [resultData]="resultData"
+  [choosenOffers]="rejectedOffersSnapshot"
+  [sessionsParam]="sessionsParam"
+  (close)="closeResultPopup()"
+></app-result-popup>

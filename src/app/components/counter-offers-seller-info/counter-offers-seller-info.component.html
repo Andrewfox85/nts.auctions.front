@@ -1,0 +1,87 @@
+<div class="sellerInformation border p-2">
+  <div
+    class="flexContent4 jc-sb"
+    (click)="sellerInformationHidden = !sellerInformationHidden"
+  >
+    <span class="font-s16">{{fullInfo.generalInfo.directionId === IdDirection.sale ? ("trading.dealsTab.seller" | translate) : ("trading.dealsTab.buyer" | translate) }}</span>
+    <div
+      class="filtersArrow"
+      [ngClass]="{ 'tr-rt180': !sellerInformationHidden }"
+    ></div>
+  </div>
+
+  <div [hidden]="sellerInformationHidden">
+    <div class="flexContentColumn4 mt-3">
+      <div class="flexContent8 flex-start">
+        <div class="label">
+          {{ "trading.tradersTable.participant" | translate }}
+        </div>
+        <div class="info">{{ fullInfo.generalInfo.firmName }}</div>
+      </div>
+
+      @if (fullInfo.generalInfo.idClientContractType != null) {
+      <div class="flexContent8 flex-start">
+        <div class="label">
+          {{ "general.contractType" | translate }}
+        </div>
+        <div class="info">
+          {{
+            fullInfo.generalInfo.idClientContractType == 20
+              ? ("general.commissionAgreement" | translate)
+              : fullInfo.generalInfo.idClientContractType == 21
+              ? ("general.agencyAgreement" | translate)
+              : ""
+          }}
+        </div>
+      </div>
+      } @if (fullInfo.generalInfo.clientName || uniqueDeliveryScopes) {
+      <div class="flexContent8 flex-start">
+        <div class="label">
+          {{ "filters.brokerClient" | translate }}
+        </div>
+        @if (fullInfo.generalInfo.clientName) {
+        <div class="info">
+          {{ fullInfo.generalInfo.clientName }}
+        </div>
+        } @if (uniqueDeliveryScopes) {
+        <div class="info">
+          <div *ngFor="let client of uniqueDeliveryScopes">
+            {{ client.firmClientName }}
+          </div>
+        </div>
+        }
+      </div>
+      } @if (fullInfo.generalInfo.branchName) {
+      <div class="flexContent8 flex-start">
+        <div class="label">
+          {{ "general.structuralSubdivision" | translate }}
+        </div>
+        <div class="info">{{ fullInfo.generalInfo.branchName }}</div>
+      </div>
+      } @if (fullInfo.generalInfo.traderFullName) {
+      <div class="flexContent8 flex-start">
+        <div class="label">
+          {{ "viewOffer.traderName" | translate }}
+        </div>
+        <div class="info">
+          {{ fullInfo.generalInfo.traderFullName }}
+        </div>
+      </div>
+      } @if (fullInfo.generalInfo.traderTelephone) {
+      <div class="flexContent8 flex-start">
+        <div class="label">
+          {{ "viewOffer.phoneNum" | translate }}
+        </div>
+        <div class="info">
+          {{ fullInfo.generalInfo.traderTelephone }}
+        </div>
+      </div>
+      } @if (fullInfo.generalInfo.traderEmail) {
+      <div class="flexContent8 flex-start">
+        <div class="label">{{ "viewOffer.mail" | translate }}</div>
+        <div class="info">{{ fullInfo.generalInfo.traderEmail }}</div>
+      </div>
+      }
+    </div>
+  </div>
+</div>

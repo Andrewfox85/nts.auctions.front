@@ -1,0 +1,3 @@
+@Library('nts-shared-lib') _
+
+angularReleasePipeline(archiveName: 'NTS.Auctions')

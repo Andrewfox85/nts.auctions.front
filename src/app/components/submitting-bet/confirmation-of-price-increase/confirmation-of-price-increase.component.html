@@ -1,0 +1,32 @@
+<dx-popup
+  contentTemplate="selfCompetitionTemplate"
+  [hideOnOutsideClick]="false"
+  [visible]="true"
+  [showTitle]="true"
+  title="{{'errors.message' | translate}}"
+  width="600"
+  height="auto"
+  maxHeight="900"
+  [showCloseButton]="true"
+  (onHiding)="selfCompetitionPopup.emit(false)"
+>
+  <dxo-animation [show]="{easing: 'ease-in-out', type:'fadeIn', duration: 150}"></dxo-animation>
+  <div *dxTemplate="let data of 'selfCompetitionTemplate'">
+    <div class="flexContentColumn24">
+      <div>
+        {{ auctionType ===
+          idAuctionType.simpleSellerAuction 
+          ? ('trading.auctionsTab.selfCompetitionTextSeller' | translate) 
+          : ('trading.auctionsTab.selfCompetitionTextBuyer' | translate) }}
+      </div>
+
+      <div class="buttonsClass flexContent24 w-100">
+        <dx-button class="btn btn-primary submit w-50" (onClick)="makeBid.emit($event)">{{ 'btns.continue' | translate }}
+        </dx-button>
+        <button class="btn btn-outline-primary w-50"
+                (click)="selfCompetitionPopup.emit(false)">{{ 'btns.close' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</dx-popup>

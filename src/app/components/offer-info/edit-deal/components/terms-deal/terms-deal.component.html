@@ -1,0 +1,57 @@
+    <div class="offerGeneral border p-2">
+      <div
+        class="flexContent4 jc-sb"
+        (click)="changeOfferGenetalState()"
+      >
+        <span class="font-s16">{{ "viewDeal.dealInfo" | translate }}</span>
+        <div class="filtersArrow" [class.tr-rt180]="!offerGeneralHidden()"></div>
+      </div>
+
+      <div [hidden]="offerGeneralHidden()">
+        <div class="flexContentColumn8 mt-3">
+
+          @if (generalInfo()?.transactionCond?.conditionsDelivery) {
+            <div class="flexContent4 flex-start">
+              <div class="label">
+                {{ "trading.offersTable.termsDeliveryTime" | translate }}
+              </div>
+              <div class="info">
+                {{ generalInfo()?.transactionCond?.conditionsDelivery }}
+              </div>
+            </div>
+          }
+
+          <div class="flexContent4 flex-start">
+            <div class="label">
+              {{ "trading.offersTable.deliveryTime" | translate }}
+            </div>
+            <div class="info">
+              {{ generalInfo()?.transactionCond?.conditionsDeliveryPeriod }}
+            </div>
+          </div>
+
+          <div class="flexContent4 flex-start">
+            <div class="label">
+              {{ "trading.offersTable.termsPayment" | translate }}
+            </div>
+            <div class="info">
+              {{ generalInfo()?.transactionCond?.conditionsPayment }}
+            </div>
+          </div>
+
+          @if (generalInfo()?.transactionInfo?.financeSource) {
+            <div class="flexContent4 flex-start">
+              <div class="label">{{ "general.sourceFunding" | translate }}</div>
+              <div class="info">
+                {{ generalInfo()?.transactionInfo?.financeSource }}
+              </div>
+            </div>
+          }
+
+          <div class="flexContent4 flex-start">
+            <div class="label">{{ "viewOffer.costVATLot" | translate }}</div>
+            <div class="info date-roboto-mono">{{ totalRowData()?.costVat }}</div>
+          </div>
+        </div>
+      </div>
+    </div>

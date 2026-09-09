@@ -1,0 +1,44 @@
+<dx-popup
+  contentTemplate="restorePopup"
+  [hideOnOutsideClick]="false"
+  [visible]="restorePopup"
+  [showTitle]="true"
+  title="{{ 'trading.dealsTab.restoreDeal' | translate}}"
+  width="500"
+  height="auto"
+  [showCloseButton]="true"
+  (onHiding)="closePopup()"
+>
+  <dxo-animation [show]="{easing: 'ease-in-out', type:'fadeIn', duration: 150}"></dxo-animation>
+  <div *dxTemplate="let data of 'restorePopup'">
+    <div class="flexContentColumn16">
+         <div>
+           <span>{{ 'trading.dealsTab.restorePopupMess' | translate }} {{choosenDeals[0]?.transactionInfo?.transactionNumber}}?</span>
+          </div>
+
+        <div class="buttons flexContent24 buttonsClass">
+            <button class="btn btn-primary submit w-50" (click)="restoreDeal()">{{'trading.dealsTab.restoreDeal' | translate}}</button>
+            <button class="btn btn-outline-primary w-50" (click)="closePopup()">{{'btns.close' | translate}}</button>
+        </div>
+    </div>
+  </div>
+</dx-popup>
+
+
+<!-- уведомления тостер -->
+<dx-toast [(visible)]="isVisibleToast"
+          type="info"
+          width="auto"
+          height="auto"
+          [displayTime]="5000">
+  <div *dxTemplate="let data of 'content'">
+    <div class="flexContent8 center">
+      <div class="checkIcon"></div>
+      <div>{{'trading.dealsTab.restoreDealMess' | translate: offerNumber }}</div>
+    </div>
+  </div>
+  <dxo-position my="top right" at="right top" of="window" offset="-23 50"></dxo-position>
+</dx-toast>
+
+
+

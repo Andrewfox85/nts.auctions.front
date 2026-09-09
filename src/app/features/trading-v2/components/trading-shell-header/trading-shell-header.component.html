@@ -1,0 +1,293 @@
+<div class="head_info p-3 border flexContentColumn16">
+  <div class="session_info flexContent20 pointer">
+    <div
+      class="session p-2 flexContent16 ai-c"
+      (click)="onSessionInfoClick()"
+    >
+      <span>
+        {{ "general.section" | translate }}:
+        {{ sessionInfo?.sectionName }}
+      </span>
+      <span>{{ "general.session" | translate }}: № {{ sessionId }}</span>
+      <span>
+        {{ "general.dateAndTime" | translate }}:
+        {{
+          sessionInfo?.datetimeBegin
+            | excelDate
+            | date : "dd.MM.yyyy HH:mm" : "+0000"
+        }}
+      </span>
+      <span>{{ sessionInfo?.sessionName }}</span>
+      <span
+        class="status"
+        [ngClass]="{
+          greenStage:
+            sessionInfo?.sessionStageId === sessionStage.transferAuctionCompleted,
+          blueStage:
+            sessionInfo?.sessionStageId === sessionStage.admissionComleted
+        }"
+      >
+        {{ sessionInfo?.sessionStageName }}
+      </span>
+    </div>
+    <div class="admission d-flex center">
+      <span
+        class="strong"
+        [ngClass]="{
+          orangeColor:
+            sessionInfo?.sessionStageId === sessionStage.admissionComleted,
+          greenColor: sessionInfo?.isAdmissionFinished,
+          redColor: !sessionInfo?.isAdmissionFinished
+        }"
+      >
+        @if (sessionInfo?.sessionStageId === sessionStage.admissionComleted) {
+          {{ "trading.admissionIsMet" | translate }}
+        } @else if (sessionInfo?.isAdmissionFinished) {
+          {{ "trading.admissionFulfilled" | translate }}
+        } @else {
+          {{ "trading.admissionFailed" | translate }}
+        }
+      </span>
+    </div>
+  </div>
+
+  <div class="trading_info flexContent20">
+    <div class="trading flexContent48">
+      <div class="item flexContentColumn8">
+        <span class="secondTextColor">{{
+          "trading.currentTradingPeriod" | translate
+        }}</span>
+        <span class="strong">{{ sessionInfo?.sessionPeriod }}</span>
+      </div>
+
+      <div class="item flexContentColumn8">
+        <span class="secondTextColor">{{ "trading.state" | translate }}</span>
+        <!-- Период закрытия (12) / предторговый период не запущен — у трейдера «Не активен» -->
+        @if (sessionInfo?.idSessionPeriod === IdSessionPeriods.closing) {
+          <span class="strong">-</span>
+        } @else if (
+          !user?.IsWorker &&
+          sessionInfo?.isPaused &&
+          sessionInfo?.idSessionPeriod === IdSessionPeriods.pretrading &&
+          sessionInfo?.datetimeRemaind == null
+        ) {
+          <span class="strong">{{ "trading.periods.inactive" | translate }}</span>
+        } @else {
+          <ng-container *ngTemplateOutlet="sessionState"></ng-container>
+        }
+      </div>
+
+      <ng-template #sessionState>
+        <span
+          class="strong"
+          [ngClass]="{
+            greenColor: sessionInfo?.isActive,
+            orangeColor: sessionInfo?.isPaused,
+            redColor: sessionInfo?.isFinished
+          }"
+        >
+          {{
+            sessionInfo?.isActive
+              ? ("trading.periods.active" | translate)
+              : sessionInfo?.isPaused
+                ? ("trading.periods.suspended" | translate)
+                : sessionInfo?.isFinished
+                  ? ("trading.periods.completed" | translate)
+                  : ""
+          }}
+        </span>
+      </ng-template>
+
+      <div class="item flexContentColumn8">
+        <span class="secondTextColor">{{
+          "trading.untilCompletion" | translate
+        }}</span>
+        @if (
+          sessionInfo?.idSessionPeriod !== IdSessionPeriods.closing &&
+          sessionInfo?.datetimeRemaind &&
+          sessionInfo?.datetimeRemaind > 0
+        ) {
+          <span>{{ sessionInfo?.datetimeRemaind | formatTime }}</span>
+        } @else {
+          <span>-</span>
+        }
+      </div>
+
+      <div class="item flexContentColumn8">
+        <span class="secondTextColor">
+          {{ "trading.priceStep" | translate }}, %
+        </span>
+        @if (
+          sessionInfo?.idSessionPeriod !== IdSessionPeriods.closing &&
+          sessionInfo?.options?.priceUpPoints
+        ) {
+          <span>{{ sessionInfo?.options?.priceUpPoints | priceFormat }}</span>
+        } @else {
+          <span>-</span>
+        }
+      </div>
+
+      @if (sessionInfo?.idAuctionType !== auctionType.simpleBuyerAuction) {
+        <div class="item flexContentColumn8">
+          <span class="secondTextColor">{{ "trading.bidSubmissionTime" | translate  }}</span>
+          @if (
+            sessionInfo?.idSessionPeriod !== IdSessionPeriods.closing &&
+            sessionInfo?.options?.timeBid
+          ) {
+            <span>{{ sessionInfo?.options?.timeBid | formatTime | substringFrom : 3 }}</span>
+          } @else {
+            <span>-</span>
+          }
+        </div>
+      }
+
+      @if (sessionInfo?.idAuctionType === auctionType.simpleBuyerAuction) {
+        <div class="item flexContentColumn8">
+          <span class="secondTextColor">{{ "trading.applicationTime" | translate }}</span>
+          @if (
+            sessionInfo?.idSessionPeriod !== IdSessionPeriods.closing &&
+            sessionInfo?.options?.timeDemoff
+          ) {
+            <span>{{ sessionInfo?.options?.timeDemoff | formatTime | substringFrom : 3 }}</span>
+          } @else {
+            <span>-</span>
+          }
+        </div>
+      }
+
+      @if (sessionInfo?.idAuctionType === auctionType.reverseWholesaleAuction) {
+        <div class="item flexContentColumn8">
+          <span class="secondTextColor">{{ "trading.priceStepDown" | translate }}</span>
+          @if (
+            sessionInfo?.idSessionPeriod !== IdSessionPeriods.closing &&
+            sessionInfo?.options?.priceDownPoints
+          ) {
+            <span>{{ sessionInfo?.options?.priceDownPoints | priceFormat }}</span>
+          } @else {
+            <span>-</span>
+          }
+        </div>
+      }
+
+      @if (sessionInfo?.idAuctionType === auctionType.reverseWholesaleAuction) {
+        <div class="item flexContentColumn8">
+          <span class="secondTextColor">{{ "trading.timeToGoDown" | translate }}</span>
+          @if (
+            sessionInfo?.idSessionPeriod !== IdSessionPeriods.closing &&
+            sessionInfo?.options?.timeDowngrade
+          ) {
+            <span>{{ sessionInfo?.options?.timeDowngrade | formatTime | substringFrom : 3 }}</span>
+          } @else {
+            <span>-</span>
+          }
+        </div>
+      }
+    </div>
+
+    @if (workerPrivileges) {
+      <div class="action_btn d-flex center">
+        <button class="btn secondary-btn">
+          <dx-drop-down-button
+            [height]="40"
+            [width]="40"
+            [showArrowIcon]="false"
+            [dropDownOptions]="{ width: 290 }"
+            (onItemClick)="onWorkerMenuClick($event)"
+            icon="./assets/img/icons/dots.svg"
+            [items]="
+              !sessionInfo?.isAllowedTargetedTransact
+                ? [
+                    {
+                      icon: './assets/img/icons/admission.svg',
+                      name: 'header.top_line.menu.admission',
+                      id: 'admission',
+                      disabled:
+                        sessionInfo?.idSessionPeriod !==
+                          IdSessionPeriods.pretrading || sessionInfo?.isActive
+                    },
+                    {
+                      icon: './assets/img/icons/calculator.svg',
+                      name: 'trading.calcExchangeFee',
+                      id: 'calculator',
+                      disabled:
+                        sessionInfo?.idSessionPeriod === IdSessionPeriods.pretrading
+                    },
+                    {
+                      icon: './assets/img/icons/endSession.svg',
+                      name: 'trading.endSession',
+                      red: true,
+                      id: 'endSession'
+                    }
+                  ]
+                : !directTabs &&
+                    sessionInfo?.isAllowedTargetedTransact &&
+                    sessionInfo?.datetimeEnd == null
+                  ? [
+                      {
+                        icon: './assets/img/icons/admission.svg',
+                        name: 'header.top_line.menu.admission',
+                        id: 'admission',
+                        disabled:
+                          sessionInfo?.idSessionPeriod !==
+                            IdSessionPeriods.pretrading || sessionInfo?.isActive
+                      },
+                      {
+                        icon: './assets/img/icons/endSession.svg',
+                        name: 'trading.endMainTrading',
+                        red: true,
+                        id: 'endSession'
+                      }
+                    ]
+                  : [
+                      {
+                        icon: './assets/img/icons/admission.svg',
+                        name: 'header.top_line.menu.admission',
+                        id: 'admission',
+                        disabled:
+                          sessionInfo?.idSessionPeriod !==
+                            IdSessionPeriods.pretrading || sessionInfo?.isActive
+                      },
+                      {
+                        icon: './assets/img/icons/addToArchive.svg',
+                        name: 'trading.intermediatetransferToArchive',
+                        id: 'intermediatetransferToArchive'
+                      },
+                      {
+                        icon: './assets/img/icons/endSession.svg',
+                        name: 'trading.endSession',
+                        red: true,
+                        id: 'endSession'
+                      }
+                    ]
+            "
+            itemTemplate="template"
+            [useItemTextAsTitle]="false"
+          >
+            <div *dxTemplate="let data of 'template'" class="padding">
+              <div class="flexContent16">
+                <img src="{{ data.icon }}" />
+                <div [ngClass]="{ redColor: data.red }">
+                  {{ data.name | translate }}
+                </div>
+              </div>
+            </div>
+          </dx-drop-down-button>
+        </button>
+      </div>
+    }
+
+    @if (!user?.IsWorker && idDirectionRole != idDirectionTraderRole.NULL_ROLE) {
+      <div class="changeTag h-ft">
+        {{
+          idDirectionRole === idDirectionTraderRole.PURCHASE
+            ? ("general.buyer" | translate)
+            : idDirectionRole === idDirectionTraderRole.SALE
+              ? ("general.seller" | translate)
+              : ("general.buyer" | translate) +
+                " / " +
+                ("general.seller" | translate)
+        }}
+      </div>
+    }
+  </div>
+</div>

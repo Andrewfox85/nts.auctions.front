@@ -1,0 +1,26 @@
+<nav class="trading-shell-tabs" aria-label="Trading tabs">
+  <ul class="trading-shell-tabs__list">
+    @for (tab of tabs; track tab.path) {
+      <li class="trading-shell-tabs__item">
+        <a
+          class="trading-shell-tabs__link"
+          [routerLink]="tab.path"
+          [relativeTo]="route"
+          [queryParams]="sessionQueryParams"
+          queryParamsHandling="merge"
+          [replaceUrl]="true"
+          routerLinkActive="trading-shell-tabs__link--active"
+          [routerLinkActiveOptions]="tabLinkActiveOptions"
+          [class.trading-shell-tabs__link--disabled]="isTabDisabled()"
+          [attr.aria-disabled]="isTabDisabled()"
+          (click)="onTabClick(tab.path, $event)"
+        >
+          <span class="trading-shell-tabs__label">{{ tab.labelKey | translate }}</span>
+          @if (showMessagesBadge(tab)) {
+            <span class="redWarningErorr size16 trading-shell-tabs__badge"></span>
+          }
+        </a>
+      </li>
+    }
+  </ul>
+</nav>

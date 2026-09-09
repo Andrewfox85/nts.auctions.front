@@ -1,0 +1,234 @@
+<div class="buySaleCond border p-2">
+  <div class="flexContent4 jc-sb">
+    <div class="w-260px font-s16 d-flex">
+      <span>{{ "viewOffer.buySaleCond" | translate }}</span>
+      @if (fullInfo.goods?.length > 1) {
+        <i class="compositeLotLittle ml-2" id="compositeLot"></i>
+      }
+      <dx-tooltip
+        target="#compositeLot"
+        [showEvent]="{ name: 'mouseover', delay: 500 }"
+        hideEvent="mouseleave"
+      >
+        <div *dxTemplate="let data = data; of: 'content'">
+          {{ "viewOffer.compositeLot" | translate }}
+        </div>
+      </dx-tooltip>
+    </div>
+  </div>
+
+  <div class="flexContentColumn8 mt-3">
+    <div class="flexContent8 flex-start">
+      <div class="label"></div>
+      <div class="info flexContent16 cursor-default">
+        <div class="w-50 d-flex jc-c">
+          {{
+            this.sessionIds.session.idAuctionType ===
+            auctionType.simpleBuyerAuction
+              ? ("btns.buy" | translate)
+              : ("btns.sell" | translate)
+          }}
+        </div>
+        <div class="w-50 d-flex jc-c">
+          {{ "counterOffers.counterOffer" | translate }}
+        </div>
+      </div>
+    </div>
+
+    @if (this.fullInfo.deliveryConditions?.length > 0 && (!showDifferences ||
+    (showDifferences && !selectedRow.deliveryConditionMatch))) {
+    <div class="flexContent4 flex-start">
+      <div class="label d-flex">
+        <span>{{ "trading.offersTable.termsDeliveryTime" | translate }}</span>
+        @if (uniqueDelConditions?.length > 1) {
+         <i class="multibasisLotLittle ml-2" id="multibasisLotLittle"></i>
+        }
+        <dx-tooltip
+          target="#multibasisLotLittle"
+          [showEvent]="{ name: 'mouseover', delay: 500 }"
+          hideEvent="mouseleave"
+        >
+          <div *dxTemplate="let data = data; of: 'content'">
+            {{ "filters.multibasisLot" | translate }}
+          </div>
+        </dx-tooltip>
+      </div>
+
+      <div class="info flex-start flexContent16 cursor-default">
+        @if (uniqueDelConditions?.length > 1) {
+        <div class="w-50 flexContentColumn12">
+          <dx-select-box
+            [dataSource]="uniqueDelConditions"
+            valueExpr="concatedCondition"
+            displayExpr="concatedCondition"
+            height="32px"
+            [showClearButton]="false"
+            [value]="basisValue"
+            (onValueChanged)="onChangeBasis($event)"
+          />
+        </div>
+        }
+        @if (uniqueDelConditions?.length === 1) {
+          <div class="w-50">
+            {{ uniqueDelConditions[0].concatedCondition }}
+          </div>
+        }
+        <div
+          class="w-50"
+          [class.difference]="!selectedRow.deliveryConditionMatch"
+        >
+          {{ selectedRow.concatedDeliveryCondition }}
+        </div>
+      </div>
+    </div>
+    } 
+
+    @if (
+      !showDifferences || 
+      (showDifferences && !selectedRow.deliveryPeriodMatch)
+    ) { 
+      <div class="flexContent4 flex-start">
+        <div class="label">
+          {{ "trading.offersTable.deliveryTime" | translate }}
+        </div>
+
+        <div class="info flexContent16 cursor-default flex-start">
+          <div class="w-50">
+            {{
+              fullInfo.generalInfo?.concatedDeliveryPeriod | upperCaseFirstLetter
+            }}
+          </div>
+          <div class="w-50" [class.difference]="!selectedRow.deliveryPeriodMatch">
+            {{ selectedRow?.concatedDeliveryPeriod | upperCaseFirstLetter }}
+          </div>
+        </div>
+      </div>
+    } 
+
+    @if (
+      !showDifferences || 
+      (showDifferences && !selectedRow.paymentConditionsMatch)
+    ) { 
+      <div class="flexContent4 flex-start">
+        <div class="label">
+          {{ "trading.offersTable.termsPayment" | translate }}
+        </div>
+
+        <div class="info flexContent16 cursor-default flex-start">
+          <div class="w-50">
+            {{ fullInfo.generalInfo?.concatedPaymentConditions }}
+          </div>
+          <div
+            class="w-50"
+            [class.difference]="!selectedRow.paymentConditionsMatch"
+          >
+            {{ selectedRow?.concatedPaymentConditions }}
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (
+      editablePriceInterfaceExists &&
+      (
+        !showDifferences ||
+        (showDifferences && !selectedRow.priceAdjustedMatch)
+      )
+    ) {
+      <div class="flexContent4 flex-start">
+        <div class="label">
+          {{ "general.adjustablePrice" | translate }}
+        </div>
+
+        <div class="info flexContent16 date-roboto-mono cursor-default">
+          <div class="w-50">
+            <dx-check-box
+              iconSize="20px"
+              [readOnly]="true"
+              [value]="checkboxValue"
+            />
+          </div>
+          <div class="w-50" [class.difference]="!selectedRow.priceAdjustedMatch">
+            <dx-check-box
+              iconSize="20px"
+              [readOnly]="true"
+              [value]="selectedRow.isPriceAdjusted"
+            />
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (
+       !showDifferences || 
+       (showDifferences && !selectedRow.totalAmountMatch)
+    ) { 
+      @if (this.sessionIds.session.idAuctionType === auctionType.simpleBuyerAuction) {
+        <hr class="mt-2" />
+      }
+
+      <div class="flexContent4 flex-start">
+        <div class="label">
+          {{ "viewOffer.costVATLot" | translate }}
+        </div>
+
+        <div class="info flexContent16 date-roboto-mono cursor-default">
+          <div class="w-50">
+            <span>{{ totalRowData?.costVat }} </span>
+
+            @if (this.sessionIds.session.idAuctionType !== auctionType.simpleBuyerAuction) {
+              <span>{{ fullInfo.goods?.[0]?.currency }}</span>
+            }
+          </div>
+
+          <div class="w-50" [class.difference]="!selectedRow.totalAmountMatch">
+            <span
+              >{{
+                selectedRow.totalAmount
+                  | ruNumberFormat : selectedRow.currencyPrecision
+              }}
+            </span>
+
+            @if (this.sessionIds.session.idAuctionType !== auctionType.simpleBuyerAuction) {
+             <span>{{ fullInfo.goods?.[0]?.currency }}</span>
+            }
+          </div>
+        </div>
+      </div>
+    } 
+    @if (this.sessionIds.session.idAuctionType === auctionType.simpleBuyerAuction) { 
+      @if (!showDifferences || (showDifferences && !selectedRow.currencyMatch)) {
+      <div class="flexContent4 flex-start">
+        <div class="label">
+          {{ "filters.currency" | translate }}
+        </div>
+
+        <div class="info flexContent16 date-roboto-mono cursor-default">
+          <div class="w-50">{{ fullInfo.goods?.[0]?.currency }}</div>
+          <div class="w-50" [class.difference]="!selectedRow.currencyMatch">
+            {{ selectedRow.currencyName }}
+          </div>
+        </div>
+      </div>
+      } 
+    @if (!showDifferences || (showDifferences && !selectedRow.vatMatch)) {
+    <div class="flexContent4 flex-start">
+      <div class="label">
+        {{ "trading.offersTable.VAT" | translate }}
+      </div>
+
+      <div class="info flexContent16 date-roboto-mono cursor-default">
+        <div class="w-50">{{ totalRowData?.vat }}</div>
+        <div class="w-50" [class.difference]="!selectedRow.vatMatch">
+          @if (selectedRow.vatPercent) {
+            <span>{{ selectedRow.vatPercent }}%</span>
+          } @else {
+            <span>{{ "general.withoutVAT" | translate }}</span>
+          }
+        </div>
+      </div>
+    </div>
+      }
+    }
+  </div>
+</div>

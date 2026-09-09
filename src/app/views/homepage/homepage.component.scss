@@ -1,0 +1,21 @@
+@import '../../../assets/scss/constants';
+
+.auction_body{
+    .title{
+        font-weight: 600;
+    }
+
+    .items{
+        border-top: 1px solid $lightGrayBackgroundColorButton;
+
+      &:last-child {
+        border-bottom: 1px solid $lightGrayBackgroundColorButton;
+      }
+
+      &:hover {
+        background-color: $lightGrayBackgroundColor;
+        transition: 0.3s all ease-in-out;
+      }
+    }
+
+}

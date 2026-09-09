@@ -1,0 +1,123 @@
+@if (analogs && dynamicColumns) {
+  <dx-data-grid
+    #dataGridAnalogs
+    [dataSource]="analogs"
+    [showBorders]="false"
+    [showColumnLines]="true"
+    [allowColumnResizing]="true"
+    [allowColumnReordering]="true"
+    [showRowLines]="true"
+    [width]="'100%'"
+    (onCellPrepared)="onCellPrepared($event)"
+    (onSelectionChanged)="onSelectionChanged($event)"
+    (onOptionChanged)="onOptionChanged($event)"
+  >
+    <dxo-header-filter [visible]="true" [allowSearch]="true" />
+
+    <dxo-selection mode="single" />
+    <dxo-column-fixing [enabled]="true" />
+    <dxo-scrolling mode="standard" [scrollByContent]="true" showScrollbar="always" />
+
+    <dxi-column
+      caption="№ п/п"
+      cssClass="column text-align-left"
+      width="70"
+      [allowSorting]="true"
+      [allowFiltering]="false"
+      [allowResizing]="false"
+      cellTemplate="goodNumberRowTemplate"
+    />
+
+    <div *dxTemplate="let data of 'goodNumberRowTemplate'">
+      <div>{{ data.row.rowIndex + 1 }}</div>
+    </div>
+
+    <!-- динамические колонки (хар-ки товара) -->
+    @for (v of dynamicColumns; track v.caption) {
+      <dxi-column
+        caption="{{ v.caption }}"
+        dataField="{{ v.dataField }}"
+        cssClass="column text-align-right"
+        width="180"
+      >
+      </dxi-column>
+    } 
+
+    @if (roleToAction) {
+      <dxi-column
+        caption="{{ 'analogsList.admission' | translate }}"
+        dataField="admission"
+        cssClass="column text-align-right myCellFix"
+        width="100"
+        alignment="right"
+        [allowFiltering]="false"
+        [allowResizing]="false"
+        cellTemplate="admissionTemplate"
+        [fixed]="true"
+        fixedPosition="right"
+      />
+
+      <div *dxTemplate="let data of 'admissionTemplate'">
+        <div class="d-flex jc-c">
+          <dx-check-box
+            iconSize="20px"
+            [value]="data.data.admission"
+            [readOnly]="isInvalidPeriod"
+            (onValueChanged)="onAdmissionChange(data.data, $event)"
+          >
+          </dx-check-box>
+        </div>
+      </div>
+    }
+
+    <dxi-column
+      caption="{{ 'analogsList.status' | translate }}"
+      dataField="idStatus"
+      cssClass="column text-align-right myCellFix"
+      width="100"
+      alignment="right"
+      [allowFiltering]="false"
+      [allowResizing]="false"
+      cellTemplate="statusTemplate"
+      [fixed]="true"
+      fixedPosition="right"
+    />
+
+    <div *dxTemplate="let data of 'statusTemplate'">
+      <div
+        class="d-flex jc-c status"
+        [ngClass]="{
+          success: data.data.idStatus === Status.Approved,
+          rejected: data.data.idStatus === Status.Rejected
+        }"
+      >
+        <span
+          >{{
+            data.data.idStatus === Status.Approved
+              ? ('analogsList.approved' | translate)
+              : data.data.idStatus === Status.Rejected
+              ? ('analogsList.rejected' | translate)
+              : ""
+          }}
+        </span>
+
+        @if (data.data.needToSave && 
+         (data.data.idStatus === Status.Approved || data.data.idStatus === Status.Rejected)) {
+          <i
+            class="notificationIcon"
+            id="notificationIcon_{{ data.data.idGood }}"
+          ></i>
+          <dx-tooltip
+            target="#notificationIcon_{{ data.data.idGood }}"
+            [showEvent]="{ name: 'mouseover', delay: 500 }"
+            hideEvent="mouseleave"
+          >
+            <div *dxTemplate="let data = data; of: 'content'">
+              {{ "analogsList.needToSaveMess" | translate }}
+            </div>
+          </dx-tooltip>
+        }
+      </div>
+    </div>
+  </dx-data-grid>
+}

@@ -1,0 +1,360 @@
+<div class="flexContentColumn16 borderBottom">
+  <div class="flexContent4">
+    <a class="flexContent4 center" (click)="goToMessageTab()">
+      <i class="greenBack"></i>
+
+      <span>{{ "trading.messagesTab.backToMessageList" | translate }}</span>
+    </a>
+  </div>
+
+  <div class="flexContent jc-sb">
+    <div class="flexContent16 center">
+      <div class="logo"></div>
+      <div class="flexContentColumn4">
+        <div class="font-w500 font-s24">
+          {{ this.chatInfo?.traderFullName }}
+        </div>
+
+        <div class="font-s16">{{ this.chatInfo?.concatedFirmName }}</div>
+      </div>
+    </div>
+
+    <div class="flexContent4 phoneNumber">
+      <i class="callBlack"></i>
+
+      <div>{{ this.chatInfo?.telephoneForSms }}</div>
+    </div>
+  </div>
+</div>
+
+<div class="m-auto height88 jc-c d-flex chatWidth">
+  <div class="jc-end flexContentColumn24">
+    <div
+      #scrollMe
+      [scrollTop]="scrollMe.scrollHeight"
+      [ngStyle]="{ 'overflow-y': 'auto', height: 'xyz' }"
+    >
+      <div class="flexContentColumn24 jc-end">
+        @for (chat of this.chatInfo?.messages; track chat) {
+        <div>
+          <!--      от трейдера сообщения-->
+          @if (chat.isInbox) {
+          <div class="flexContent8 flex-start">
+            <div class="logo traderWidthLogo"></div>
+            <div class="flexContentColumn4">
+              <div class="flexContent8 w-fit-cnt center" #nameInfo>
+                <div class="font-w500 font-s14">
+                  {{ this.chatInfo?.traderFullName }}
+                </div>
+
+                <div>
+                  {{
+                    chat.dateMessage
+                      | excelDate : true
+                      | date : "HH:mm:ss" : "+0000"
+                  }}
+                </div>
+
+                @if (chat.isWatched) {
+                <div>
+                  <i class="isObserved w-20px h-20px"></i>
+                </div>
+                } @if (!chat.isWatched) {
+                <div>
+                  <i class="isNotObserved w-20px h-20px"></i>
+                </div>
+                } @if (chat.isInbox) {
+                <div class="markedMessage">
+                  @if (chat.idStatus !== 2) {
+                  <i
+                    class="UnansweredMess"
+                    id="unansweredMess_{{ chat.idMessage }}"
+                  ></i>
+                  } @if (chat.idStatus === 2) {
+                  <i
+                    class="answeredMess"
+                    id="answeredMess_{{ chat.idMessage }}"
+                  ></i>
+                  }
+
+                  <!-- неотвеченное сообщение-->
+                  <dx-tooltip
+                    target="#unansweredMess_{{ chat.idMessage }}"
+                    [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                    hideEvent="mouseleave"
+                  >
+                    <div *dxTemplate="let data = data; of: 'content'">
+                      {{ "trading.messagesTab.unansweredMessage" | translate }}
+                    </div>
+                  </dx-tooltip>
+
+                  <!-- отвеченное сообщение-->
+
+                  <dx-tooltip
+                    target="#answeredMess_{{ chat.idMessage }}"
+                    [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                    hideEvent="mouseleave"
+                  >
+                    <div *dxTemplate="let data = data; of: 'content'">
+                      {{ "trading.messagesTab.answeredMessage" | translate }}
+                    </div>
+                  </dx-tooltip>
+                </div>
+                } @else {
+                <div style="height: 24px; width: 24px"></div>
+                }
+              </div>
+
+              <div class="flexContent8 flex-start mes">
+                <div
+                  class="message trader flexContentColumn8 flex-start"
+                  [ngStyle]="{ 'min-width': nameInfo.offsetWidth + 'px' }"
+                >
+                  <!--              Ответ на сообщение-->
+                  @if (chat?.idParent) {
+                  <div class="reply flexContentColumn8">
+                    <div class="replyToMess h-24px"></div>
+
+                    <div class="flexContentColumn4">
+                      <div
+                        [innerHTML]="returnParentsMessage(chat?.idParent).text"
+                      ></div>
+
+                      <div class="flexContent4">
+                        <span>{{ "general.broker" | translate }}</span>
+
+                        <span>{{
+                          returnParentsMessage(chat?.idParent)?.dateMessage
+                            | excelDate : true
+                            | date : "HH:mm:ss" : "+0000"
+                        }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  }
+                  <span [innerHTML]="chat.text"></span>
+                </div>
+
+                <dx-drop-down-button
+                  [height]="24"
+                  [width]="24"
+                  [showArrowIcon]="false"
+                  [dropDownOptions]="{ width: 243 }"
+                  (onItemClick)="onChooseAction($event, chat)"
+                  icon="./assets/img/icons/dots.svg"
+                  [items]="[
+                    {
+                      icon: './assets/img/icons/replyToMess.svg',
+                      name: 'trading.messagesTab.replyToMessage',
+                      id: 'replyToMess'
+                    },
+                    {
+                      icon: './assets/img/icons/checkAnswered.svg',
+                      name: 'trading.messagesTab.markAsAnswered',
+                      id: 'checkAnswered',
+                      disabled: !chat.isInbox || chat.idStatus == 2
+                    },
+                    {
+                      icon: './assets/img/icons/isObservedBlack.svg',
+                      name: 'trading.messagesTab.addToWatched',
+                      id: 'addToWatched',
+                      visible: !chat.isWatched
+                    },
+                    {
+                      icon: './assets/img/icons/isObserved.svg',
+                      name: 'trading.messagesTab.deleteToWatched',
+                      id: 'deleteToWatched',
+                      visible: chat.isWatched
+                    }
+                  ]"
+                  itemTemplate="template"
+                >
+                  <div *dxTemplate="let data of 'template'" class="padding">
+                    <div class="flexContent16">
+                      <img src="{{ data.icon }}" />
+                      <div>{{ data.name | translate }}</div>
+                    </div>
+                  </div>
+                </dx-drop-down-button>
+              </div>
+            </div>
+          </div>
+          }
+
+          <!--      Сообщение от маклера-->
+          @if (!chat.isInbox) {
+          <div class="flexContent8 flex-start jc-end mr-1">
+            <div class="flexContentColumn4">
+              <div
+                class="flexContent8 jc-end w-fit-cnt al-self-end center"
+                #brokerNameInfo
+              >
+                @if (chat.isWatched) {
+                <div>
+                  <i class="isObserved w-20px h-20px"></i>
+                </div>
+                } @if (!chat.isWatched) {
+                <div>
+                  <i class="isNotObserved w-20px h-20px"></i>
+                </div>
+                }
+
+                <div class="font-w500 font-s14">
+                  {{
+                    !chat.isSystem
+                      ? ("general.broker" | translate)
+                      : ("trading.messagesTab.systemMessage" | translate)
+                  }}
+                </div>
+
+                <div>
+                  {{
+                    chat.dateMessage
+                      | excelDate : true
+                      | date : "HH:mm:ss" : "+0000"
+                  }}
+                </div>
+
+                @if (chat?.isImportant) {
+                <div class="urgentLabel">
+                  {{ "trading.messagesTab.urgent" | translate }}
+                </div>
+                }
+              </div>
+
+              <div class="flexContent8 flex-start mes">
+                <dx-drop-down-button
+                  #dropDownButton
+                  [height]="24"
+                  [width]="24"
+                  [showArrowIcon]="false"
+                  [dropDownOptions]="{ width: 243 }"
+                  (onItemClick)="onChooseAction($event, chat)"
+                  icon="./assets/img/icons/dots.svg"
+                  [items]="[
+                    {
+                      icon: './assets/img/icons/isObservedBlack.svg',
+                      name: 'trading.messagesTab.addToWatched',
+                      id: 'addToWatched',
+                      visible: !chat.isWatched
+                    },
+                    {
+                      icon: './assets/img/icons/isObserved.svg',
+                      name: 'trading.messagesTab.deleteToWatched',
+                      id: 'deleteToWatched',
+                      visible: chat.isWatched
+                    }
+                  ]"
+                  itemTemplate="template"
+                >
+                  <!-- onClick: openPopup('replyToMessage')-->
+
+                  <div *dxTemplate="let data of 'template'" class="padding">
+                    <div class="flexContent16">
+                      <img src="{{ data.icon }}" />
+                      <div>{{ data.name | translate }}</div>
+                    </div>
+                  </div>
+                </dx-drop-down-button>
+
+                <div
+                  class="message broker flexContentColumn8 flex-start"
+                  [ngStyle]="{ 'min-width': brokerNameInfo.offsetWidth + 'px' }"
+                  [ngClass]="{
+                    urgent: chat?.isImportant,
+                    system: chat?.isSystem
+                  }"
+                >
+                  <!--              Ответ на сообщение-->
+                  @if (chat?.idParent) {
+                  <div class="reply flexContentColumn8">
+                    <div class="replyToMess h-24px"></div>
+
+                    <div class="flexContentColumn4">
+                      <div
+                        [innerHTML]="returnParentsMessage(chat?.idParent).text"
+                      ></div>
+
+                      <div class="flexContent4 font-s12">
+                        <span>{{ this.chatInfo?.traderFullName }}</span>
+
+                        <span>{{
+                          returnParentsMessage(chat?.idParent)?.dateMessage
+                            | excelDate : true
+                            | date : "HH:mm:ss" : "+0000"
+                        }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  }
+
+                  <span [innerHTML]="chat.text"></span>
+                </div>
+              </div>
+            </div>
+            <div class="bytbLogo traderWidthLogo"></div>
+          </div>
+          }
+        </div>
+        }
+      </div>
+    </div>
+
+    <div class="flexContentColumn16">
+      <div class="flexContentColumn8">
+        <div class="d-flex jc-end">
+          <label
+            >{{
+              this.message?.length > 0 ? this.message?.length : 0
+            }}/1000</label
+          >
+        </div>
+
+        <dx-text-area
+          height="124px"
+          width="950px"
+          placeholder="{{ 'general.text' | translate }}"
+          maxLength="1000"
+          [(value)]="message"
+          valueChangeEvent="keyup"
+        />
+      </div>
+
+      <div class="buttons flexContent24 buttonsClass center jc-normal">
+        <button
+          class="btn btn-primary submit w-100px"
+          [disabled]="!message || message?.length == 0"
+          (click)="onSendMessage()"
+        >
+          {{ "btns.send" | translate }}
+        </button>
+
+        <div class="flexContent8">
+          <dx-check-box
+            text="{{ 'trading.messagesTab.urgentMessage' | translate }}"
+            iconSize="20px"
+            [(value)]="urgentMessage"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+@if (isPopupOpen) {
+<new-message
+  [popupType]="popupType"
+  [replyMessage]="replyMessage"
+  [sectionInfo]="{ sectionId: sectionId, sessionId: sessionId }"
+  (componentData)="this.isPopupOpen = $event"
+/>
+}
+
+<dx-load-panel
+  shadingColor="rgba(0,0,0,0.4)"
+  [(visible)]="loadingVisible"
+  [showIndicator]="true"
+  [showPane]="true"
+  [shading]="true"
+  [hideOnOutsideClick]="false"
+/>

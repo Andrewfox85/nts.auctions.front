@@ -1,0 +1,102 @@
+<main class="flexContentColumn24">
+  <div class="main_component">
+    <div class="head flexContentColumn8">
+      @if (title) {
+      <h1>{{ title }}</h1>
+      }
+
+      <div class="flexContent8">
+        @if (session) {
+        <div class="session-stage d-flex ai-c font-s12">
+          {{ session.sessionStageName }}
+        </div>
+        } @if (session) {
+        <div class="flexContent16 h-24px session">
+          <span class="date-roboto-mono"
+            >{{ "filters.session" | translate }}
+            {{
+              session.datetimeBegin | excelDate
+                | date : "dd.MM.yyyy HH:mm" : "+0000"
+            }}</span
+          >
+          <span class="date-roboto-mono">№{{ session.idSession }}</span>
+
+          <span class="overflowText">{{ session.sessionName }}</span>
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <dx-data-grid
+    id="gridContainer"
+    [dataSource]="outputArray"
+    [showBorders]="true"
+    [showColumnLines]="true"
+    [showRowLines]="true"
+    [width]="1200"
+    appLocalizeContextMenu
+  >
+    <dxi-column
+      caption="№"
+      cssClass="column text-align-left"
+      width="auto"
+      cellTemplate="cellTemplateRowNumber"
+    />
+
+    <div *dxTemplate="let data of 'cellTemplateRowNumber'">
+      <div>{{ data.row.rowIndex + 1 }}</div>
+    </div>
+
+    <dxi-column
+      caption="{{ 'trading.tradersTable.participant' | translate }}"
+      dataField="firmName"
+      cssClass="column text-align-left"
+      width="auto"
+    />
+
+    <dxi-column
+      caption="{{ 'general.contractType' | translate }}"
+      dataField="clientContractTypeName"
+      cssClass="column text-align-left"
+      width="auto"
+    />
+
+    <dxi-column
+      caption="{{ 'filters.brokerClient' | translate }}"
+      dataField="clientName"
+      cssClass="column text-align-left"
+      width="auto"
+    />
+
+    <dxi-column
+      caption="{{ 'filters.listBranchs' | translate }}"
+      dataField="branchName"
+      cssClass="column text-align-left"
+      width="auto"
+    />
+
+    <dxi-column
+      caption="{{ 'trading.tradersTable.trader' | translate }}"
+      dataField="traderName"
+      cssClass="column text-align-left"
+      width="auto"
+    />
+
+    <dxi-column
+      caption="{{ 'general.result' | translate }}"
+      cssClass="column text-align-left"
+      width="auto"
+      cellTemplate="resultTemplate"
+      minWidth="200"
+    />
+
+    <div *dxTemplate="let item of 'resultTemplate'">
+      <span>{{
+        item.data.result
+          ? ("general.successfully" | translate)
+          : item.data.description
+      }}</span>
+    </div>
+  </dx-data-grid>
+</main>

@@ -1,0 +1,1 @@
+export * from './delivery-term-form.component';

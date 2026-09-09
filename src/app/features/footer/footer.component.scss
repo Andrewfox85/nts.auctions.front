@@ -1,0 +1,71 @@
+@import "../../../assets/scss//variables";
+
+footer {
+  border-top: 1px solid $borderColor;
+
+  @media print {
+    & {
+      display: none;
+    }
+  }
+
+  .footer_wrapper {
+    width: 100%;
+
+    .footer_top-line {
+      padding: 24px;
+      display: grid;
+      width: 100%;
+      grid-template-columns: auto auto auto auto;
+      justify-content: space-between;
+
+      .info_block {
+        h5 {
+          color: $mainTextColor;
+          font-weight: 600;
+          font-size: 14px;
+        }
+
+        .flexContentColumn16 {
+          margin-top: 20px;
+
+          p,
+          a {
+            font-size: 13px;
+            color: $secondTextColor !important;
+            margin-bottom: 0;
+            margin-top: 0 !important;
+          }
+
+          .content_row1 {
+            display: flex;
+            justify-content: left;
+            column-gap: 25px;
+          }
+
+          .content_row2 {
+            display: flex;
+            column-gap: 25px;
+            justify-content: space-between;
+          }
+        }
+      }
+    }
+
+    .footer_bottom-line {
+      border-top: 1px solid $borderColor;
+      padding: 8px 24px;
+
+      .copyright {
+        font-size: 13px;
+        color: $secondTextColor;
+        padding: 10px 0;
+      }
+
+      .version {
+        font-size: 13px;
+        color: $secondTextColor;
+      }
+    }
+  }
+}

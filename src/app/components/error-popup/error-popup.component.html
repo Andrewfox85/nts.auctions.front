@@ -1,0 +1,23 @@
+<dx-popup
+  id="error"
+  contentTemplate="errorContent"
+  [(visible)]="error"
+  [hideOnOutsideClick]="false"
+  [showTitle]="true"
+  title="{{ 'errors.error' | translate }}"
+  maxWidth="450px"
+  height="auto"
+  [showCloseButton]="true"
+  (onHidden)="logOut()"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  />
+
+  <div *dxTemplate="let data of 'errorContent'">
+    <div class="borderRed errorPopup">
+      <i class="errorIcon"></i>
+      <div [innerHTML]="this.messageError"></div>
+    </div>
+  </div>
+</dx-popup>

@@ -1,0 +1,409 @@
+<form [formGroup]="termsPaymentForm" class="flexContentColumn16">
+  <div class="flexContent16 fl-wrap wrapLess w-100">
+    <!--                  Условия оплаты-->
+    <div class="form-group">
+      <label>{{ "editOffer.termsPayment" | translate }}</label>
+      <div>
+        <dx-select-box
+          [dataSource]="termsConditionsPaymentValue"
+          valueExpr="id"
+          displayExpr="name"
+          height="40px"
+          placeholder="{{ 'filters.selection' | translate }}"
+          formControlName="termsPayment"
+          [showClearButton]="false"
+          (onOpened)="this.isEditedTermsPayment.emit(true)"
+          (onValueChanged)="onTermsPaymentChange('termsPayment')"
+        >
+          <dx-validator>
+            <dxi-validation-rule type="required"></dxi-validation-rule>
+          </dx-validator>
+        </dx-select-box>
+      </div>
+    </div>
+
+    <!--                  Объем-->
+    <div class="form-group">
+      <label>{{ "editOffer.volume" | translate }}</label>
+      <div>
+        <dx-select-box
+          [dataSource]="volumeTerms"
+          valueExpr="id"
+          displayExpr="name"
+          height="40px"
+          placeholder="{{ 'filters.selection' | translate }}"
+          formControlName="volume"
+          [showClearButton]="false"
+          (onOpened)="this.isEditedTermsPayment.emit(true)"
+          [class.disabled]="
+            !this.termsPaymentForm.controls['termsPayment']?.value
+          "
+          (onValueChanged)="onTermsPaymentChange('volume')"
+        >
+          <dx-validator>
+            <dxi-validation-rule type="required"></dxi-validation-rule>
+          </dx-validator>
+        </dx-select-box>
+      </div>
+    </div>
+  </div>
+
+  @if (this.termsPaymentForm.controls['volume']?.value) {
+  <div class="flexContent16 fl-wrap wrapLess w-100">
+    <!--                  Размер предоплаты-->
+    @if (this.termsPaymentForm.controls['termsPayment']?.value !=
+    termsConditionsPaymentConst.paymentDeferment) {
+    <div class="form-group">
+      <label>{{ "editOffer.prepaymentAmount" | translate }} (%)</label>
+      <div class="number-style">
+        <dx-number-box
+          dxNumberBoxClear
+          placeholder="00"
+          formControlName="prepaymentAmount"
+          height="40px"
+          [min]="1"
+          [max]="99"
+          [class.disabled]="
+            this.termsPaymentForm.controls['termsPayment']?.value ==
+              termsConditionsPaymentConst.prepayment100 ||
+            this.termsPaymentForm.controls['termsPayment']?.value ==
+              termsConditionsPaymentConst.paymentThroughExchange
+          "
+          (onValueChanged)="onPrepaymentAmountChange()"
+          valueChangeEvent="input"
+        >
+          <dx-validator>
+            <dxi-validation-rule type="required"></dxi-validation-rule>
+          </dx-validator>
+        </dx-number-box>
+      </div>
+    </div>
+    }
+
+    <!--                  Момент предоплаты-->
+    @if (this.termsPaymentForm.controls['termsPayment']?.value !=
+    termsConditionsPaymentConst.paymentDeferment) {
+    <div class="form-group">
+      <label>{{ "editOffer.momentPrepayment" | translate }}</label>
+      <div>
+        <dx-select-box
+          [dataSource]="momentPrepaymentValues"
+          valueExpr="id"
+          displayExpr="name"
+          height="40px"
+          placeholder="{{ 'filters.selection' | translate }}"
+          formControlName="momentPrepayment"
+          [showClearButton]="false"
+          (onOpened)="this.isEditedTermsPayment.emit(true)"
+          [class.disabled]="
+            !this.termsPaymentForm.controls['termsPayment']?.value &&
+            !this.termsPaymentForm.controls['volume']?.value
+          "
+          (onValueChanged)="onTermsPaymentChange('momentPrepayment')"
+        >
+          <dx-validator>
+            <dxi-validation-rule type="required"></dxi-validation-rule>
+          </dx-validator>
+        </dx-select-box>
+      </div>
+    </div>
+    }
+
+    <!--                  Срок предоплаты-->
+    @if (this.momentPrepayment &&
+    this.termsPaymentForm.controls['termsPayment']?.value !=
+    termsConditionsPaymentConst.paymentDeferment &&
+    this.termsPaymentForm.controls['momentPrepayment'] ?.value != timberTicket)
+    {
+    <div class="form-group">
+      <label>{{ "editOffer.prepaymentPeriod" | translate }}</label>
+      <div class="number-style">
+        @if (!momentPrepayment?.options.date) {
+        <dx-number-box
+          dxNumberBoxClear
+          placeholder="00"
+          formControlName="prepaymentPeriodNumber"
+          height="40px"
+          [min]="1"
+          [max]="momentPrepayment.options.dayOfMonth ? 31 : 999"
+          (onValueChanged)="getPaymentTermConcatedString()"
+          valueChangeEvent="input"
+        >
+          <dx-validator>
+            <dxi-validation-rule type="required"></dxi-validation-rule>
+          </dx-validator>
+        </dx-number-box>
+        } @if (momentPrepayment?.options.date) {
+        <dx-date-box
+          type="date"
+          height="40px"
+          [useMaskBehavior]="true"
+          displayFormat="dd.MM.yyyy"
+          formControlName="prepaymentPeriodDate"
+          [min]="this.DateSession"
+          placeholder="{{ 'general.placeholderDateBox' | translate }}"
+          (onValueChanged)="getPaymentTermConcatedString()"
+        >
+          <dx-validator>
+            <dxi-validation-rule type="required"></dxi-validation-rule>
+          </dx-validator>
+        </dx-date-box>
+        }
+      </div>
+      <label class="pb-0 pt-1"> {{ this.momentPrepayment?.termHint }}</label>
+    </div>
+    } @if (this.momentPrepayment?.options.applicableDayCount) {
+    <div class="form-group">
+      <ng-container *ngTemplateOutlet="applicableDayCount"></ng-container>
+    </div>
+    }
+  </div>
+  } @if (this.termsPaymentForm.controls['volume'].value) {
+  <div class="flexContent16 fl-wrap wrapLess w-100">
+    <!--                  Размер отсрочки-->
+    @if (this.termsPaymentForm.controls['termsPayment']?.value ==
+    termsConditionsPaymentConst.partialPrepayment ||
+    this.termsPaymentForm.controls['termsPayment']?.value ==
+    termsConditionsPaymentConst.paymentDeferment) {
+    <div class="form-group">
+      <label>{{ "editOffer.defermentAmount" | translate }} (%)</label>
+      <div class="number-style">
+        <dx-number-box
+          dxNumberBoxClear
+          placeholder="00"
+          formControlName="defermentAmount"
+          height="40px"
+          [min]="1"
+          [max]="99"
+          [class.disabled]="readOnlyDefermentAmount"
+          (onValueChanged)="onChangedefermentAmount()"
+          valueChangeEvent="input"
+        >
+          <dx-validator>
+            <dxi-validation-rule type="required"></dxi-validation-rule>
+          </dx-validator>
+        </dx-number-box>
+      </div>
+    </div>
+    }
+    <!--                  Момент отсрочки-->
+    @if (this.termsPaymentForm.controls['termsPayment']?.value ==
+    termsConditionsPaymentConst.paymentDeferment ||
+    (this.termsPaymentForm.controls['termsPayment']?.value ==
+    termsConditionsPaymentConst.partialPrepayment &&
+    this.termsPaymentForm.controls['momentPrepayment'] ?.value)) {
+    <div class="form-group">
+      <label>{{ "editOffer.momentDelay" | translate }}</label>
+      <div>
+        <dx-select-box
+          [dataSource]="momentDelayValues"
+          valueExpr="id"
+          displayExpr="name"
+          height="40px"
+          placeholder="{{ 'filters.selection' | translate }}"
+          formControlName="momentDelay"
+          [showClearButton]="false"
+          (onOpened)="this.isEditedTermsPayment.emit(true)"
+          [class.disabled]="
+            !this.termsPaymentForm.controls['termsPayment']?.value &&
+            !this.termsPaymentForm.controls['volume']?.value
+          "
+          (onValueChanged)="onTermsPaymentChange('momentDelay')"
+        >
+          <dx-validator>
+            <dxi-validation-rule type="required"></dxi-validation-rule>
+          </dx-validator>
+        </dx-select-box>
+      </div>
+    </div>
+    }
+
+    <!--                  Срок отсрочки-->
+    @if (this.termsPaymentForm.controls['termsPayment']?.value !=
+    termsConditionsPaymentConst.prepayment100 &&
+    this.termsPaymentForm.controls['termsPayment']?.value !=
+    termsConditionsPaymentConst.paymentThroughExchange && this.momentDelay) {
+    <div class="form-group">
+      <label>{{ "editOffer.defermentPeriod" | translate }}</label>
+      <div class="number-style">
+        @if (!momentDelay?.options.date) {
+        <dx-number-box
+          dxNumberBoxClear
+          placeholder="00"
+          formControlName="defermentPeriodNumber"
+          height="40px"
+          [min]="1"
+          [max]="momentDelay.options.dayOfMonth ? 31 : 999"
+          (onValueChanged)="getPaymentTermConcatedString()"
+        >
+          <dx-validator>
+            <dxi-validation-rule type="required"></dxi-validation-rule>
+          </dx-validator>
+        </dx-number-box>
+        } @if (momentDelay?.options.date) {
+        <dx-date-box
+          type="date"
+          height="40px"
+          [useMaskBehavior]="true"
+          displayFormat="dd.MM.yyyy"
+          formControlName="defermentPeriodDate"
+          [min]="DateSession"
+          placeholder="{{ 'general.placeholderDateBox' | translate }}"
+          (onValueChanged)="getPaymentTermConcatedString()"
+        >
+          <dx-validator>
+            <dxi-validation-rule type="required"></dxi-validation-rule>
+          </dx-validator>
+        </dx-date-box>
+        }
+      </div>
+      <label class="pb-0 pt-1"> {{ this.momentDelay?.termHint }}</label>
+    </div>
+    } @if (this.momentDelay?.options.applicableDayCount &&
+    !this.momentPrepayment?.options.applicableDayCount) {
+    <div class="form-group">
+      <ng-container *ngTemplateOutlet="applicableDayCount"></ng-container>
+    </div>
+    } @if (this.momentDelay?.options.applicableDayCount &&
+    this.momentPrepayment?.options.applicableDayCount) {
+    <div class="form-group">
+      <ng-container
+        *ngTemplateOutlet="disableApplicableDayCount"
+      ></ng-container>
+    </div>
+    }
+  </div>
+  } @if (this.termsPaymentForm.controls['prepaymentAmount'].value) {
+  <div class="flexContent16 fl-wrap wrapLess w-100">
+    <!--                  Размер отсрочки 2 -->
+    @if (conditionSecondStage()) {
+    <div class="form-group">
+      <label
+        >{{ "editOffer.defermentAmount" | translate }} (%)
+        {{ "editOffer.stage" | translate }}</label
+      >
+      <div class="number-style">
+        <dx-number-box
+          dxNumberBoxClear
+          format="#"
+          placeholder="00"
+          formControlName="defermentAmount2"
+          height="40px"
+          [min]="0"
+          [max]="100"
+          [class.disabled]="true"
+        >
+          <dx-validator>
+            <dxi-validation-rule type="required"></dxi-validation-rule>
+          </dx-validator>
+        </dx-number-box>
+      </div>
+    </div>
+    }
+
+    <!--                  Момент отсрочки 2-->
+    @if (conditionSecondStage()) {
+    <div class="form-group">
+      <label
+        >{{ "editOffer.momentDelay" | translate }}
+        {{ "editOffer.stage" | translate }}</label
+      >
+      <div>
+        <dx-select-box
+          [dataSource]="momentDelayValues"
+          valueExpr="id"
+          displayExpr="name"
+          height="40px"
+          placeholder="{{ 'filters.selection' | translate }}"
+          formControlName="momentDelay2"
+          (onOpened)="this.isEditedTermsPayment.emit(true)"
+          [showClearButton]="false"
+        >
+          <dx-validator>
+            <dxi-validation-rule type="required"></dxi-validation-rule>
+          </dx-validator>
+        </dx-select-box>
+      </div>
+    </div>
+    }
+
+    <!--                  Срок отсрочки 2-->
+    @if (conditionSecondStage() &&
+    this.termsPaymentForm.controls['momentDelay2'].value) {
+    <div class="form-group">
+      <label
+        >{{ "editOffer.defermentPeriod" | translate }}
+        {{ "editOffer.stage" | translate }}</label
+      >
+      <div class="number-style">
+        <dx-number-box
+          dxNumberBoxClear
+          format="#"
+          placeholder="00"
+          formControlName="defermentPeriod2"
+          height="40px"
+          [min]="0"
+          [max]="999"
+          (onValueChanged)="getPaymentTermConcatedString()"
+          valueChangeEvent="input"
+        >
+          <dx-validator>
+            <dxi-validation-rule type="required"></dxi-validation-rule>
+          </dx-validator>
+        </dx-number-box>
+      </div>
+      <label class="pb-0 pt-1"> {{ this.momentDelay?.termHint }}</label>
+    </div>
+    }
+  </div>
+  }
+  <ng-template #applicableDayCount>
+    <!--                  Календарные/банковские дни-->
+    <div class="form-group">
+      <label>{{ "editOffer.deliveryType" | translate }}</label>
+      <div>
+        <dx-select-box
+          [dataSource]="dayTypePaymentConfig"
+          valueExpr="id"
+          displayExpr="name"
+          height="40px"
+          placeholder="{{ 'filters.selection' | translate }}"
+          formControlName="dayTypeId"
+          [showClearButton]="false"
+          (onOpened)="this.isEditedTermsPayment.emit(true)"
+          [class.disabled]="dayType?.length === 1"
+          (onValueChanged)="
+            changeDayType($event); getPaymentTermConcatedString()
+          "
+        >
+          <dx-validator>
+            <dxi-validation-rule type="required"></dxi-validation-rule>
+          </dx-validator>
+        </dx-select-box>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #disableApplicableDayCount>
+    <!--               задизебленные Календарные/банковские дни (когда два поля есть)-->
+    <div class="form-group">
+      <label>{{ "editOffer.deliveryType" | translate }}</label>
+      <div>
+        <dx-select-box
+          [dataSource]="dayTypePaymentConfig"
+          valueExpr="id"
+          displayExpr="name"
+          height="40px"
+          placeholder="{{ 'filters.selection' | translate }}"
+          formControlName="dayTypeId"
+          [showClearButton]="false"
+          [class.disabled]="true"
+        >
+          <dx-validator>
+            <dxi-validation-rule type="required"></dxi-validation-rule>
+          </dx-validator>
+        </dx-select-box>
+      </div>
+    </div>
+  </ng-template>
+</form>

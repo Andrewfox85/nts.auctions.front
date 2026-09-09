@@ -1,0 +1,205 @@
+<dx-scroll-view [useNative]="true" height="calc(100vh - 125px)">
+  <div
+    *ngIf="
+      type == 'compareOffer' &&
+      this.deliverySch?.length == 0 && this.deliverySchParent?.length > 0
+    "
+  >
+    <div class="flexContent16 center">
+      <div class="flexContent16 ai-c">
+        <span class="deleteTag">{{ "general.deleted" | translate }}</span>
+      </div>
+      <div class="label w-100">
+        {{ "editOffer.deliverySchedule.deliverySchedule" | translate }}
+      </div>
+    </div>
+  </div>
+
+  <div class="flexContentColumn10" *ngIf="deliverySch.length > 0">
+    <div class="flexContent16 center">
+      <div *ngIf="type == 'compareOffer'" class="flexContent16 ai-c">
+        <span
+          class="changeTag"
+          *ngIf="this.deliverySch?.length > 0 && !changeSchedule()"
+          >{{ "general.changed" | translate }}</span
+        >
+        <span
+          class="deleteTag"
+          *ngIf="
+            this.deliverySch?.length == 0 && this.deliverySchParent?.length > 0
+          "
+          >{{ "general.deleted" | translate }}</span
+        >
+      </div>
+      <div class="label w-100">
+        {{ "editOffer.deliverySchedule.deliverySchedule" | translate }} -
+        {{ concatedStringDeliveryTerm }}
+      </div>
+    </div>
+
+    <dx-scroll-view
+      [useNative]="true"
+      height="{{ tableTerm.offsetHeight > 500 ? 500 : 'auto' }}"
+      class="scroll-wrapper"
+    >
+      <table class="w-100 sticky-table" #tableTerm>
+        <thead>
+          <tr>
+            <th id="number">
+              №
+              <dx-tooltip
+                target="#number"
+                [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                hideEvent="mouseleave"
+                contentTemplate="numberTemplate"
+              >
+                <div *dxTemplate="let data of 'numberTemplate'">
+                  {{
+                    "editOffer.deliverySchedule.serialNumberPeriod" | translate
+                  }}
+                </div>
+              </dx-tooltip>
+            </th>
+            <th class="w-112px">{{ "general.beginningPeriod" | translate }}</th>
+            <th class="w-112px">{{ "general.endPeriod" | translate }}</th>
+            <th class="text-align-left">
+              {{ "trading.offersTable.nameProduct" | translate }}
+            </th>
+            <th class="text-align-right w-194px">
+              {{ "trading.offersTable.volume" | translate }}
+            </th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <ng-container *ngFor="let term of deliverySch; let i = index">
+            <tr>
+              <td [attr.rowspan]="term[1].length">{{ i + 1 }}</td>
+              <td [attr.rowspan]="term[1].length" class="date-roboto-mono">
+                {{
+                  term[1][0].periodDateBegin
+                    | excelDate : true
+                    | date : "dd.MM.yyyy"
+                }}
+              </td>
+
+              <td [attr.rowspan]="term[1].length" class="date-roboto-mono">
+                {{
+                  term[1][0].periodDateEnd
+                    | excelDate : true
+                    | date : "dd.MM.yyyy"
+                }}
+              </td>
+
+              <td class="text-align-left">
+                <span id="name{{ i + 1 }}{{ term[1][0].idDemandOfferGood }}">{{
+                  term[1][0].goodName
+                }}</span>
+                <dx-tooltip
+                  target="#name{{ i + 1 }}{{ term[1][0].idDemandOfferGood }}"
+                  [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                  hideEvent="mouseleave"
+                >
+                  <div *dxTemplate="let data = data; of: 'content'">
+                    <div class="properties">
+                      <span>{{ term[1][0].properties }}</span>
+                    </div>
+                  </div>
+                </dx-tooltip>
+              </td>
+              <td [attr.rowspan]="isDeliveryScheduleGraded ? term[1].length : null">
+                <div class="flexContent8 text-align-right jc-end">
+                  <div class="number-style">{{ term[1][0].periodVolume }}</div>
+                  <span class="d-flex ai-c w-55px text-align-left">{{
+                    term[1][0].unitName
+                  }}</span>
+                </div>
+              </td>
+            </tr>
+
+            <tr *ngFor="let g of term[1].slice(1)">
+              <td class="text-align-left">
+                <span id="name{{ i + 1 }}{{ g.idDemandOfferGood }}">{{
+                  g?.goodName
+                }}</span>
+
+                <dx-tooltip
+                  target="#name{{ i + 1 }}{{ g.idDemandOfferGood }}"
+                  [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                  hideEvent="mouseleave"
+                >
+                  <div
+                    *dxTemplate="let data = data; of: 'content'"
+                    class="w-500px text-align-left"
+                  >
+                    <div class="properties">
+                      <span>{{ g.properties }}</span>
+                    </div>
+                  </div>
+                </dx-tooltip>
+              </td>
+              @if (!isDeliveryScheduleGraded) {
+                <td>
+                  <div class="flexContent8 text-align-right jc-end">
+                    <div class="number-style">
+                      {{ g.periodVolume | toNumber | ruNumberFormat : null : 4 }}
+                    </div>
+                    <span class="d-flex ai-c w-55px text-align-left">
+                      {{ g.unitName }}
+                    </span>
+                  </div>
+                </td>
+              }
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
+    </dx-scroll-view>
+
+    <div class="flexContentColumn8 mt-3" *ngIf="type == 'counterRegister'">
+      <div class="label">
+        {{ "editOffer.deliverySchedule.totalDeliverySchedule" | translate }}
+      </div>
+
+      <dx-scroll-view
+        height="{{ totalTable.offsetHeight > 300 ? 300 : 'auto' }}"
+        [useNative]="true"
+      >
+        <table #totalTable class="w-100">
+          <thead class="relative">
+            <tr>
+              <th class="text-align-left">
+                {{ "trading.offersTable.nameProduct" | translate }}
+              </th>
+              <th class="text-align-right" width="25%">
+                {{ "counterOffers.quantitySch" | translate }}
+              </th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <ng-container *ngFor="let item of goods; last as last">
+              <tr>
+                <td class="text-align-left">{{ item.goodName }}</td>
+                <td class="text-align-right date-roboto-mono jc-end">
+                  {{ getFieldValue(item.goodsSpecifications).fieldValueNumber }}
+                  {{ item.unitName }}
+                </td>
+              </tr>
+              @if (last && onSameUnits) {
+                <tr class="viewRow">
+                  <td class="text-align-left greenColor">
+                    {{ "general.totalCommon" | translate }}
+                  </td>
+                  <td class="text-align-right date-roboto-mono greenColor">
+                    {{ totalRowData?.quantityOffer }}
+                  </td>
+                </tr>
+              }
+            </ng-container>
+          </tbody>
+        </table>
+      </dx-scroll-view>
+    </div>
+  </div>
+</dx-scroll-view>

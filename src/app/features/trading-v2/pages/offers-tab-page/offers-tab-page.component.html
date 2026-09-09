@@ -1,0 +1,13 @@
+<div class="trading-tab-page tab-content flexContentColumn8">
+  @if (viewModel$ | async; as viewModel) {
+    <app-offers
+      [sessionInfo]="viewModel.sessionInfo"
+      [sessionIds]="viewModel.sessionIds"
+      [tabIndex]="tabId"
+      [isFromTraders]="viewModel.isFromTraders"
+      [dataForFilter]="viewModel.isFromTraders ? viewModel.dataForFilter : null"
+      [isAdmissionFinished]="viewModel.isAdmissionFinished"
+      [isIntermediateTransfer]="viewModel.isIntermediateTransfer"
+    />
+  }
+</div>

@@ -1,0 +1,215 @@
+<dx-popup
+  contentTemplate="refusePopup"
+  [hideOnOutsideClick]="false"
+  [visible]="refusePopup()"
+  [showTitle]="true"
+  title="{{ 'trading.dealsTab.refusePopupTitle' | translate }}"
+  width="450"
+  height="auto"
+  [showCloseButton]="true"
+  (onHiding)="closePopup()"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+  <div *dxTemplate="let data of 'refusePopup'">
+    <div class="flexContentColumn16">
+      <form [formGroup]="refuseForm">
+        <div>
+          <span
+            >{{ "trading.dealsTab.refusePopupMess" | translate }}
+            {{ choosenDeals()?.[0]?.transactionInfo?.transactionNumber }}?</span
+          >
+        </div>
+
+        <div class="group">
+          <div class="form-group">
+            <div class="input-group">
+              <label class="ml-1">{{
+                "trading.dealsTab.condForRefuse" | translate
+              }}</label>
+              <div class="flexContentColumn8">
+                <div>
+                  <span class="flexContent8">
+                    <input
+                      type="radio"
+                      name="condRefuse"
+                      id="withReturn"
+                      formControlName="condRefuse"
+                      [value]="CONDITIONS_REFUSE.WITH_RETURN"
+                      autocomplete="off"
+                    />
+                    <label
+                      for="withReturn"
+                      aria-label="Refuse with return"
+                      class="pb-0 blackColor font-s14"
+                      >{{ "trading.dealsTab.withReturn" | translate }}</label
+                    ></span
+                  >
+                </div>
+
+                <div>
+                  <span class="flexContent8">
+                    <input
+                      type="radio"
+                      name="condRefuse"
+                      id="withoutReturn"
+                      formControlName="condRefuse"
+                      [value]="CONDITIONS_REFUSE.WITHOUT_RETURN"
+                      autocomplete="off"
+                    />
+                    <label
+                      for="withoutReturn"
+                      class="pb-0 blackColor font-s14"
+                      aria-label="Refuse without return"
+                      >{{ "trading.dealsTab.withoutReturn" | translate }}</label
+                    ></span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        @if(refuseForm.get('condRefuse')?.value ===
+        CONDITIONS_REFUSE.WITH_RETURN) {
+        <div class="group">
+          <div class="form-group">
+            <div class="input-group">
+              <label class="ml-1">{{
+                "trading.dealsTab.parameterForReturn" | translate
+              }}</label>
+              <div class="flexContentColumn8">
+                <div>
+                  <span class="flexContent8">
+                    <input
+                      type="radio"
+                      name="parameterForReturn"
+                      id="currPrice"
+                      formControlName="parameterForReturn"
+                      [value]="PARAMETR_FOR_RETURN.CURR_PRICE"
+                      autocomplete="off"
+                    />
+                    <label for="currPrice" class="pb-0 blackColor font-s14">{{
+                      "trading.dealsTab.currPrice" | translate
+                    }}</label></span
+                  >
+                </div>
+
+                <div>
+                  <span class="flexContent8">
+                    <input
+                      type="radio"
+                      name="parameterForReturn"
+                      id="beginningPrice"
+                      formControlName="parameterForReturn"
+                      [value]="PARAMETR_FOR_RETURN.BEGINNING_PRICE"
+                      autocomplete="off"
+                    />
+                    <label
+                      for="beginningPrice"
+                      aria-label="Parameter for return with beggining price"
+                      class="pb-0 blackColor font-s14"
+                      >{{
+                        "trading.dealsTab.beginningPrice" | translate
+                      }}</label
+                    ></span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        }
+
+        <div class="flexContentColumn8 w-100">
+          <div class="flexContent20">
+            <label>{{ "trading.dealsTab.refusalReason" | translate }}</label>
+            <label
+              >{{
+                this.refuseReason?.length > 0 ? this.refuseReason?.length : 0
+              }}/500</label
+            >
+          </div>
+          <dx-text-area
+            height="124px"
+            placeholder="{{ 'general.text' | translate }}"
+            maxLength="500"
+            [(value)]="refuseReason"
+            valueChangeEvent="keyup"
+            formControlName="reason"
+          >
+          </dx-text-area>
+        </div>
+
+        <div class="buttons flexContent24 buttonsClass">
+          <button
+            class="btn btn-primary submit w-50"
+            [disabled]="!refuseForm.valid"
+            (click)="refuseDeal()"
+          >
+            {{ "trading.dealsTab.refuse" | translate }}
+          </button>
+          <button class="btn btn-outline-primary w-50" (click)="closePopup()">
+            {{ "btns.close" | translate }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</dx-popup>
+
+<dx-popup
+  contentTemplate="resultPopup"
+  [hideOnOutsideClick]="false"
+  [visible]="resultPopup"
+  [showTitle]="true"
+  title="{{ 'trading.dealsTab.refusePopupTitle' | translate }}"
+  [width]="450"
+  height="auto"
+  [showCloseButton]="true"
+  (onHiding)="closeResultPopup()"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+  <div *dxTemplate="let data of 'resultPopup'">
+    <!-- результат отказа в фиксации сделки -->
+    <div>
+      <div class="flexContentColumn16">
+        <div>
+          <span>{{
+            "trading.dealsTab.terminateMess" | translate : dealNumberForRes
+          }}</span>
+        </div>
+
+        <div class="flexContentColumn4">
+          <div class="flexContent4">
+            <span>{{ "trading.dealsTab.condition" | translate }}: </span
+            ><span class="font-w500">{{
+              resultData?.condRefuse == 1
+                ? ("trading.dealsTab.withReturn" | translate)
+                : ("trading.dealsTab.withoutReturn" | translate)
+            }}</span>
+          </div>
+          @if(resultData?.condRefuse === CONDITIONS_REFUSE.WITH_RETURN) {
+          <div class="flexContent4">
+            <span
+              >{{ "trading.dealsTab.parameterForReturn" | translate }}: </span
+            ><span class="font-w500">{{
+              resultData?.parameterForReturn === PARAMETR_FOR_RETURN.CURR_PRICE
+                ? ("trading.dealsTab.currPrice" | translate)
+                : ("trading.dealsTab.beginningPrice" | translate)
+            }}</span>
+          </div>
+          }
+
+          <div class="flexContent4">
+            <span>{{ "trading.dealsTab.refusalReason" | translate }}: </span
+            ><span class="font-w500">{{ resultData?.reason }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</dx-popup>

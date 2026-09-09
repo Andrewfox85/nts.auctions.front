@@ -1,0 +1,91 @@
+<dx-scroll-view [useNative]="true" height="calc(100vh - 125px)">
+  <div class="generalInfo flexContentColumn12 pr-1">
+    <!-- Условия сделки -->
+    <app-terms-deal
+      [generalInfo]="generalInfo"
+      [offerGeneralHidden]="offerGeneralHidden()"
+      [totalRowData]="totalRowData"
+    />
+
+    <!-- Товары -->
+    <app-goods-deals
+      [generalInfo]="generalInfo"
+      [pricingType]="pricingType"
+      [expandTable]="expandTable()"
+      [goods]="goods"
+      [currencyPrecision]="currencyPrecision"
+      [goodInfo]="goodInfo"
+      [totalRowData]="totalRowData"
+    />
+    <!-- Дополнительная инф-ция-->
+    @if(generalInfo?.transactionCond?.transactionDetails ||
+    this.documents?.length > 0) {
+    <app-additional-info-deal
+      [addInfo]="addInfo()"
+      [generalInfo]="generalInfo"
+      [documents]="documents"
+      (downloadDoc)="downloadDoc($event)"
+    />
+    } @if(idAuctionType === AUCTION_TYPE.ENGLISH_UPGRADING_AUCTION) {
+    <!-- Инф-ция о продавце -->
+    @if(generalInfo?.sellerInfo?.sellerIdTrader) {
+    <app-salesman-deal-english-auction
+      [sellerInformationHidden]="sellerInformationHidden()"
+      [generalInfo]="generalInfo"
+    />
+    }
+
+    <!-- Инф-ция о покупателе - блок для редактирования -->
+    @if(generalInfo?.buyerInfo?.buyerIdTrader) {
+    <app-buyer-deal-english-auction
+      #buyerDealEnglishAuction
+      [buyerInformationHidden]="buyerInformationHidden()"
+      [generalInfo]="generalInfo"
+      [infoForEdit]="infoForEdit"
+      (chooseClient)="onChooseClient($event)"
+    />
+    } } @if(idAuctionType === AUCTION_TYPE.DUTCH_DOWN_AUCTION) {
+    <!-- Инф-ция о продавце -->
+    @if(generalInfo?.buyerInfo?.buyerIdTrader) {
+    <app-buyer-deal-dutch-auction
+      [buyerInformationHidden]="sellerInformationHidden()"
+      [generalInfo]="generalInfo"
+    />
+    } @if(generalInfo?.sellerInfo?.sellerIdTrader) {
+    <app-salesman-deal-dutch-auction
+      #sellerDealDutchAuction
+      [sellerInformationHidden]="sellerInformationHidden()"
+      [generalInfo]="generalInfo"
+      [infoForEdit]="infoForEdit"
+      [vatField]="VatField?.fieldValueNumber"
+      (chooseClient)="onChooseClient($event)"
+      (changeVat)="changeVat($event)"
+    />
+    }
+
+    <!-- Инф-ция о покупателе - блок для редактирования -->
+    }
+    <div class="buttons flexContent16">
+      <button
+        class="btn btn-primary submit w-100"
+        [disabled]="
+        (idAuctionType === AUCTION_TYPE.ENGLISH_UPGRADING_AUCTION &&
+        (!buyerDealEnglishAuctionComponent()?.editForm.valid || infoForEdit?.length === 0)) ||
+          (idAuctionType === AUCTION_TYPE.DUTCH_DOWN_AUCTION &&
+            !sellerDealDutchAuctionComponent()?.editForm.valid) ||
+          disabledButton
+        "
+        (click)="editDeal()"
+      >
+        <!--  -->
+        {{ "btns.save" | translate }}
+      </button>
+      <button
+        class="btn btn-outline-primary submit w-100"
+        (click)="onClose.emit(false)"
+      >
+        {{ "btns.cancel" | translate }}
+      </button>
+    </div>
+  </div>
+</dx-scroll-view>

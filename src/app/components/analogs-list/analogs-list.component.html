@@ -1,0 +1,208 @@
+<dx-scroll-view [useNative]="true" height="calc(100vh - 125px)">
+  <div class="flexContentColumn16 mt-4">
+    @if (!isAvailableAnalogListIcon && roleToAction) {
+      <div class="notificationBlue h-auto p-2">
+        <span class="message flexContent8 center">
+          <i class="blueIcon"></i>
+          <span class="mainTextColor font-s12 l-h16">{{
+            "analogsList.warningMess" | translate
+          }}</span>
+        </span>
+      </div>
+    } 
+    @if (!isAvailableAnalogListIcon && !roleToAction) {
+      <div class="errorPopup h-auto p-2">
+        <span class="message flexContent8 center">
+          <i class="errorIcon"></i>
+          <span class="mainTextColor font-s12 l-h16">{{
+            "analogsList.closeAnalogList" | translate
+          }}</span>
+        </span>
+      </div>
+    } 
+    @if (isAvailableAnalogListIcon) {
+      <div class="successGreen h-auto p-2">
+        <span class="message flexContent8 center">
+          <i class="checkIcon"></i>
+          <span class="mainTextColor font-s12 l-h16">{{
+            "analogsList.notificatiomMess" | translate
+          }}</span>
+        </span>
+      </div>
+    }
+
+    <div class="analogs-list-content flexContentColumn16 sizeSplit">
+      <as-split direction="vertical">
+        <div class="list-head flexContent8 jc-sb">
+          <div class="flexContent8">
+            <div>
+              <div
+                class="flexContent4 pointer"
+                (click)="toggleShowFilters()"
+                #showFilter
+              >
+                <div>{{ "analogsList.showGoods" | translate }}:</div>
+
+                <i class="arrowDown"></i>
+              </div>
+
+              @if (showFilters) {
+                <div class="submenu">
+                  <dx-list
+                    [items]="filterItems"
+                    [height]="160"
+                    [width]="'auto'"
+                    [selectionMode]="'single'"
+                    displayExpr="name"
+                    keyExpr="id"
+                    [(selectedItemKeys)]="selectedItemKeysFilter"
+                    (onSelectionChanged)="onFilterList($event)"
+                  />
+                </div>
+              }
+            </div>
+
+            @if (!(roleToAction || user?.IsWorker)) {
+              <div>
+                <dx-check-box
+                  text="{{ 'analogsList.myAnalogs' | translate }}"
+                  iconSize="20px"
+                  [value]="isMyAnalogs"
+                  (onValueChanged)="showGoodsFromDemand($event)"
+                >
+                </dx-check-box>
+              </div>
+            }
+          </div>
+        </div>
+
+        <as-split-area size="15">
+          <div class="analogs-grid mt-3">
+            <app-analogs-table
+              [analogs]="analogsForShow()"
+              [dynamicColumns]="dynamicColumns()"
+              [selectedRow]="selectedRow"
+              [roleToAction]="roleToAction"
+              [isInvalidPeriod]="isInvalidPeriod"
+              (selectedRowChange)="onRowSelected($event)"
+              (admissionChange)="onAdmissionChanged($event)"
+            />
+          </div>
+        </as-split-area>
+
+        <as-split-area size="85">
+          <div class="flexContent4 jc-sb mt-3">
+            <div class="d-flex">
+              <button
+                (click)="openCounters()"
+                class="show-counters flexContent8"
+                [disabled]="filteredCounters()?.length === 0"
+                [class.disabled]="filteredCounters()?.length === 0"
+              >
+                <span
+                  >{{
+                    !showCounters
+                      ? ("analogsList.showCounters" | translate)
+                      : ("analogsList.hideCounters" | translate)
+                  }}
+                  {{
+                    filteredCounters()?.length ? filteredCounters()?.length : 0
+                  }}</span
+                >
+                <i class="triangle" [class.tr-rt180]="showCounters"></i>
+              </button>
+            </div>
+
+            @if( roleToAction && isMine) {
+              <div class="buttons flexContent8 jc-end">
+                <button
+                  class="btn btn-primary submit w-260px"
+                  [disabled]="
+                  isInvalidPeriod ||
+                    (!isAvailableAnalogList() && !isExistChangedRow())
+                  "
+                  (click)="saveChanges()"
+                >
+                  {{ "analogsList.saveChanges" | translate }}
+                </button>
+              </div>
+            }
+          </div>
+
+          <div [hidden]="!showCounters">
+            <div class="flexContentColumn12 mt-2">
+              <app-counter-offer-table
+                [counters]="filteredCounters()"
+                [selectedRow]="selectedCountersRow"
+                [isAllowAnalog]="true"
+                [isAnalogListForm]="true"
+                (selectedRowChange)="onCountersRowSelected($event)"
+                (compareFields)="compareFields()"
+              />
+
+              @if (selectedCountersRow) {
+                <div>
+                  <dx-check-box
+                    text="{{ 'counterOffers.showDifferences' | translate }}"
+                    iconSize="20px"
+                    [value]="showDifferences"
+                    (onValueChanged)="onCheckboxValueChange()"
+                  >
+                  </dx-check-box>
+                </div>
+
+                <app-compare-counter
+                  [sessionIds]="sessionIds"
+                  [fullInfo]="fullInfo"
+                  [showDifferences]="showDifferences"
+                  [selectedRow]="selectedCountersRow"
+                  [uniqueDelConditions]="uniqueDelConditions"
+                  [basisValue]="basisValue"
+                  [totalRowData]="totalRowData"
+                  [onChangeBasis]="onChangeBasis"
+                  [getValue]="getValue"
+                />
+              }
+            </div>
+          </div>
+        </as-split-area>
+      </as-split>
+    </div>
+  </div>
+</dx-scroll-view>
+
+<dx-popup
+  contentTemplate="changedPopup"
+  [hideOnOutsideClick]="false"
+  [visible]="changedPopup"
+  [showTitle]="true"
+  title="{{ 'analogsList.changedPopupTitle' | translate }}"
+  width="450"
+  height="auto"
+  [showCloseButton]="true"
+  (onHiding)="closeChangedPopup()"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+  <div *dxTemplate="let data of 'changedPopup'" class="flexContentColumn32">
+    <div>
+      <span>{{ "analogsList.changedPopupMess" | translate }}</span>
+    </div>
+
+    <div class="buttons flexContent24 buttonsClass mt-3">
+      <button
+        class="btn btn-primary submit w-50"
+        (click)="declineAndContinie()"
+      >
+        {{ "analogsList.changedPopupBtn" | translate }}
+      </button>
+      <button
+        class="btn btn-outline-primary w-50"
+        (click)="closeChangedPopup()"
+      >
+        {{ "btns.back" | translate }}
+      </button>
+    </div>
+  </div>
+</dx-popup>

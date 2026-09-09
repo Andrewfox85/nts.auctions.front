@@ -1,0 +1,63 @@
+<div class="sellerInformation border p-2">
+  <div class="flexContent4 jc-sb" (click)="changeSellerInformationHidden()">
+    <span class="font-s16">{{ "trading.dealsTab.seller" | translate }}</span>
+    <div
+      class="filtersArrow"
+      [class.tr-rt180]="!sellerInformationHidden()"
+    ></div>
+  </div>
+
+  <div [hidden]="sellerInformationHidden()">
+    <div class="flexContentColumn4 mt-3">
+      <div class="flexContent8 flex-start">
+        <div class="label">
+          {{ "trading.tradersTable.participant" | translate }}
+        </div>
+        <div class="info">
+          {{ generalInfo()?.sellerInfo?.sellerConcatedFirmName }}
+        </div>
+      </div>
+
+      <div class="flexContent8 flex-start">
+        <div class="label">{{ "general.contractType" | translate }}</div>
+        @if(generalInfo()?.sellerInfo?.sellerIdClientContractType !== null) {
+
+        <div class="info">
+          {{
+            generalInfo()?.sellerInfo?.sellerIdClientContractType ===
+            AGREEMENT_TYPE.Commission
+              ? ("general.commissionAgreement" | translate)
+              : generalInfo()?.sellerInfo?.sellerIdClientContractType ===
+                AGREEMENT_TYPE.Agency
+              ? ("general.agencyAgreement" | translate)
+              : "-"
+          }}
+        </div>
+        } @else {
+        <div class="info">-</div>
+        }
+      </div>
+      <div class="flexContent8 flex-start">
+        <div class="label">{{ "filters.brokerClient" | translate }}</div>
+        @if(generalInfo()?.sellerInfo?.sellerConcatedClientName) {
+
+        <div class="info">
+          {{ generalInfo()?.sellerInfo?.sellerConcatedClientName }}
+        </div>
+        } @else {
+        <div class="info">-</div>
+        }
+      </div>
+      @if(generalInfo()?.sellerInfo?.sellerBranchName) {
+      <div class="flexContent8 flex-start">
+        <div class="label">
+          {{ "general.structuralSubdivision" | translate }}
+        </div>
+        <div class="info">
+          {{ generalInfo()?.sellerInfo?.sellerBranchName }}
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+</div>

@@ -1,0 +1,77 @@
+:root {
+    --baseFontSize: 14px;
+    --regularFontSize: 13px;
+    --smallFontSize: 12px;
+    --bigFontSize: 18px;
+}
+//colors
+//$borderColor: rgba(68, 68, 68, 0.2); // #444444 opacity:0.2;
+$borderColor: #BDBDBD;
+$borderColorDarken: rgba(68, 68, 68, 0.4); // #444444 opacity:0.4;
+$backgroundGrey: rgba(250, 250, 250, 0.50);
+//primary
+$mainTextColor: #212121;
+$mainActiveColor: #4CAF50;
+$mainActiveColorHover: #3B8D45;
+$linkHover: #388E3C;
+$stepActive: #2E7D32;
+$backgroundTooltipColor: #5A5A5A;
+$secondTextColor: #616161;
+$informTextColor: #979797;
+$columnNameTextColor: #4D4D4D;
+$borderTable: #d7d7d7;
+
+$white: #FFFFFF;
+$lightGrayBackgroundColorButton: #E0E0E0;
+$lightGrayBackgroundColorButtonHover:#c9c9c9;
+$layerHoverTable: #fafafa;
+$lightGrayColorBackgroundButtonDisabled: #f8f9fa;
+$greyBorder: #ddd;
+$darkGrey: #E7E7E7;
+
+
+$headerTop: #F6F7F8;
+$headerTopColor: #9E9E9E;
+
+$lightGrayBackgroundColor: #F5F5F5;
+$mainGrayBackgroundColor: #EFEFEF;
+$mainGrayBackgroundColorHover: #D4D4D4;
+$toggle-off: #BDBDBD;
+
+$redColorError: #E53935;
+$colorError: #C62828;
+$backgroundColorError: #FFF4F6;
+
+$placeholderColor: rgba(68, 68, 68, 0.6);
+$colorGray: #EEEEEE;
+$BackgroundColorGray: #E6E6E6;
+
+$backSelectedRowGrid: #F8FCF8;
+
+//buttons
+$btn-dark-grey: #D9D9D9;  //secondary button hover
+
+//text-colors
+$text-black: #202020;
+
+$text-light-grey: rgba(68, 68, 68, 0.4); // #444444 opacity:0.4;
+
+$sectionMetalBackground: #E3F2FD;
+$sectionMetal: #1565C0;
+$sectionForestBackground: #EFFAEF;
+$sectionForest: #2E7D32;
+$sectionAgriculturalBackground: #FFFBD5;
+$sectionAgricultural: #EF6C00;
+$sectionPromisingGoodsBackground : #F3E5F5;
+$sectionPromisingGoods: #7B1FA2;
+
+$notificationBlue: #F0F8FD;
+
+$backgroundColorGreen: #E8F5E9;
+$notificationGreenBorder: #F8FBF8;
+
+$urgentMessage: #FFF7CB;
+
+//fonts style
+$font-family: 'Roboto','Roboto Mono';
+

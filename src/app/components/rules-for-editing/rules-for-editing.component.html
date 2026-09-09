@@ -1,0 +1,151 @@
+<form [formGroup]="rulesForm" class="w-100 flexContentColumn16">
+  <dx-validation-group class="flexContentColumn16 w-100">
+    <dx-scroll-view
+      [useNative]="true"
+      height="calc(100vh - 125px)"
+      class="flexContentColumn16 w-100"
+    >
+      @for(good of modelEditRules; track good.goodName; let index = $index) {
+      <div class="flexContentColumn16">
+        <div class="font-s24 font-w500 l-h32 twoStrings" id="name{{ index }}">
+          {{ "trading.auctionsTab.allProductsModelBlock" | translate }}
+
+          <dx-tooltip
+            target="#name{{ index }}"
+            [showEvent]="{ name: 'mouseenter', delay: 500 }"
+            hideEvent="mouseleave"
+          >
+            <div
+              *dxTemplate="let data = data; of: 'content'"
+              class="whiteTextColor text-align-left"
+            >
+              {{ "trading.auctionsTab.allProductsModelBlock" | translate }}
+            </div>
+          </dx-tooltip>
+        </div>
+        <dx-accordion
+          [dataSource]="good.editRules"
+          [multiple]="true"
+          [collapsible]="true"
+          [animationDuration]="300"
+          id="accordion-container"
+          (onContentReady)="onContentReady($event, good.editRules)"
+        >
+          <div *dxTemplate="let item of 'title'">
+            <div class="flexContent24">
+              <div class="font-s16">{{ item[0] }}</div>
+              <dx-button
+                class="btn h-32px secondary-btn"
+                (onClick)="clearBlock($event, good, item)"
+              >
+                <div class="flexContent8 ai-c secondTextColor">
+                  <div class="close"></div>
+                  {{ "btns.clearBlockFields" | translate }}
+                </div>
+              </dx-button>
+            </div>
+          </div>
+          <div
+            *dxTemplate="let editRules of 'item'"
+            class="flexContentColumn16 px-3 pt-2 pb-3"
+          >
+            <div class="flexContent16 w-100">
+              <!-- editRules[1][0][1][0].idSessionPeriod -->
+              <span class="w-50">{{
+                editRules[1]?.length > 0
+                  ? editRules[1][0][1][0].idSessionPeriod == 1
+                    ? ("general.pretradingPeriod" | translate)
+                    : null
+                  : null
+              }}</span>
+              <span class="w-50">{{
+                editRules[1]?.length > 0
+                  ? editRules[1][0][1][1].idSessionPeriod == 3
+                    ? ("general.applicationAdjustmentPeriod" | translate)
+                    : null
+                  : null
+              }}</span>
+            </div>
+            @for(rules of editRules[1]; track rules) {
+            <div class="flexContent16 w-100">
+              <ng-container *ngTemplateOutlet="blockTemplate"> </ng-container>
+
+              <ng-template #blockTemplate>
+                @for(rule of rules[1]; track rule.value) {
+                <div class="flexContent16 w-50">
+                  <ng-container *ngTemplateOutlet="interfaceField">
+                  </ng-container>
+
+                  <ng-template #interfaceField>
+                    <div class="flexContentColumn8 w-100">
+                      <label>{{ rule.value[0].interfaceFieldName }}</label>
+                      <dx-select-box
+                        [dataSource]="rule.value"
+                        valueExpr="editRuleId"
+                        formControlName="{{ good.idBlock }}{{
+                          rule.idInterfaceField
+                        }}{{ rule.idSessionPeriod }}"
+                        displayExpr="editRuleName"
+                        height="40px"
+                        [width]="'100%'"
+                        placeholder="{{ 'filters.selection' | translate }}"
+                        [searchEnabled]="false"
+                        [showClearButton]="false"
+                        (onValueChanged)="onChangeValueRule(good.idBlock, rule)"
+                      >
+                        <dx-validator>
+                          <dxi-validation-rule
+                            type="required"
+                          ></dxi-validation-rule>
+                        </dx-validator>
+                      </dx-select-box>
+                        @if(rule.idInterfaceField == IdInterfaceField.quantity){
+                      <div class="flexContent8 ai-start"
+                           [ngClass]="{'disabled': isDisabledCheckBox(good.idBlock, rule.idSessionPeriod)}"
+                      >
+                        <dx-check-box
+                          text="{{ 'trading.auctionsTab.quantityOfGoodsGreaterThanZero' | translate }}"
+                          formControlName="checkbox_{{good.idBlock}}{{IdInterfaceField.quantity}}{{rule.idSessionPeriod}}"
+                          class="secondTextColor font-s12"
+                        ></dx-check-box>
+                        <div class="infoThinBlack" id="icon_{{rule.idSessionPeriod}}">
+                          <dx-tooltip
+                            target="#icon_{{rule.idSessionPeriod}}"
+                            showEvent="dxhoverstart"
+                            hideEvent="dxhoverend"
+                          >
+                            <div *dxTemplate="let data = data; of: 'content'">
+                              {{ 'trading.auctionsTab.affectsOnlyPrefabricatedLot' | translate }}
+                            </div>
+                          </dx-tooltip>
+                        </div>
+                      </div>
+                        }
+
+                    </div>
+                  </ng-template>
+                </div>
+                }
+              </ng-template>
+            </div>
+            }
+          </div>
+        </dx-accordion>
+      </div>
+      }
+    </dx-scroll-view>
+    <div class="w-100 buttonsClass flexContent16 pt-3">
+      <dx-button
+        class="btn btn-primary submit w-50"
+        (onClick)="onSaveRules($event)"
+        >{{ "btns.save" | translate }}</dx-button
+      >
+      <button
+        class="btn btn-outline-primary w-50"
+        (click)="this.onClose.emit(false)"
+      >
+        {{ "btns.close" | translate }}
+      </button>
+    </div>
+  </dx-validation-group>
+</form>

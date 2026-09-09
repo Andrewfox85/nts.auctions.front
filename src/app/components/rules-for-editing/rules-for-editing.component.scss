@@ -1,0 +1,15 @@
+@import '../../../assets/scss/variables';
+
+.twoStrings {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  position: relative;
+}
+
+
+::ng-deep.dx-texteditor.dx-state-readonly {
+  border: 1px solid $greyBorder;
+  border-radius: 2px;
+}

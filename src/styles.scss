@@ -1,0 +1,25 @@
+@import "assets/scss/fonts";
+@import "assets/scss/constants";
+@import "assets/scss/variables";
+@import "assets/scss/overwriteDevExpress";
+
+@layer base, components;
+
+// Стилизация кнопок
+@import "assets/scss/buttons";
+//html, body { height: 100%; }
+body {
+  margin: 0;
+  color: #212121;
+}
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+}
+
+@layer components {
+  dx-license, dx-license-trigger {
+    display: none !important;
+  }
+}

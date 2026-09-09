@@ -1,0 +1,66 @@
+@import '_config';
+
+// ---------------------------------------------------------------------------------------------------------------------
+// STATIC MIXINS
+// ---------------------------------------------------------------------------------------------------------------------
+
+@mixin clearfix {
+    &::after {
+        content: '';
+        display: table;
+        clear: both;
+    }
+}
+
+@mixin text-overflow {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+@mixin circle {
+    border-radius: $circle-border-radius;
+}
+
+@mixin default-font-settings {
+    font-family: $default-font-family;
+    font-size: $default-font-size;
+    line-height: $default-line-height;
+}
+
+
+// ---------------------------------------------------------------------------------------------------------------------
+// MIXINS WITH FUNCTIONALITY
+// ---------------------------------------------------------------------------------------------------------------------
+
+@mixin media($device) {
+    @if $device != '' {
+        @media #{map-get($media-queries, $device)} {
+            @content;
+        }
+    }
+}
+
+@mixin placeholder-style {
+    // sass-lint:disable no-vendor-prefixes
+    &::-webkit-input-placeholder {
+        opacity: 1;
+        @content;
+    }
+
+    &:-moz-placeholder {
+        opacity: 1;
+        @content;
+    }
+
+    &::-moz-placeholder {
+        opacity: 1;
+        @content;
+    }
+
+    &:-ms-input-placeholder {
+        opacity: 1;
+        @content;
+    }
+    // sass-lint:enable no-vendor-prefixes
+}

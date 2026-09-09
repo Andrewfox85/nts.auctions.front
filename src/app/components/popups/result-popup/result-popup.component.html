@@ -1,0 +1,123 @@
+<dx-popup
+  contentTemplate="resultPopup"
+  [hideOnOutsideClick]="false"
+  [visible]="resultPopup"
+  [showTitle]="true"
+  [title]="
+    resultPopupType == 'reject'
+      ? ('trading.offersTable.rejectionOfferTitle' | translate)
+      : resultPopupType == 'activate'
+      ? ('trading.offersTable.activateOfferTitle' | translate)
+      : ('trading.dealsTab.refusePopupTitle' | translate)
+  "
+  [width]="resultPopupType == 'reject' ? 560 : 450"
+  height="auto"
+  [showCloseButton]="true"
+  (onHiding)="closePopup()"
+> <!-- todo fix title -->
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+  <div *dxTemplate="let data of 'resultPopup'">
+    @if(resultPopupType !== 'refuse'){
+    <div>
+      @if(choosenOffers?.length === 1){
+      <div>
+        @if(resultData?.isSuccessful || resultData?.[0]?.isSuccess){
+        <div class="resultMessage successGreen borderGreen h-auto">
+          <span class="message">
+            <i class="checkIcon"></i>
+            <span>{{
+              resultPopupType === "reject"
+                ? ("trading.offersTable.rejectionOfferMess" | translate)
+                : ("trading.offersTable.activateOfferMess" | translate)
+            }}</span>
+          </span>
+        </div>
+        } @else {
+        <div class="resultMessage errorMessage borderRed h-auto">
+          <span class="message">
+            <i class="errorIcon"></i>
+            <span>{{
+              resultPopupType === "reject"
+                ? resultData?.listFailures?.[0]?.reason
+                : resultData?.[0]?.errorMessage
+            }}</span>
+          </span>
+        </div>
+        }
+      </div>
+      } @if(choosenOffers?.length > 1){
+      <div class="flexContentColumn24">
+        <!-- все успешно -->
+        @if(resultData?.failureCount == 0 && resultData?.rejectedCount > 0){
+        <div class="resultMessage successGreen borderGreen h-auto">
+          <span class="message">
+            <i class="checkIcon"></i>
+            <span
+              >{{
+                resultPopupType === "reject"
+                  ? ("trading.offersTable.rejectOffersRes" | translate)
+                  : ("trading.offersTable.activateOffersRes" | translate)
+              }}
+              {{ "errors.successWarning" | translate }} -
+              {{ resultData?.rejectedCount }},
+              {{ "errors.noSuccessError" | translate }} - 0</span
+            >
+          </span>
+        </div>
+        }
+
+        <!-- часть успешно, часть нет -->
+        @if(resultData?.failureCount > 0 && resultData?.rejectedCount > 0){
+        <div class="resultMessage notificationOrange borderOrange">
+          <span class="message">
+            <i class="unavailableIcon"></i>
+            <span
+              >{{
+                resultPopupType === "reject"
+                  ? ("trading.offersTable.rejectOffersRes" | translate)
+                  : ("trading.offersTable.activateOffersRes" | translate)
+              }}
+              {{ "errors.successWarning" | translate }} -
+              {{ resultData?.rejectedCount }},
+              {{ "errors.noSuccessError" | translate }} -
+              {{ resultData?.failureCount }}</span
+            >
+          </span>
+        </div>
+        }
+
+        <!-- все неуспешно -->
+        @if(resultData?.failureCount > 0 && resultData?.rejectedCount == 0){
+        <div class="resultMessage errorMessage borderRed">
+          <span class="message">
+            <i class="errorIcon"></i>
+            <span
+              >{{
+                resultPopupType === "reject"
+                  ? ("trading.offersTable.rejectOffersRes" | translate)
+                  : ("trading.offersTable.activateOffersRes" | translate)
+              }}
+              {{ "errors.successWarning" | translate }} - 0,
+              {{ "errors.noSuccessError" | translate }} -
+              {{ resultData?.failureCount }}</span
+            >
+          </span>
+        </div>
+        } @if(resultData?.failureCount > 0){
+        <div class="buttons flexContent24 buttonsClass">
+          <button class="btn btn-primary submit w-50" (click)="onViewDetail()">
+            {{ "btns.viewInDdetail" | translate }}
+          </button>
+          <button class="btn btn-outline-primary w-50" (click)="closePopup()">
+            {{ "btns.close" | translate }}
+          </button>
+        </div>
+        }
+      </div>
+      }
+    </div>
+    }
+  </div>
+</dx-popup>

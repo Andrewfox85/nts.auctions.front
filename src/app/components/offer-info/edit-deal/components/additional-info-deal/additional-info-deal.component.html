@@ -1,0 +1,55 @@
+<div class="addInfo border p-2">
+  <div class="flexContent4 jc-sb" (click)="changeAddInfo()">
+    <span class="font-s16">{{ "viewOffer.additionalInfo" | translate }}</span>
+    <div class="filtersArrow" [class.tr-rt180]="!addInfo()"></div>
+  </div>
+
+  <div [hidden]="addInfo()">
+    <div class="flexContentColumn8 mt-3">
+      @if (generalInfo()?.transactionCond?.transactionDetails) {
+        <div class="flexContent4 flex-start">
+          <div class="label">
+            {{ "viewOffer.additionalCond" | translate }}
+          </div>
+          <div class="text">
+            {{ generalInfo()?.transactionCond?.transactionDetails }}
+          </div>
+        </div>
+      } 
+      @if (documents()?.length > 0 && checkNoPrivateDocuments()) {
+        <div class="flexContent4 flex-start">
+          <div class="label">{{ "viewOffer.commonFiles" | translate }}</div>
+          <div class="info flexContentColumn8">
+            @for(file of documents(); track file.filename) {
+              @if(!file.isPrivate) {
+              <div class="flexContent4 center">
+                <i class="fileIcon"></i>
+                <a class="file" (click)="download(file)">{{
+                  file.filename
+                }}</a>
+              </div>
+              }
+            }
+          </div>
+        </div>
+      } 
+      @if (documents()?.length > 0 && checkIsPrivateDocuments()) {
+        <div class="flexContent4 flex-start">
+          <div class="label">{{ "viewOffer.hiddenFiles" | translate }}</div>
+          <div class="info flexContentColumn8">
+            @for(file of documents(); track file.filename) {
+              @if(file.isPrivate) {
+              <div class="flexContent4 center">
+                <i class="fileIcon"></i>
+                <a class="file" (click)="download(file)">{{
+                  file.filename
+                }}</a>
+              </div>
+              }
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

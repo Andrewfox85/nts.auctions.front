@@ -1,0 +1,107 @@
+<div class="sellerInformation border p-2">
+  <div class="flexContent4 jc-sb" (click)="buyerInformationHidden = !buyerInformationHidden">
+    <span class="font-s16">{{directionId === IdDirection.sale ? ("trading.dealsTab.buyer" | translate) :
+      ("trading.dealsTab.seller" | translate) }}</span>
+    <div class="filtersArrow" [class.tr-rt180]="!buyerInformationHidden"></div>
+  </div>
+
+  <div [hidden]="buyerInformationHidden">
+    <div class="flexContentColumn4 mt-3">
+      @if(selectedRow.buyerConcatedFirmName || selectedRow.sellerConcatedFirmName){
+        <div class="flexContent8 flex-start">
+          <div class="label">
+            {{ "trading.tradersTable.participant" | translate }}
+          </div>
+          <div class="info">
+            {{ directionId === IdDirection.sale ? selectedRow.buyerConcatedFirmName : selectedRow.sellerConcatedFirmName}}
+          </div>
+        </div>
+      }
+     
+
+      @if (selectedRow.buyerIdClientContractType != null) {
+      <div class="flexContent8 flex-start">
+        <div class="label">
+          {{ "general.contractType" | translate }}
+        </div>
+        <div class="info">
+          {{
+          selectedRow.buyerIdClientContractType == 20
+          ? ("general.commissionAgreement" | translate)
+          : selectedRow.buyerIdClientContractType == 21
+          ? ("general.agencyAgreement" | translate)
+          : ""
+          }}
+        </div>
+      </div>
+      }
+      @if (selectedRow.sellerIdClientContractType != null) {
+      <div class="flexContent8 flex-start">
+        <div class="label">
+          {{ "general.contractType" | translate }}
+        </div>
+        <div class="info">
+          {{
+          selectedRow.sellerIdClientContractType == 20
+          ? ("general.commissionAgreement" | translate)
+          : selectedRow.sellerIdClientContractType == 21
+          ? ("general.agencyAgreement" | translate)
+          : ""
+          }}
+        </div>
+      </div>
+      }
+      @if (selectedRow.buyerConcatedClientName) {
+      <div class="flexContent8 flex-start">
+        <div class="label">
+          {{ "filters.brokerClient" | translate }}
+        </div>
+        <div class="info">
+          {{ selectedRow.buyerConcatedClientName }}
+        </div>
+      </div>
+      }
+      @if (selectedRow.sellerConcatedClientName) {
+      <div class="flexContent8 flex-start">
+        <div class="label">
+          {{ "filters.brokerClient" | translate }}
+        </div>
+        <div class="info">
+          {{ selectedRow.sellerConcatedClientName }}
+        </div>
+      </div>
+      }@if (selectedRow.buyerBranchName) {
+      <div class="flexContent8 flex-start">
+        <div class="label">
+          {{ "general.structuralSubdivision" | translate }}
+        </div>
+        <div class="info">{{ selectedRow.buyerBranchName }}</div>
+      </div>
+      }
+      @if (selectedRow.sellerBranchName) {
+      <div class="flexContent8 flex-start">
+        <div class="label">
+          {{ "general.structuralSubdivision" | translate }}
+        </div>
+        <div class="info">{{ selectedRow.sellerBranchName }}</div>
+      </div>
+      }
+      @if (selectedRow.buyerTraderName) {
+      <div class="flexContent8 flex-start">
+        <div class="label">
+          {{ "viewOffer.traderName" | translate }}
+        </div>
+        <div class="info">{{ selectedRow.buyerTraderName }}</div>
+      </div>
+      }
+      @if (selectedRow.sellerTraderName) {
+      <div class="flexContent8 flex-start">
+        <div class="label">
+          {{ "viewOffer.traderName" | translate }}
+        </div>
+        <div class="info">{{ selectedRow.sellerTraderName }}</div>
+      </div>
+      }
+    </div>
+  </div>
+</div>

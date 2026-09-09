@@ -1,0 +1,1049 @@
+<dx-scroll-view [useNative]="true" height="calc(100vh - 125px)">
+  <form [formGroup]="infoForm" class="flexContentColumn16">
+    <dx-validation-group class="form flexContentColumn16">
+      <!--  Покупатель / Продавец (на понижение)-->
+      <!--если роль только посетителя без структурных подразделений, то не отображаем данный блок-->
+      @if (!(this.brokerClientFull?.length === 0 && this.listBranch?.length ===
+      0 && !this.isBranchRequired)) {
+      <div class="border flexContentColumn8 px-2 py-12px w-100">
+        <div class="flexContent24">
+          <div class="font-w500">
+            {{
+              !isSimpleBuyerAuction
+                ? ("general.buyer" | translate)
+                : ("trading.dealsTab.seller" | translate)
+            }}
+          </div>
+          @if (isTookParticipate) {
+          <div
+            class="editPenGreen pointer"
+            (click)="isTookParticipate = false"
+          ></div>
+          }
+        </div>
+
+        @if (isTookParticipate) {
+        <div class="flexContentColumn8">
+          <div class="px-3 py-2 greyBackground">
+            {{ getFormattedRoles() }}
+          </div>
+        </div>
+        } @if (!isTookParticipate) {
+        <div class="flexContentColumn8">
+          <div class="form-group fullString">
+            <div class="flexContent16">
+              <div>
+                <span
+                  class="flexContent8"
+                  [class.disabled]="this.brokerClientFull?.length === 0"
+                  ><input
+                    type="radio"
+                    name="participant"
+                    id="broker"
+                    formControlName="participant"
+                    [value]="role.broker"
+                    (click)="changeRole(role.broker)"
+                  />
+                  <label for="broker" class="pb-0 blackColor font-s14">{{
+                    "general.brokerRole" | translate
+                  }}</label></span
+                >
+              </div>
+              <div>
+                <span
+                  class="flexContent8"
+                  [ngClass]="{
+                    disabled:
+                      this.isBranchRequired && this.listBranch?.length === 0
+                  }"
+                  ><input
+                    type="radio"
+                    name="participant"
+                    id="visitor"
+                    formControlName="participant"
+                    [value]="role.visitor"
+                    (click)="changeRole(role.visitor)"
+                  />
+                  <label for="visitor" class="pb-0 blackColor font-s14">{{
+                    "general.visitorRole" | translate
+                  }}</label></span
+                >
+              </div>
+            </div>
+          </div>
+
+          @if (infoForm.get('participant').value === role.broker) {
+          <ng-container>
+            <div class="flexContent16 w-100">
+              <div
+                class="form-group"
+                [ngStyle]="{ width: isAgencyContract() ? '33%' : '50%' }"
+              >
+                <label>{{ "general.contractType" | translate }}</label>
+                <div>
+                  <dx-select-box
+                    [dataSource]="contractType"
+                    valueExpr="refBookKey"
+                    displayExpr="refBookValue"
+                    height="40px"
+                    placeholder="{{ 'filters.selection' | translate }}"
+                    formControlName="contractType"
+                    [showClearButton]="false"
+                    [elementAttr]="{ id: 'elementId', class: 'class-name' }"
+                    (onValueChanged)="changeContractType($event)"
+                  >
+                    <dx-validator>
+                      <dxi-validation-rule
+                        type="required"
+                      ></dxi-validation-rule>
+                    </dx-validator>
+                  </dx-select-box>
+                </div>
+              </div>
+
+              <div
+                class="form-group"
+                [ngStyle]="{ width: isAgencyContract() ? '33%' : '50%' }"
+              >
+                <label>{{ "general.client" | translate }}</label>
+                @if (infoForm.get('contractType').value ==
+                AgreementType.Agency.toString()) {
+                <div>
+                  <dx-select-box
+                    [dataSource]="brokerClient"
+                    valueExpr="idClient"
+                    displayExpr="nameShort"
+                    height="40px"
+                    placeholder="{{ 'filters.selection' | translate }}"
+                    formControlName="brokerClient"
+                    [searchEnabled]="true"
+                    [showClearButton]="false"
+                    [searchExpr]="['nameShort', 'regNumber']"
+                    [minSearchLength]="3"
+                    [showDataBeforeSearch]="true"
+                    (onValueChanged)="
+                      this.infoForm.get('listClientBranch').reset();
+                      onChooseBroker()
+                    "
+                  >
+                    <dx-validator>
+                      <dxi-validation-rule
+                        type="required"
+                      ></dxi-validation-rule>
+                    </dx-validator>
+                  </dx-select-box>
+                </div>
+                } @if (infoForm.get('contractType').value ==
+                AgreementType.Commission.toString()) {
+                <dx-tag-box
+                  [dataSource]="brokerClient"
+                  valueExpr="idClient"
+                  displayExpr="regNumShortName"
+                  height="40px"
+                  placeholder="{{ 'filters.selection' | translate }}"
+                  formControlName="brokerClient"
+                  [searchEnabled]="true"
+                  [searchExpr]="['nameShort', 'regNumber']"
+                  [minSearchLength]="3"
+                  (onValueChanged)="
+                    infoForm.get('brokerClient').value.length > 1
+                      ? null
+                      : onContextCheckBidderState()
+                  "
+                  [showDataBeforeSearch]="true"
+                  [showSelectionControls]="true"
+                  [showDropDownButton]="true"
+                  [maxDisplayedTags]="0"
+                >
+                  <dx-validator>
+                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                  </dx-validator>
+                </dx-tag-box>
+                }
+              </div>
+
+              @if (isAgencyContract()) {
+              <div class="form-group w-33">
+                <label>{{ "general.structuralSubdivision" | translate }}</label>
+                <div>
+                  <dx-select-box
+                    [dataSource]="listClientBranch"
+                    valueExpr="idFirmBranch"
+                    displayExpr="nameShort"
+                    height="40px"
+                    placeholder="{{ 'filters.selection' | translate }}"
+                    formControlName="listClientBranch"
+                    [searchEnabled]="true"
+                    [minSearchLength]="3"
+                    [showDataBeforeSearch]="true"
+                    [showClearButton]="!isClientBranchRequired"
+                    (onValueChanged)="
+                      this.infoForm.get('listClientBranch').value != null
+                        ? this.onContextCheckBidderState()
+                        : null
+                    "
+                    [disabled]="
+                      !!!infoForm.get('brokerClient')?.value ||
+                      this.listClientBranch.length === 0
+                    "
+                  >
+                    @if (isClientBranchRequired) {
+                    <dx-validator>
+                      <dxi-validation-rule
+                        type="required"
+                      ></dxi-validation-rule>
+                    </dx-validator>
+                    }
+                  </dx-select-box>
+                </div>
+              </div>
+              }
+            </div>
+          </ng-container>
+          } @if (infoForm.get('participant').value === role.visitor) {
+          <ng-container class="changePosition">
+            @if (listBranch.length > 0) {
+            <div class="form-group w-50">
+              <label>{{ "general.structuralSubdivision" | translate }}</label>
+              <dx-select-box
+                [dataSource]="listBranch"
+                valueExpr="idFirmBranch"
+                displayExpr="nameShort"
+                height="40px"
+                placeholder="{{ 'filters.selection' | translate }}"
+                formControlName="listBranch"
+                [searchEnabled]="true"
+                [minSearchLength]="3"
+                [showDataBeforeSearch]="true"
+                [showClearButton]="true"
+                (onValueChanged)="onContextCheckBidderState()"
+              >
+                <dx-validator>
+                  @if (isBranchRequired) {
+                  <dxi-validation-rule type="required"></dxi-validation-rule>
+                  }
+                </dx-validator>
+              </dx-select-box>
+            </div>
+            }
+          </ng-container>
+          }
+        </div>
+        }
+      </div>
+      } @if (!isSimpleBuyerAuction) {
+      <ng-container *ngTemplateOutlet="conditions"></ng-container>
+      <ng-container *ngTemplateOutlet="goodsTable"></ng-container>
+      } @else {
+      <ng-container *ngTemplateOutlet="goodsTable"></ng-container>
+      <ng-container *ngTemplateOutlet="conditions"></ng-container>
+      }
+
+      <ng-template #conditions>
+        <!-- Условия продажи/покупки-->
+        <div class="border flexContentColumn8 px-2 py-12px w-100 p-3">
+          <div class="flexContent4 jc-sb" (click)="buySaleCond = !buySaleCond">
+            <div class="font-s14 d-flex">
+              <span>{{ "viewOffer.buySaleCond" | translate }}</span>
+              @if (fullInfo.goods?.length > 1) {
+              <i class="compositeLotLittle ml-2" id="compositeLot"></i>
+              }
+              <dx-tooltip
+                target="#compositeLot"
+                [showEvent]="{ name: 'mouseover', delay: 500 }"
+                hideEvent="mouseleave"
+              >
+                <div *dxTemplate="let data = data; of: 'content'">
+                  {{ "viewOffer.compositeLot" | translate }}
+                </div>
+              </dx-tooltip>
+            </div>
+            <div
+              class="filtersArrow"
+              [ngClass]="{ 'tr-rt180': !buySaleCond }"
+            ></div>
+          </div>
+
+          <div [hidden]="buySaleCond">
+            <div class="flexContentColumn8">
+              @if (this.fullInfo.deliveryConditions?.length > 0) {
+              <div class="flexContent4 flex-start">
+                <div class="label d-flex">
+                  <span>{{
+                    "trading.offersTable.termsDeliveryTime" | translate
+                  }}</span>
+                  @if (this.deliveryBasis?.length > 1) {
+                  <i
+                    class="multibasisLotLittle ml-2"
+                    id="multibasisLotLittle"
+                  ></i>
+                  }
+                  <dx-tooltip
+                    target="#multibasisLotLittle"
+                    [showEvent]="{ name: 'mouseover', delay: 500 }"
+                    hideEvent="mouseleave"
+                  >
+                    <div *dxTemplate="let data = data; of: 'content'">
+                      {{ "filters.multibasisLot" | translate }}
+                    </div>
+                  </dx-tooltip>
+                </div>
+                <!--  Базис поставки-->
+                <div class="info">
+                  <dx-select-box
+                    [dataSource]="
+                      !this.changedMainBasis ||
+                      this.changedMainBasis?.length === 0
+                        ? deliveryBasis
+                        : this.changedMainBasis
+                    "
+                    valueExpr="idCondition"
+                    displayExpr="concatedCondition"
+                    height="32px"
+                    placeholder="{{ 'filters.selection' | translate }}"
+                    formControlName="deliveryBasis"
+                    [searchEnabled]="true"
+                    [minSearchLength]="3"
+                    [showDataBeforeSearch]="true"
+                    [showClearButton]="false"
+                    (onValueChanged)="onChangedBasis($event)"
+                  >
+                    <dx-validator>
+                      <dxi-validation-rule
+                        type="required"
+                      ></dxi-validation-rule>
+                    </dx-validator>
+                  </dx-select-box>
+                  @if (deliveryBasis.length != 1 && !this.changedMainBasis) {
+                  <div class="notificationBlue p-2 mt-2">
+                    <div class="flexContent4">
+                      <span class="blueIcon size16"></span>
+                      <span class="font-s12 secondTextColor">{{
+                        "general.infoChangeBasis" | translate
+                      }}</span>
+                    </div>
+                  </div>
+                  }
+                </div>
+              </div>
+              }
+
+              <div class="flexContent4 flex-start">
+                <div class="label">
+                  {{ "trading.offersTable.deliveryTime" | translate }}
+                </div>
+                <div class="info">
+                  {{
+                    fullInfo.generalInfo?.concatedDeliveryPeriod
+                      | upperCaseFirstLetter
+                  }}
+                </div>
+              </div>
+
+              <div class="flexContent4 flex-start">
+                <div class="label">
+                  {{ "trading.offersTable.termsPayment" | translate }}
+                </div>
+                <div class="info">
+                  {{ fullInfo.generalInfo?.concatedPaymentConditions }}
+                </div>
+              </div>
+
+              @if (!isSimpleBuyerAuction) {
+              <ng-container *ngTemplateOutlet="costForBid"></ng-container>
+              }
+            </div>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template #costForBid>
+        <!--  Стоимость (с учетом НДС) Сделать ставку (на повышение)-->
+        @if (this.infoForm.get('participant').value) {
+        <div
+          class="flex-start"
+          [ngClass]="{
+            flexContent4: !isSimpleBuyerAuction,
+            flexContentColumn4: isSimpleBuyerAuction
+          }"
+        >
+          <div class="label">
+            {{ "trading.offersTable.costVATShort" | translate }}
+          </div>
+          <div class="info">
+            <div class="flexContent24 jc-normal flex-end">
+              <div class="flexContent4">
+                <button
+                  class="btn secondary-btn min-w40px"
+                  [class.disabled]="disabledMakeBid"
+                  [disabled]="isDisabledMinus"
+                  (click)="
+                    this.stepCount = this.stepCount - 1; priceWithoutVAT()
+                  "
+                >
+                  <i class="blackMinus"></i>
+                </button>
+                <dx-text-box
+                  width="auto"
+                  height="40"
+                  [(value)]="bidCost"
+                  [readOnly]="true"
+                  valueChangeEvent="keyup"
+                >
+                </dx-text-box>
+                <button
+                  class="btn secondary-btn min-w40px"
+                  [class.disabled]="disabledMakeBid"
+                  [disabled]="isDisabledPlus"
+                  (click)="
+                    this.stepCount = this.stepCount + 1; priceWithoutVAT()
+                  "
+                >
+                  <i class="blackPlus"></i>
+                </button>
+              </div>
+              <dx-button
+                class="btn btn-primary submit"
+                [class.disabled]="disabledMakeBid || (isSimpleBuyerAuction && isAllowAnalog() && !idGood)"
+                (onClick)="makeBid($event)"
+              >
+                {{
+                  isSimpleBuyerAuction
+                    ? ("btns.applyFor" | translate)
+                    : ("btns.buyLot" | translate)
+                }}{{ this.fullInfo.generalInfo.lotNumber }}
+              </dx-button>
+            </div>
+          </div>
+        </div>
+        }
+      </ng-template>
+
+      <!--  Государственные закупки -->
+      <div
+        class="border flexContent16 px-2 py-12px w-100"
+        *ngIf="
+          this.financesources?.length > 0 || this.purchasePurpose?.length > 0
+        "
+      >
+        <div class="form-group w-50" *ngIf="this.financesources?.length > 0">
+          <label>{{ "general.sourceFunding" | translate }}</label>
+          <dx-select-box
+            [dataSource]="financesources"
+            valueExpr="id"
+            displayExpr="name"
+            height="40px"
+            placeholder="{{ 'filters.selection' | translate }}"
+            formControlName="financesources"
+            [searchEnabled]="true"
+            [minSearchLength]="3"
+            [showDataBeforeSearch]="true"
+            [showClearButton]="false"
+          >
+            <dx-validator>
+              <dxi-validation-rule type="required"></dxi-validation-rule>
+            </dx-validator>
+          </dx-select-box>
+        </div>
+
+        <div class="form-group w-50" *ngIf="this.purchasePurpose?.length > 0">
+          <label>{{ "general.purchasePurpose" | translate }}</label>
+          <dx-select-box
+            [dataSource]="purchasePurpose"
+            valueExpr="id"
+            displayExpr="name"
+            height="40px"
+            placeholder="{{ 'filters.selection' | translate }}"
+            formControlName="purchasePurpose"
+            [searchEnabled]="true"
+            [minSearchLength]="3"
+            [showDataBeforeSearch]="true"
+            [showClearButton]="false"
+          >
+            <dx-validator>
+              <dxi-validation-rule type="required"></dxi-validation-rule>
+            </dx-validator>
+          </dx-select-box>
+        </div>
+      </div>
+
+      @if (isSimpleBuyerAuction) {
+      <div class="border px-2 py-12px flexContentColumn16">
+        <app-additional-purchase-fields
+          [vatDataSource]="vatDataSource"
+          [vatValue]="infoForm.get('vatValue').value"
+          [amountVAT]="totalForm.get('amountVAT').value"
+          (changedSelect)="
+            onChangedAdditionalParam($event.id, $event.nameVariable)
+          "
+        >
+        </app-additional-purchase-fields>
+
+        <ng-container *ngTemplateOutlet="costForBid"></ng-container>
+      </div>
+      }
+
+      <!-- Таблица с товарами --> <!-- todo изменить условие на уведомление и текст кнопки -->
+      <ng-template #goodsTable>
+        @if (isSimpleBuyerAuction && isAllowAnalog()) {
+          <div class="notificationBlue h-auto p-2 jc-sb center">
+            <span class="message flexContent8">
+              <i class="blueIcon"></i>
+              <span class="mainTextColor font-s14 l-h16">{{ "trading.auctionsTab.chooseAnalogForBid" | translate }}</span>
+            </span>
+  
+            <div class="flexContent16">
+              <button class="btn btn-primary submit w-220px" (click)="openChoosingAnalog()">{{ idGood ? ("trading.auctionsTab.changeAnalog" | translate) : ("trading.auctionsTab.chooseAnalog" | translate) }}</button>
+            </div>
+          </div>
+        } 
+
+        @if (currencyPrecision) {
+        <div class="goods w-100">
+          @if (fullInfo.goods.length > 5) {
+          <div
+            class="expandTableBtn d-flex jc-end mb-1"
+            (click)="expandTable = !expandTable"
+          >
+            {{
+              expandTable
+                ? ("viewOffer.collapseTable" | translate)
+                : ("viewOffer.expandTable" | translate)
+            }}
+          </div>
+          } @if (fullInfo.goods.length > 0) {
+          <table class="w-100">
+            <tr>
+              <th class="text-align-left w-230px">
+                {{ "trading.offersTable.nameProduct" | translate }}
+              </th>
+              <th>{{ "trading.offersTable.volume" | translate }}</th>
+              @if (fullInfo.generalInfo?.pricingTypeId ==
+              pricingType?.formulaWithQuotation) {
+              <th>
+                {{ "trading.offersTable.quotation" | translate }}
+              </th>
+              } @if (fullInfo.generalInfo?.pricingTypeId != pricingType?.price)
+              {
+              <th>
+                {{ "trading.offersTable.amendment" | translate }}
+              </th>
+              }
+              <!--          текущая цена-->
+              @if (fullInfo.generalInfo?.pricingTypeId == pricingType?.price) {
+              <th>
+                {{ "trading.offersTable.currentPrice" | translate }}
+              </th>
+              }
+              <!--          Шаг цены / Шаг поправки-->
+              <th>
+                {{
+                  fullInfo.generalInfo?.pricingTypeId == pricingType?.price
+                    ? ("trading.priceStep" | translate)
+                    : ("trading.amendmentStep" | translate)
+                }}
+              </th>
+              @if (fullInfo.generalInfo?.pricingTypeId !=
+              pricingType?.formulaWithoutQuotation) {
+              <th>
+                {{ "viewOffer.newPriceWithoutVAT" | translate }}
+              </th>
+              } @if (fullInfo.generalInfo?.pricingTypeId !=
+              pricingType?.formulaWithoutQuotation) {
+              <th>
+                {{ "viewOffer.costVAT" | translate }}
+              </th>
+              }
+              <th class="w-40px"></th>
+            </tr>
+            <tbody>
+              <ng-container
+                *ngFor="
+                  let good of expandTable
+                    ? fullInfo.goods
+                    : fullInfo.goods.slice(0, 5);
+                  let i = index;
+                  last as last;
+                  first as first
+                "
+              >
+                <tr [ngClass]="{ viewRow: good.isOpened == true }">
+                  <td class="text-align-left">
+                    <div class="flexContentColumn4">
+                      <span class="twostrings">{{ good.goodName }}</span>
+
+                      <!-- Место назначения Совместно с БА было решено что поле отображается в товаре, если оно было ранее для этого товара.
+                        Если в выпадающем списке одно значение - оно все равно не предустанавливается, так как пользователь должен сделать осознанный выбор.-->
+                      @if (!isSimpleBuyerAuction &&
+                      getAllValues(good.goodsSpecifications,
+                        IdInterfaceField.destination)) {
+                        <div class="destination">
+                      <span class="greyColor">{{
+                          getAllValues(
+                            good.goodsSpecifications,
+                            IdInterfaceField.destination
+                          ).fieldName
+                        }}</span>
+                          <dx-select-box
+                            [dataSource]="
+                          getAllValues(
+                            good.goodsSpecifications,
+                            IdInterfaceField.destination
+                          ).dataSource
+                        "
+                            valueExpr="fieldValueNumber"
+                            displayExpr="fieldValue"
+                            height="24px"
+                            placeholder="{{ 'filters.selection' | translate }}"
+                            formControlName="{{
+                          good.goodsSpecifications[0].idDemandOfferGood
+                        }}"
+                            [searchEnabled]="false"
+                            [showClearButton]="false"
+                          >
+                            <dx-validator>
+                              <dxi-validation-rule
+                                type="required"
+                              ></dxi-validation-rule>
+                            </dx-validator>
+                          </dx-select-box>
+                        </div>
+                      }
+
+                      <!--Местонахождение товара-->
+                      @if (isSimpleBuyerAuction &&
+                      sessionIds.session.isAllowedLocationGood) {
+                        <div class="destination">
+                      <span class="greyColor">{{
+                          "trading.offersTable.productLocation" | translate
+                        }}</span>
+                          <dx-select-box
+                            [dataSource]="locationGoodDataSource"
+                            valueExpr="id"
+                            displayExpr="name"
+                            height="24px"
+                            placeholder="{{ 'filters.selection' | translate }}"
+                            formControlName="{{
+                          good.goodsSpecifications[0].idDemandOfferGood
+                        }}"
+                            [searchEnabled]="false"
+                            [class.disabled]="
+                          !first &&
+                          !infoForm.get(
+                            fullInfo.goods[0].goodsSpecifications[0].idDemandOfferGood.toString()
+                          )?.value
+                        "
+                            (onValueChanged)="
+                          first ? onChangedProductLocation($event) : null
+                        "
+                            [showClearButton]="false"
+                          >
+                            <dx-validator>
+                              <dxi-validation-rule
+                                type="required"
+                              ></dxi-validation-rule>
+                            </dx-validator>
+                          </dx-select-box>
+                        </div>
+                      }
+                    </div>
+                  </td>
+                  <td class="date-roboto-mono">
+                    {{
+                      getValue(good.goodsSpecifications, 1)
+                        | toNumber
+                        | ruNumberFormat
+                          : null
+                          : good.goodsSpecifications[0].fieldPrecision
+                    }}
+                    {{ good.unitName }}
+                  </td>
+                  <!-- Котировка -->
+                  <td
+                    *ngIf="
+                      fullInfo.generalInfo?.pricingTypeId ==
+                      pricingType?.formulaWithQuotation
+                    "
+                    class="date-roboto-mono"
+                  >
+                    {{
+                      getValue(good.goodsSpecifications, 56)
+                        | toNumber
+                        | ruNumberFormat : currencyPrecision : currencyPrecision
+                    }}
+                    {{ good.quoteCurrency }}
+                  </td>
+                  <!-- Поправка -->
+                  <td
+                    *ngIf="
+                      fullInfo.generalInfo?.pricingTypeId != pricingType?.price
+                    "
+                    class="date-roboto-mono"
+                  >
+                    {{
+                      getPriceFromBasisForGood(
+                        good.goodsSpecifications[0].idDemandOfferGood,
+                        "priceWithoutVat"
+                      )
+                        | toNumber
+                        | ruNumberFormat
+                          : (good.priceAdjustment == 2
+                              ? this.currencyPrecision
+                              : 0)
+                    }}
+                    {{ good.priceAdjustment == 1 ? "%" : good.currency }}
+                  </td>
+                  <!--            <td *ngIf="fullInfo.generalInfo?.pricingTypeId != pricingType?.price" class="date-roboto-mono">{{(getValue(good.goodsSpecifications, 54) | toNumber) | ruNumberFormat: (good.priceAdjustment == 2 ? this.currencyPrecision : 0) }} {{ good.priceAdjustment == 1 ? '%' : good.currency}}</td>-->
+                  <!--            <td *ngIf="fullInfo.generalInfo?.pricingTypeId != pricingType?.price" class="date-roboto-mono">{{(getAmendment(good) | toNumber) | ruNumberFormat: this.currencyPrecision }} {{good.currency}}</td>-->
+                  <!--            <td *ngIf="fullInfo.generalInfo?.pricingTypeId != pricingType?.formulaWithoutQuotation"class="date-roboto-mono">{{(getValue(good.goodsSpecifications, 3) | toNumber) | ruNumberFormat: currencyPrecision : currencyPrecision }} {{good.currency}}</td>-->
+                  <!--          текущая цена-->
+                  <td
+                    *ngIf="
+                      fullInfo.generalInfo?.pricingTypeId == pricingType?.price
+                    "
+                    class="date-roboto-mono"
+                  >
+                    {{
+                      getPriceFromBasisForGood(
+                        good.goodsSpecifications[0].idDemandOfferGood,
+                        "priceWithoutVat"
+                      )
+                        | toNumber
+                        | ruNumberFormat : currencyPrecision : currencyPrecision
+                    }}
+                    {{ good.currency }}
+                  </td>
+                  <!--          Шаг цены/ шаг поправки-->
+                  <td>
+                    {{
+                      fullInfo.generalInfo?.pricingTypeId == pricingType?.price
+                        ? (getStepPrice(good)
+                          | ruNumberFormat
+                            : currencyPrecision
+                            : currencyPrecision)
+                        : (getAmendmentStep(good)
+                          | ruNumberFormat
+                            : currencyPrecision
+                            : currencyPrecision)
+                    }}
+                    {{ good.currency }}
+                  </td>
+                  <!--            Новая цена (без НДС)--><!--getAmendmentStep(good)-->
+                  <td>
+                    {{
+                      getNumberCost(good.goodsSpecifications, "priceWithoutVat")
+                        | ruNumberFormat : currencyPrecision : currencyPrecision
+                    }}
+                    {{ good.currency }}
+                  </td>
+                  <td
+                    *ngIf="
+                      fullInfo.generalInfo?.pricingTypeId !=
+                      pricingType?.formulaWithoutQuotation
+                    "
+                    class="date-roboto-mono"
+                  >
+                    {{
+                      getNumberCost(good.goodsSpecifications, "costVAT")
+                        ? (getNumberCost(good.goodsSpecifications, "costVAT")
+                          | ruNumberFormat
+                            : currencyPrecision
+                            : currencyPrecision)
+                        : null
+                    }}
+                    {{ good.currency }}
+                  </td>
+
+                  <td class="w-40px">
+                    <div class="flexContent10" (click)="good.isOpened = true">
+                      <i
+                        class="viewGood"
+                        [ngStyle]="{
+                          'pointer-events': goodInfo ? 'none' : 'all'
+                        }"
+                      ></i>
+                    </div>
+                  </td>
+                </tr>
+
+                @if(good.isOpened === true && !isAllowAnalog()){
+                <ng-container>
+                  <tr>
+                    <td colspan="9" class="p-0 text-align-left">
+                      <div class="viewGoodInfo flexContentColumn12 p-2">
+                        <div class="name">
+                          <label class="blackColor">{{ good.goodName }}</label>
+                          <i class="close" (click)="good.isOpened = false"></i>
+                        </div>
+
+                        <!--                        характеристики товара из каталога-->
+                        @if (good.idGood !== null) {
+                          <div class="description">
+                            @for (prop of good.properties; track prop.propertyName) {
+                              <span>
+                                <span class="propName"> {{ prop.propertyName }}</span>
+                                <span> {{ prop.propertyValue }}.</span>
+                              </span>
+                            }
+                          </div>
+                        } @else {
+                           <!--           характеристики товара НСИ           -->
+                          <div class="description">
+                            @for (prop of good.goodValues | goodAnalogDescription; track prop.label; let last = $last) {
+                              <span class="prop-item">
+                                <span class="propName">{{ prop.label }}: </span>
+                                <span>{{ prop.value }}</span>
+                                @if (!last) { 
+                                  <span>; </span> 
+                                }
+                              </span>
+                            }
+                          </div>
+                        }
+
+                        <div class="flexContentColumn4">
+                          <!-- для леса отделить в отдельный подраздел фактические значения (длина/ширина и тп) -->
+                          @for (field of good.goodsSpecifications | sortActualDimensions; track field.idInterfaceField) {
+                            <div
+                              class="flexContent8 flex-start"
+                              [style.display]="ACTUAL_SIZE_READINESS_FIELDS.includes(
+                                field.idInterfaceField
+                              )
+                                ? 'flex'
+                                : 'none'
+                            "
+                            >
+                              <div class="fieldName font-s14">
+                                {{ field.fieldName }}
+                              </div>
+                              <div class="font-s14">
+                                {{
+                                  field.controlFieldType == "dxSelectBox"
+                                    ? field.fieldValue
+                                    : ACTUAL_SIZE_FIELDS.includes(
+                                      field.idInterfaceField
+                                    )
+                                      ? (field.fieldValue | actualDimensions)
+                                      : field.fieldValue
+                                }}
+                              </div>
+                            </div>
+                          }
+                          <!--          по цене: ставка НДС, цена (без НДС), стоимость (без НДС), сумма НДС, стоимость (с учетом НДС), количество, ед.изм., валюта-->
+                          <!--          по котировке: ставка НДС, цена (без НДС), стоимость (без НДС), сумма НДС, стоимость (с учетом НДС), количество, тип поправки, поправка, котировка, валюта котировки-->
+                          <!--          без котировки: ставка НДС, поправка, тип поправки, количество, ед.изм-->
+                          <div
+                            *ngFor="let field of good.goodsSpecifications"
+                            class="flexContent8 flex-start"
+                            [ngStyle]="{
+                              display:
+                                isShowGoodField(field)
+                                  ? 'flex'
+                                  : 'none'
+                            }"
+                          >
+                            <div class="fieldName font-s14">
+                              {{ field.fieldName }}
+                            </div>
+                            <div
+                              class="font-s14"
+                              [ngClass]="{
+                                'date-roboto-mono':
+                                  field.controlFieldType == 'dxNumberBox'
+                              }"
+                            >
+                              @switch (field.controlFieldType) {
+                                @case ("dxSelectBox") {
+                                  {{ field.fieldValue }}
+                                }
+                                @case ("dxCheckBox") {
+                                  {{
+                                    field.fieldValue.toString() === "true"
+                                      ? ("btns.yes" | translate)
+                                      : ("btns.no" | translate)
+                                  }}
+                                }
+                                @case ("dxNumberBox") {
+                                  {{
+                                    field.fieldValue
+                                      | ruNumberFormat : field.fieldPrecision
+                                  }}
+                                }
+                                @default {
+                                  {{ field.fieldValue }}
+                                } 
+                            }
+                            </div>
+                          </div>
+                        </div>
+
+                        @if (!isSimpleBuyerAuction){
+                        <div class="flexContentColumn4">
+                          <div class="flexContent8 flex-start">
+                            <div class="fieldName font-s14">
+                              {{ "trading.offersTable.VAT" | translate }} (%)
+                            </div>
+                            <div class="font-s14 date-roboto-mono">
+                              {{ getValue(good.goodsSpecifications, 5) }}
+                            </div>
+                          </div>
+
+                          <div class="flexContent8 flex-start">
+                            <div class="fieldName font-s14">
+                              {{ "trading.offersTable.amountVAT" | translate }}
+                            </div>
+                            <!--                      <div class="font-s14 date-roboto-mono">{{getNumberCost(good.goodsSpecifications, 'amountVAT') || getNumberCost(good.goodsSpecifications, 'amountVAT') == 0? ((getNumberCost(good.goodsSpecifications, 'amountVAT')) | ruNumberFormat: this.currencyPrecision : this.currencyPrecision) : null}}</div>-->
+                            <div class="font-s14 date-roboto-mono">
+                              {{
+                                getNumberCost(
+                                  good.goodsSpecifications,
+                                  "amountVAT"
+                                ) ||
+                                getNumberCost(
+                                  good.goodsSpecifications,
+                                  "amountVAT"
+                                ) == 0
+                                  ? (getNumberCost(
+                                      good.goodsSpecifications,
+                                      "amountVAT"
+                                    )
+                                    | ruNumberFormat
+                                      : currencyPrecision
+                                      : currencyPrecision)
+                                  : null
+                              }}
+                            </div>
+                          </div>
+                        </div>
+                        }
+                      </div>
+                    </td>
+                  </tr>
+                </ng-container>
+                }
+
+                <!-- форма для заполенения товара-аналога --> 
+                @if (good.isOpened === true && isAllowAnalog() && analogsBidsList?.length > 0) {
+                  <ng-container>
+                    <tr>
+                      <td colspan="9" class="p-0 text-align-left">
+                        <div class="viewGoodInfo flexContentColumn12 p-2">
+                          <div class="name">
+                            <label class="blackColor">{{
+                              "general.properties" | translate
+                            }}</label>
+                            <i class="close" (click)="good.isOpened = false"></i>
+                          </div>
+
+                          <app-analog-form
+                            [good]="fullInfo?.goods"
+                            [analogsBidsList]="analogsBidsList"
+                            [idGood]="idGood ? idGood : null"
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                  </ng-container>
+                }
+
+                <!-- Строка Итого -->
+                <tr *ngIf="last" class="viewRow greenColor font-w500">
+                  <td class="text-align-left w-230px">
+                    {{ "viewOffer.total" | translate }}
+                  </td>
+                  <td class="text-align-right date-roboto-mono">
+                    {{ totalRowData?.quantity }}
+                  </td>
+                  <td class="text-align-right date-roboto-mono">-</td>
+                  <td
+                    *ngIf="
+                      fullInfo.generalInfo?.pricingTypeId ==
+                      pricingType?.formulaWithQuotation
+                    "
+                  >
+                    -
+                  </td>
+                  <td
+                    *ngIf="
+                      fullInfo.generalInfo?.pricingTypeId != pricingType?.price
+                    "
+                  >
+                    -
+                  </td>
+                  <td
+                    class="text-align-right date-roboto-mono"
+                    *ngIf="
+                      fullInfo.generalInfo?.pricingTypeId == pricingType?.price
+                    "
+                  >
+                    -
+                  </td>
+                  <td class="text-align-right date-roboto-mono">-</td>
+                  <td class="text-align-right date-roboto-mono">
+                    {{ totalRowData?.costVat }}
+                  </td>
+                  <td></td>
+                </tr>
+              </ng-container>
+            </tbody>
+          </table>
+          }
+        </div>
+        }
+      </ng-template>
+
+      <!--Дополнительная информация-->
+      @if (fullInfo.generalInfo.detailsImportDomestic?.length > 0 ||
+          fullInfo.generalInfo.detailsExportForeign?.length > 0 ||
+          fullInfo.documents?.length > 0) {
+          <app-offers-additional-info
+            [generalInfo]="fullInfo.generalInfo"
+            [documents]="fullInfo.documents"
+            [userToken]="user?.token">
+          </app-offers-additional-info>
+      }
+    </dx-validation-group>
+  </form>
+</dx-scroll-view>
+
+<!--Подтверждения повышения собственной цены-->
+@if (selfCompetitionPopup) {
+<app-confirmation-of-price-increase
+  [auctionType]="sessionIds?.session?.idAuctionType"
+  (selfCompetitionPopup)="selfCompetitionPopup = $event"
+  (makeBid)="makeBid($event)"
+>
+</app-confirmation-of-price-increase>
+} 
+
+@if (isAllowAnalog() && analogsListPopup) {
+  <app-analog-list-popup
+    [analogsListPopup]="analogsListPopup"
+    [analogsList]="analogsBidsList"
+    [idGood]="idGood ? idGood : null"
+    (addChoosenGood)="onAddChoosenGood($event)"
+    (close)="closeAnalogsListPopup()"
+  />
+}
+
+@if (isAllowAnalog() && nsiTreePopup) {
+  <app-nsi-tree-popup
+    [nsiTreePopup]="nsiTreePopup"
+    [analogsList]="analogsBidsList"
+    [good]="fullInfo?.goods"
+    [goodAnalogLinks]="fullInfo?.goodAnalogLinks"
+    [idGood]="idGood ? idGood : null"
+    (addNsiGood)="onAddNsiGood($event)"
+    (close)="closeNsiTreePopup()"
+  />
+}
+
+<dx-load-panel
+  shadingColor="rgba(0,0,0,0.4)"
+  [(visible)]="loadingVisible"
+  [showIndicator]="true"
+  [showPane]="true"
+  [shading]="true"
+  [hideOnOutsideClick]="false"
+>
+</dx-load-panel>

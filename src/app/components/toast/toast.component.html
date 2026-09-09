@@ -1,0 +1,21 @@
+<dx-toast
+  [(visible)]="isVisibleToast"
+  [type]="type"
+  width="300"
+  [maxWidth]="500"
+  height="auto"
+  [displayTime]="5000"
+>
+  <dxo-position my="top right" at="right top" of="window" offset="-23 50" />
+
+  <div *dxTemplate="let data of 'content'">
+    <div class="flexContent8 center">
+      @if (type === 'success') {
+      <div class="checkIcon"></div>
+      } @if (type === 'error') {
+      <div class="errorIcon"></div>
+      }
+      <div [innerHTML]="message" class="l-h20"></div>
+    </div>
+  </div>
+</dx-toast>

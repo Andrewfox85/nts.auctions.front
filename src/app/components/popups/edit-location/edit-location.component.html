@@ -1,0 +1,118 @@
+<dx-popup
+  contentTemplate="editProductLocationTemplate"
+  [hideOnOutsideClick]="false"
+  [showTitle]="true"
+  [visible]="isVisible"
+  title="{{ 'editOffer.editProductLocation' | translate }}"
+  width="455"
+  height="auto"
+  [showCloseButton]="true"
+  (onHiding)="onCancelEditLocation()
+  "
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+  <div *dxTemplate="let data of 'editProductLocationTemplate'">
+    <div class="flexContentColumn32">
+      <div class="flexContentColumn4">
+        <div class="form-group">
+          <label>{{
+              goodLocation
+                ? locationField?.interfaceField.fieldName
+                : ""
+            }}</label>
+          @if (goodLocation?.fieldId === IdInterfaceField.productLocation) {
+            <div>
+              <dx-drop-down-box
+                placeholder="{{'filters.selection' | translate}}"
+                [acceptCustomValue]="true"
+                [(opened)]="isDropDownOpened"
+                [maxLength]="locationField?.interfaceField.fieldSize"
+                [(value)]="productLocationValue"
+                [showClearButton]="!locationField.isRequired"
+                (onValueChanged)="valueFreeInput($event)"
+                height="40px"
+                displayExpr="name">
+
+                <div *dxTemplate="let data of 'content'" class="list-dropdown-content flexContentColumn12">
+                  <div class="search-section">
+                    <dx-text-box
+                      placeholder="{{ 'filters.searchLabel' | translate }}"
+                      (onInitialized)="filterDataSourceDropDown = productLocations"
+                      (onValueChanged)="onSearch($event)"
+                      valueChangeEvent="input"
+                      [showClearButton]="true">
+                    </dx-text-box>
+                  </div>
+
+                  <dx-list
+                    [dataSource]="filterDataSourceDropDown"
+                    displayExpr="name"
+                    keyExpr="id"
+                    [searchEnabled]="false"
+                    [selectedItemKeys]="selectedItemKeys"
+                    selectionMode="single"
+                    (onSelectionChanged)="selectionChangeInUserInputComponent($event)"
+                    [pageLoadMode]="'scrollBottom'"
+                    [nextButtonText]="''"
+                    [scrollByContent]="false"
+                    [useNativeScrolling]="true"
+                    [showScrollbar]="'always'">
+                    <dxo-paging [enabled]="false"></dxo-paging>
+                    <div *dxTemplate="let item of 'item'">
+                      <div>{{ item.name }}</div>
+                    </div>
+
+                  </dx-list>
+                </div>
+                <dx-validator>
+                  @if (locationField?.isRequired) {
+                    <dxi-validation-rule
+                      type="required"
+                    ></dxi-validation-rule>
+                  }
+                </dx-validator>
+              </dx-drop-down-box>
+            </div>
+          } @else {
+            <div>
+              <dx-select-box
+                [dataSource]="this.productLocations"
+                valueExpr="id"
+                displayExpr="name"
+                height="40px"
+                placeholder="{{ 'filters.selection' | translate }}"
+                [showClearButton]="false"
+                [(value)]="productLocationValue"
+              >
+                <dx-validator>
+                  @if (locationField?.isRequired) {
+                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                  }
+                </dx-validator>
+              </dx-select-box>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="buttonsClass flexContent20">
+        <button
+          class="btn btn-primary submit w-50"
+          (click)="onContinueEditProductLocation()"
+        >
+          {{ "btns.continue" | translate }}
+        </button>
+        <button
+          class="btn btn-outline-primary btn-inherit w-50"
+          (click)="
+            onCancelEditLocation()
+          "
+        >
+          {{ "btns.cancel" | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</dx-popup>

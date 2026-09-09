@@ -1,0 +1,322 @@
+<dx-scroll-view [useNative]="true" height="calc(100vh - 125px)">
+  <div class="generalInfo flexContentColumn12 pr-1">
+    @if (generalInfo?.terminationReason) {
+      <div class="resultMessage errorMessage borderRed h-auto">
+        <span class="message">
+          <i class="errorIcon"></i>
+          <span>{{ generalInfo?.terminationReason }}</span>
+        </span>
+      </div>
+    }
+
+    <!-- Условия сделки -->
+     <app-terms-deal
+      [generalInfo]="generalInfo"
+      [offerGeneralHidden]="offerGeneralHidden"
+      [totalRowData]="totalRowData"
+    />
+
+    <!-- Товары -->
+    <app-goods-deals
+      [generalInfo]="generalInfo"
+      [pricingType]="pricingType"
+      [expandTable]="expandTable"
+      [goods]="goods"
+      [currencyPrecision]="currencyPrecision"
+      [goodInfo]="goodInfo"
+      [totalRowData]="totalRowData"
+      [isShowCostwithoutVat]="isShowCostwithoutVat()"
+    />
+
+    <!-- Дополнительная инф-ция-->
+    @if (generalInfo?.transactionCond?.transactionDetails || documents?.length > 0) {
+      <app-additional-info-deal
+        [addInfo]="addInfo"
+        [generalInfo]="generalInfo"
+        [documents]="documents"
+        (downloadDoc)="downloadDoc($event)"
+      />
+    }
+
+    <!-- Продавец/покупатель -->
+    @if (user?.IsWorker || (!user?.IsWorker && generalInfo?.buyerInfo?.buyerIdFirm &&
+     generalInfo?.sellerInfo?.sellerIdFirm)) {
+      <div class="sellerInformation border p-2">
+        <div
+          class="flexContent4 jc-sb"
+          (click)="sellerInformationHidden = !sellerInformationHidden"
+        >
+          <span class="font-s16">{{ "viewDeal.dealParties" | translate }}</span>
+
+          <div
+            class="filtersArrow"
+            [class.tr-rt180]="!sellerInformationHidden"
+          ></div>
+        </div>
+
+        <div [hidden]="sellerInformationHidden">
+          <div class="flexContentColumn4 mt-3">
+            <div class="flexContent8 flex-start">
+              <div class="label"></div>
+              <div class="info flexContent8 cursor-default">
+                <div class="w-50">
+                  {{ "viewDeal.sellerInformation" | translate }}
+                </div>
+                <div class="w-50">
+                  {{ "viewDeal.buyerInformation" | translate }}
+                </div>
+              </div>
+            </div>
+
+            <div class="flexContent8 flex-start">
+              <div class="label">
+                {{ "trading.tradersTable.participant" | translate }}
+              </div>
+              <div class="info flexContent8 cursor-default">
+                <div class="w-50 overflowText">
+                  {{ generalInfo?.sellerInfo?.sellerConcatedFirmName }}
+                </div>
+                <div class="w-50 overflowText">
+                  {{ generalInfo?.buyerInfo?.buyerConcatedFirmName }}
+                </div>
+              </div>
+            </div>
+
+            @if (generalInfo?.buyerInfo?.buyerIdClientContractType != null ||
+                generalInfo?.sellerInfo?.sellerIdClientContractType != null) {
+                <div class="flexContent8 flex-start">
+                  <div class="label">{{ "general.contractType" | translate }}</div>
+                  <div class="info flexContent8 cursor-default">
+                    <div class="w-50">
+                      {{
+                        generalInfo?.sellerInfo?.sellerIdClientContractType == AgreementType.Commission
+                          ? ("general.commissionAgreement" | translate)
+                          : generalInfo?.sellerInfo?.sellerIdClientContractType == AgreementType.Agency
+                          ? ("general.agencyAgreement" | translate)
+                          : "-"
+                      }}
+                    </div>
+                    <div class="w-50">
+                      {{
+                        generalInfo?.buyerInfo?.buyerIdClientContractType == AgreementType.Commission
+                          ? ("general.commissionAgreement" | translate)
+                          : generalInfo?.buyerInfo?.buyerIdClientContractType == AgreementType.Agency
+                          ? ("general.agencyAgreement" | translate)
+                          : "-"
+                      }}
+                    </div>
+                  </div>
+              </div>
+            }
+           
+            @if (generalInfo?.buyerInfo?.buyerConcatedClientName ||
+              generalInfo?.sellerInfo?.sellerConcatedClientName) {
+                <div class="flexContent8 flex-start">
+                  <div class="label">{{ "filters.brokerClient" | translate }}</div>
+                  <div class="info flexContent8 flex-start cursor-default">
+                    <div class="w-50 pre-line">
+                      {{
+                        generalInfo?.sellerInfo?.sellerConcatedClientName
+                          ? generalInfo?.sellerInfo?.sellerConcatedClientName
+                          : "-"
+                      }}
+                    </div>
+                    <div class="w-50 pre-line">
+                      {{
+                        generalInfo?.buyerInfo?.buyerConcatedClientName
+                          ? generalInfo?.buyerInfo?.buyerConcatedClientName
+                          : "-"
+                      }}
+                    </div>
+                  </div>
+                </div>
+            }
+           
+            @if (generalInfo?.buyerInfo?.buyerBranchName ||
+              generalInfo?.sellerInfo?.sellerBranchName) {
+                <div class="flexContent8 flex-start">
+                  <div class="label">{{ "filters.listBranchs" | translate }}</div>
+                  <div class="info flexContent8 cursor-default">
+                    <div class="w-50 overflowText">
+                      {{
+                        generalInfo?.sellerInfo?.sellerBranchName
+                          ? generalInfo?.sellerInfo?.sellerBranchName
+                          : "-"
+                      }}
+                    </div>
+                    <div class="w-50 overflowText">
+                      {{
+                        generalInfo?.buyerInfo?.buyerBranchName
+                          ? generalInfo?.buyerInfo?.buyerBranchName
+                          : "-"
+                      }}
+                    </div>
+                  </div>
+                </div>
+            }
+
+            @if ( generalInfo?.buyerInfo?.buyerTraderName ||
+              generalInfo?.sellerInfo?.sellerTraderName) {
+                <div class="flexContent8 flex-start">
+                  <div class="label">{{ "viewOffer.traderName" | translate }}</div>
+                  <div class="info flexContent8 cursor-default">
+                    <div class="w-50">
+                      {{ generalInfo?.sellerInfo?.sellerTraderName }}
+                    </div>
+                    <div class="w-50">
+                      {{ generalInfo?.buyerInfo?.buyerTraderName }}
+                    </div>
+                  </div>
+                </div>
+            }
+            
+            @if (user?.IsWorker &&
+             (generalInfo?.buyerInfo?.buyerTraderTelephone ||
+              generalInfo?.sellerInfo?.sellerTraderTelephone)) {
+                <div class="flexContent8 flex-start">
+                  <div class="label">{{ "viewOffer.phoneNum" | translate }}</div>
+                  <div class="info flexContent8 cursor-default">
+                    <div class="w-50">
+                      {{
+                        generalInfo?.sellerInfo?.sellerTraderTelephone
+                          ? generalInfo?.sellerInfo?.sellerTraderTelephone
+                          : "-"
+                      }}
+                    </div>
+                    <div class="w-50">
+                      {{
+                        generalInfo?.buyerInfo?.buyerTraderTelephone
+                          ? generalInfo?.buyerInfo?.buyerTraderTelephone
+                          : "-"
+                      }}
+                    </div>
+                  </div>
+                </div>
+            }
+            
+            @if (user?.IsWorker &&
+              (generalInfo?.buyerInfo?.buyerTraderEmail ||
+              generalInfo?.sellerInfo?.sellerTraderEmail)) {
+                <div class="flexContent8 flex-start">
+                  <div class="label">{{ "viewOffer.mail" | translate }}</div>
+                  <div class="info flexContent8 cursor-default">
+                    <div class="w-50">
+                      {{
+                        generalInfo?.sellerInfo?.sellerTraderEmail
+                          ? generalInfo?.sellerInfo?.sellerTraderEmail
+                          : "-"
+                      }}
+                    </div>
+                    <div class="w-50">
+                      {{
+                        generalInfo?.buyerInfo?.buyerTraderEmail
+                          ? generalInfo?.buyerInfo?.buyerTraderEmail
+                          : "-"
+                      }}
+                    </div>
+                  </div>
+                </div>
+            }
+
+            @if (user?.IsWorker) { <hr class="w-100" /> }
+            
+
+            @if (user?.IsWorker) {
+              <div class="flexContent8 flex-start">
+                <div class="label">
+                  {{ "viewDeal.exchangeFeeRate" | translate }}
+                </div>
+                <div class="info flexContent8">
+                  <div class="w-50">
+                    {{ generalInfo?.exchangeFeeInfo?.exchFeeSellerRateDetails }}
+                  </div>
+                  <div class="w-50">
+                    {{ generalInfo?.exchangeFeeInfo?.exchFeeBuyerRateDetails }}
+                  </div>
+                </div>
+              </div>
+            }
+
+            @if (user?.IsWorker) {
+              <div class="flexContent8 flex-start">
+                <div class="label">
+                  {{ "viewDeal.amountExchangeFee" | translate }}
+                </div>
+                <div class="info flexContent8">
+                  <div class="w-50">
+                    {{
+                      getNumberFee(
+                        generalInfo?.exchangeFeeInfo?.exchFeeSellerTotalAmount
+                      )
+                        | ruNumberFormat
+                          : generalInfo?.exchangeFeeInfo?.exchFeeSellerCurrencyPrec
+                    }}
+                    {{ generalInfo?.exchangeFeeInfo?.exchFeeSellerCurrencyName }}
+                  </div>
+  
+                  <div class="w-50">
+                    {{
+                      getNumberFee(
+                        generalInfo?.exchangeFeeInfo?.exchFeeBuyerTotalAmount
+                      )
+                        | ruNumberFormat
+                          : generalInfo?.exchangeFeeInfo?.exchFeeBuyerCurrencyPrec
+                    }}
+                    {{ generalInfo?.exchangeFeeInfo?.exchFeeBuyerCurrencyName }}
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <div class="buttons flexContent16">
+      @if (user?.IsWorker && generalInfo?.terminationReason === null && !isCommisionContractType) {
+        <button
+          class="btn btn-outline-primary w-100"
+          (click)="onOpenEditDeal()"
+        >
+          {{ "trading.dealsTab.editDeal" | translate }}
+        </button>
+      }
+
+      @if (user?.IsWorker && generalInfo?.dateTerminate == null) {
+        <button
+          class="btn btn-outline-red w-100"
+          (click)="onOpenRefusePopup()"
+        >
+          {{ "trading.dealsTab.refuse" | translate }}
+        </button>
+      }
+ 
+      @if (user?.IsWorker && generalInfo?.dateTerminate != null) {
+        <button
+          class="btn btn-outline-primary submit w-100"
+          (click)="onOpenRestorePopup()"
+        >
+          {{ "trading.dealsTab.restoreDeal" | translate }}
+        </button>
+      }
+    </div>
+  </div>
+</dx-scroll-view>
+
+<!-- отказ в фиксации сделки -->
+<app-refuse-deal-popup
+  [refusePopup]="refusePopup"
+  [choosenDeals]="[generalInfo]"
+  [sessionIds]="sessionIds"
+  (close)="closeRefusePopup($event)"
+  (closeRes)="closeRefuseResultPopup($event)"
+/>
+
+<!-- восстановление сделки -->
+<app-restore-deal-popup
+  [restorePopup]="restorePopup"
+  [choosenDeals]="[generalInfo]"
+  [sessionIds]="sessionIds"
+  (close)="closeRestorePopup($event)"
+  (dealRestored)="onDealRestored($event)"
+/>

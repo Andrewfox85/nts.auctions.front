@@ -1,0 +1,308 @@
+<div class="goods flexContentColumn4 flex-end w-100">
+  @if (goods().length > 0) {
+    <table class="w-100">
+      <tr>
+        <th class="text-align-left w-33">
+          {{ "trading.offersTable.nameProduct" | translate }}
+        </th>
+
+        <th>
+          {{ "trading.offersTable.volume" | translate }}
+        </th>
+
+        @if (generalInfo()?.pricingTypeId == pricingType()?.formulaWithQuotation) {
+          <th>
+            {{ "trading.offersTable.quotation" | translate }}
+          </th>
+        } 
+        @if (generalInfo()?.pricingTypeId != pricingType()?.price) {
+          <th>
+            {{ "trading.offersTable.amendment" | translate }}
+          </th>
+        } 
+        @if (generalInfo()?.pricingTypeId != pricingType()?.formulaWithoutQuotation) {
+          <th>
+            {{ "viewOffer.priceWithoutVAT" | translate }}
+          </th>
+        } 
+        @if (generalInfo()?.pricingTypeId != pricingType()?.formulaWithoutQuotation) {
+          <th>
+            {{ "viewOffer.costVAT" | translate }}
+          </th>
+        }
+
+        @if (isShowCostwithoutVat()) {
+          <th>
+            {{ "viewOffer.minPriceWithoutVat" | translate }}
+          </th>
+        }
+  
+        <th class="w-40px"></th>
+      </tr>
+      <tbody>
+        @for (good of expandTable() ? goods() : goods().slice(0, 5); track
+        good.goodName; let i = $index; let first = $first; let last = $last) {
+          <tr [class.viewRow]="good.isOpened">
+            <td class="text-align-left" id="name{{ good.idGood }}">
+              <span class="twostrings">
+                {{ good.goodName }}
+              </span>
+
+              <dx-tooltip
+                target="#name{{ good.idGood }}"
+                [showEvent]="{ name: 'mouseover', delay: 500 }"
+                hideEvent="mouseleave"
+              >
+                <div *dxTemplate="let data = data; of: 'content'">
+                  {{ good.goodName }}
+                </div>
+              </dx-tooltip>
+            </td>
+
+           <td class="date-roboto-mono">
+                  {{
+                    getValue(good.goodsSpecifications, IdInterfaceField.quantity)
+                      | toNumber
+                      | ruNumberFormat
+                        : good.goodsSpecifications[0].fieldPrecision
+                        : good.goodsSpecifications[0].fieldPrecision
+                  }}
+                  {{ good.unitName }}
+            </td>
+
+             @if (generalInfo()?.pricingTypeId == pricingType()?.formulaWithQuotation) {
+                <td class="date-roboto-mono">
+                  {{
+                      getValue(good.goodsSpecifications, IdInterfaceField.quotation)
+                        | toNumber
+                        | ruNumberFormat
+                          : good.goodsSpecifications[0].fieldPrecision
+                    }}
+                    {{ good.quoteCurrency }}
+                  </td>
+              } 
+                
+                @if (generalInfo()?.pricingTypeId != pricingType()?.price) {
+                  <td class="date-roboto-mono">
+                    {{
+                      good.getValue(good.goodsSpecifications, IdInterfaceField.amendment)
+                        | toNumber
+                        | ruNumberFormat
+                          : (good.priceAdjustment.id == 2 ? currencyPrecision() : 0)
+                    }}
+                    {{ good.priceAdjustment.id == 1 ? "%" : good.currency }}
+                  </td>
+              } 
+              @if (generalInfo()?.pricingTypeId != pricingType()?.formulaWithoutQuotation) {
+                <td class="date-roboto-mono">
+                  {{ getValue(good.goodsSpecifications, IdInterfaceField.priceWithoutVAT)
+                      | ruNumberFormat : currencyPrecision() : currencyPrecision() }}
+                  {{ good.currency }}
+                </td>
+              }
+              
+              @if (generalInfo()?.pricingTypeId != pricingType()?.formulaWithoutQuotation) {
+                <td class="date-roboto-mono">
+                  {{
+                    getNumberCost(good.goodsSpecifications)
+                      | ruNumberFormat : currencyPrecision() : currencyPrecision()
+                  }}
+                  {{ good.currency }}
+                </td>
+              } 
+              @if (isShowCostwithoutVat()) {
+                <td class="date-roboto-mono">
+                  {{
+                    getValue(good.goodsSpecifications, IdInterfaceField.minPrice)
+                      | ruNumberFormat : currencyPrecision()
+                  }}
+                  {{ good.currency }}
+                </td>
+              }
+            <td class="w-40px">
+              <div class="flexContent10" (click)="good.isOpened = true">
+                <i
+                  class="viewGood"
+                  [ngStyle]="{ 'pointer-events': goodInfo() ? 'none' : 'all' }"
+                ></i>
+              </div>
+            </td>
+          </tr>
+
+          @if (good.isOpened === true) {
+            <ng-container>
+              <tr>
+                <td colspan="7" class="p-0 text-align-left">
+                  <div class="viewGoodInfo flexContentColumn12 p-2">
+                    <div class="name">
+                      <label class="blackColor">{{ good.goodName }}</label>
+                      <i class="close" (click)="good.isOpened = false"></i>
+                    </div>
+                    <!--                        характеристики товара из каталога-->
+                    @if(good.idGood != null) {
+                      <div class="description">
+                        @for (prop of good.properties; track prop.propertyName) {
+                          <span>
+                            <span class="propName"> {{ prop.propertyName }}</span>
+                            <span> {{ prop.propertyValue }}.</span>
+                          </span>
+                        }
+                      </div>
+                    }
+      
+                    <!--                        характеристики товара НСИ -->
+                    @if(good.idGood == null) {
+                      <div class="description">
+                        @for (prop of good.goodValues | goodAnalogDescription; track prop.label; let last = $last) {
+                          <span class="prop-item">
+                            <span class="propName">{{ prop.label }}: </span>
+                            <span>{{ prop.value }}</span>
+                            @if (!last) { 
+                              <span>; </span> 
+                            }
+                          </span>
+                        }
+                      </div>
+                    }
+      
+      
+                    <div class="flexContentColumn4">
+                       <!-- для леса отделить в отдельный подраздел фактические значения (длина/ширина и тп) -->
+                       @for (field of good.goodsSpecifications | sortActualDimensions; track field.idInterfaceField) {
+                        <div
+                          class="flexContent8 flex-start"
+                          [style.display]="ACTUAL_SIZE_READINESS_FIELDS.includes(
+                            field.idInterfaceField
+                          )
+                            ? 'flex'
+                            : 'none'
+                        "
+                        >
+                          <div class="fieldName font-s14">
+                            {{ field.fieldName }}
+                          </div>
+                          <div class="font-s14">
+                            {{
+                              field.controlFieldType == "dxSelectBox"
+                                ? field.fieldValue
+                                : ACTUAL_SIZE_FIELDS.includes(
+                                  field.idInterfaceField
+                                )
+                                  ? (field.fieldValue | actualDimensions)
+                                  : field.fieldValue
+                            }}
+                          </div>
+                        </div>
+                      }
+
+                       @for (field of good.goodsSpecifications; track field.id) {
+                            <div
+                              class="flexContent8 flex-start"      
+                              display-specs
+                              [pricingTypeId]="generalInfo()?.pricingTypeId"
+                              [field]="field"
+                            >
+                              <div class="fieldName font-s14">
+                                {{ field.fieldName }}
+                              </div>
+      
+                              <div
+                                class="font-s14"
+                                [class.date-roboto-mono]="
+                                  field.controlFieldType === 'dxNumberBox'
+                                "
+                              >
+                              @switch (field.controlFieldType) {
+                                  @case ("dxSelectBox") {
+                                    {{ field.fieldValue }}
+                                  }
+                                  @case ("dxCheckBox") {
+                                    {{
+                                      field.fieldValue.toString() === "true"
+                                        ? ("btns.yes" | translate)
+                                        : ("btns.no" | translate)
+                                    }}
+                                  }
+                                  @case ("dxNumberBox") {
+                                    {{
+                                      field.fieldValue
+                                        | ruNumberFormat : field.fieldPrecision
+                                    }}
+                                  }
+                                  @default {
+                                    {{ field.fieldValue }}
+                                  } 
+                              }
+                              </div>
+                            </div>
+                          }
+                         
+                    </div>
+
+                    <div class="flexContentColumn4">
+                      <div class="flexContent8 flex-start">
+                        <div class="fieldName font-s14">
+                          {{ "trading.offersTable.VAT" | translate }} (%)
+                        </div>
+                        <div class="font-s14 date-roboto-mono">
+                          {{ getValue(good.goodsSpecifications, 5) }}
+                        </div>
+                      </div>
+                      <div class="flexContent8 flex-start">
+                        <div class="fieldName font-s14">
+                          {{ "trading.offersTable.amountVAT" | translate }}
+                        </div>
+                        <div class="font-s14 date-roboto-mono">
+                          {{
+                            getAmountVAT(good.goodsSpecifications) | ruNumberFormat: currencyPrecision() : currencyPrecision()
+                          }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </ng-container>
+          }
+        
+        <!-- Строка Итого -->
+        @if (last) {
+         <tr class="viewRow greenColor">
+              <td class="text-align-left">
+                {{ "viewOffer.total" | translate }}
+              </td>
+              <td class="text-align-right date-roboto-mono">
+                {{ totalRowData()?.quantity }}
+              </td>
+              <td class="text-align-right date-roboto-mono">-</td>
+              <td class="text-align-right date-roboto-mono">
+                  {{ totalRowData()?.costVat }}
+              </td>
+              @if (isShowCostwithoutVat()) {
+                  <td class="text-align-right date-roboto-mono">-</td>
+              }
+              <td></td>
+        </tr>
+        } 
+      }
+      </tbody>
+    </table>
+  }
+ 
+
+  @if (goods()?.length > MAXIMUM_GOODS_LENGTH) {
+    <div
+      class="expandTableBtn w-auto"
+      (click)="changeExpandTable()"
+    >
+      <div class="flexContent4 p-1">
+        {{
+          expandTable()
+            ? ("viewOffer.collapseTable" | translate)
+            : ("viewOffer.expandTable" | translate)
+        }}
+        <i class="expandTable" [class.tr-rt180]="expandTable"></i>
+      </div>
+    </div>
+  }
+</div>

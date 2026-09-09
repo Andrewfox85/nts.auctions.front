@@ -1,0 +1,80 @@
+<form [formGroup]="goodForm" class="flexContentColumn16">
+  <div>
+    <dx-number-box
+      dxNumberBoxClear
+      [placeholder]="getPlaceholder()"
+      height="32px"
+      [min]="minFieldValue(data, idGood)"
+      [max]="maxFieldValue(data, idGood)"
+      formControlName="{{ idGood }}_{{ data.idInterfaceField }}"
+      class="date-roboto-mono"
+      [class.disabled]="isDisabled(data.idInterfaceField)"
+      (onValueChanged)="calculate(idGood, data.idInterfaceField)"
+      valueChangeEvent="input"
+    >
+      <dxo-format
+        type="fixedPoint"
+        [precision]="getPrecision()"
+      >
+      </dxo-format>
+      <dx-validator>
+        <dxi-validation-rule
+          type="required"
+        ></dxi-validation-rule>
+        <!--поле не ноль (кроме поля поправка и количества) -->
+        @if (!(
+          data.idInterfaceField ===
+          IdInterfaceField.amendment ||
+          (data.idInterfaceField === IdInterfaceField.quantity && goods?.length !== 1)
+        )) {
+          <dxi-validation-rule
+            type="compare"
+            [comparisonType]="'!='"
+            [comparisonTarget]="zeroComparison"
+            message="{{ 'errors.null' | translate }}"
+          ></dxi-validation-rule>
+        }
+        <!--поле не отрицательное (кроме поля поправка в процентном значении)-->
+        @if (!(
+          data.idInterfaceField ===
+          IdInterfaceField.amendment ||
+          data.idInterfaceField === IdInterfaceField.quantity
+        )) {
+          <dxi-validation-rule
+            type="compare"
+            [comparisonType]="'>'"
+            [comparisonTarget]="zeroComparison"
+            message="{{ 'errors.positive' | translate }}"
+          ></dxi-validation-rule>
+        }
+        <!--поле Цена без НДС, если есть Мин. цена (торги на понижение) -->
+        @if (
+          data.idInterfaceField ===
+          IdInterfaceField.priceWithoutVAT &&
+          minPriceCondition(data)
+        ) {
+          <dxi-validation-rule
+            type="compare"
+            [comparisonType]="'>='"
+            [comparisonTarget]="
+                            minPriceComparison.bind(this, idGood)
+                          "
+            message="{{ 'errors.minPriceError' | translate }}"
+          ></dxi-validation-rule>
+        }
+        @if (
+          data.idInterfaceField === IdInterfaceField.quantity &&
+          goods?.length > 1 &&
+          checkQuantityNotZero()
+        ) {
+          <dxi-validation-rule
+            type="compare"
+            [comparisonType]="'!='"
+            [comparisonTarget]="zeroComparison"
+            message="{{ 'errors.checkQuantityNotZero' | translate }}"
+          ></dxi-validation-rule>
+        }
+      </dx-validator>
+    </dx-number-box>
+  </div>
+</form>

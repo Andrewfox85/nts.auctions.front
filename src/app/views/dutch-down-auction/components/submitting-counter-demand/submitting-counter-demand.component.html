@@ -1,0 +1,1476 @@
+<dx-scroll-view [useNative]="true" height="calc(100vh - 125px)">
+  <form [formGroup]="infoForm" class="flexContentColumn16">
+    <dx-validation-group class="form w-100 flexContentColumn16">
+      <!--  Покупатель-->
+      <!--если роль только посетителя без структурных подразделений, то не отображаем данный блок-->
+      @if (!(brokerClientFull?.length == 0 && listBranch?.length == 0 && !isBranchRequired)) {
+        <div
+          class="border flexContentColumn8 px-2 py-12px w-100"
+        >
+        <div class="flexContent24">
+          <div class="font-w500 font-s16">
+            {{ "general.seller" | translate }}
+          </div>
+
+          @if (isSend) {
+            <div
+              class="editPenGreen pointer"
+              (click)="isSend = false"
+            ></div>
+          }
+        </div>
+
+        @if (isSend) {
+          <div class="flexContentColumn8">
+            <!--  повторный вход на формы (склееная строка) -->
+            <div class="px-3 py-2 greyBackground">
+              {{stringOfPrevSeller}}
+            </div>
+          </div>
+        }
+
+        @if (!isSend) {
+          <div class="flexContentColumn8">
+            <!-- не участвовал в торгах в этой сессии/ редактирование-->
+            <div class="form-group fullString">
+              <div class="flexContent16">
+                <div>
+                  <span
+                    class="flexContent8"
+                    [ngClass]="{ disabled: brokerClientFull?.length == 0 }"
+                    ><input
+                      type="radio"
+                      name="participant"
+                      id="broker"
+                      formControlName="participant"
+                      [value]="role.broker"
+                      (click)="
+                        infoForm.get('participant').patchValue(role.broker);
+                        initContractType()
+                      "
+                    />
+                    <label for="broker" class="pb-0 blackColor font-s14">{{
+                      "general.brokerRole" | translate
+                    }}</label></span
+                  >
+                </div>
+                <div>
+                  <span
+                    class="flexContent8"
+                    [ngClass]="{
+                      disabled: isBranchRequired && listBranch?.length == 0
+                    }"
+                    ><input
+                      type="radio"
+                      name="participant"
+                      id="visitor"
+                      formControlName="participant"
+                      [value]="role.visitor"
+                      (click)="
+                        infoForm.get('participant').patchValue(role.visitor);
+                        infoForm.get('contractType').patchValue(null)
+                      "
+                    />
+                    <label for="visitor" class="pb-0 blackColor font-s14">{{
+                      "general.visitorRole" | translate
+                    }}</label></span
+                  >
+                </div>
+              </div>
+            </div>
+
+            @if (infoForm.get('participant').value == role.broker) {
+              <ng-container>
+                <div class="flexContent16 w-100">
+                  <div
+                    class="form-group"
+                    [ngStyle]="{
+                      width:
+                        infoForm.get('contractType').value ==
+                          AgreementType.Agency &&
+                        infoForm.get('brokerClient').value &&
+                        listClientBranch.length > 0
+                          ? '33%'
+                          : '50%'
+                    }"
+                  >
+                    <label>{{ "general.contractType" | translate }}</label>
+                    <div>
+                      <dx-select-box
+                        [dataSource]="contractType"
+                        valueExpr="refBookKey"
+                        displayExpr="refBookValue"
+                        height="40px"
+                        placeholder="{{ 'filters.selection' | translate }}"
+                        formControlName="contractType"
+                        [showClearButton]="false"
+                        [elementAttr]="{ id: 'elementId', class: 'class-name' }"
+                        (onValueChanged)="changeContractType($event)"
+                      >
+                        <dx-validator>
+                          <dxi-validation-rule
+                            type="required"
+                          ></dxi-validation-rule>
+                        </dx-validator>
+                      </dx-select-box>
+                    </div>
+                  </div>
+
+                  @if (infoForm.get('contractType').value == AgreementType.Agency) {
+                    <div
+                      class="form-group"
+                      [ngStyle]="{
+                        width:
+                          infoForm.get('brokerClient').value &&
+                          listClientBranch.length > 0
+                            ? '33%'
+                            : '50%'
+                      }"
+                    >
+                      <label>{{ "general.client" | translate }}</label>
+                      <div>
+                        <dx-select-box
+                          [dataSource]="brokerClient"
+                          valueExpr="idClient"
+                          displayExpr="nameShort"
+                          height="40px"
+                          placeholder="{{ 'filters.selection' | translate }}"
+                          formControlName="brokerClient"
+                          [searchEnabled]="true"
+                          [showClearButton]="false"
+                          [searchExpr]="['nameShort', 'regNumber']"
+                          [minSearchLength]="3"
+                          [showDataBeforeSearch]="true"
+                          (onValueChanged)="changeBrokerClinet()"
+                        >
+                          <dx-validator>
+                            <dxi-validation-rule
+                              type="required"
+                            ></dxi-validation-rule>
+                          </dx-validator>
+                        </dx-select-box>
+                      </div>
+                    </div>
+                  }
+                  @if(infoForm.get('contractType').value == AgreementType.Agency
+                     && infoForm.get('brokerClient').value && listClientBranch.length > 0){
+                    <div class="form-group w-33">
+                      <label>{{ "general.structuralSubdivision" | translate }}</label>
+                      <div>
+                        <dx-select-box
+                          [dataSource]="listClientBranch"
+                          valueExpr="idFirmBranch"
+                          displayExpr="nameShort"
+                          height="40px"
+                          placeholder="{{ 'filters.selection' | translate }}"
+                          formControlName="listClientBranch"
+                          [searchEnabled]="true"
+                          [minSearchLength]="3"
+                          [showDataBeforeSearch]="true"
+                          [showClearButton]="!isClientBranchRequired"
+                          (onValueChanged)="
+                            infoForm.get('listClientBranch').value != null ||
+                            !isClientBranchRequired
+                              ? onContextCheckCounterState()
+                              : null
+                          "
+                        >
+                        </dx-select-box>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </ng-container>
+            }
+            @if (infoForm.get('participant').value == role.visitor) {
+              <ng-container>
+                @if (listBranch.length > 0) {
+                  <div class="form-group w-50">
+                    <label>{{ "general.structuralSubdivision" | translate }}</label>
+                    <dx-select-box
+                      [dataSource]="listBranch"
+                      valueExpr="idFirmBranch"
+                      displayExpr="nameShort"
+                      height="40px"
+                      placeholder="{{ 'filters.selection' | translate }}"
+                      formControlName="listBranch"
+                      [searchEnabled]="true"
+                      [minSearchLength]="3"
+                      [showDataBeforeSearch]="true"
+                      [showClearButton]="true"
+                      (onValueChanged)="onContextCheckCounterState()"
+                    >
+                      <dx-validator>
+                        @if (isBranchRequired) {
+                         <dxi-validation-rule type="required"></dxi-validation-rule>
+                        }
+                      </dx-validator>
+                    </dx-select-box>
+                  </div>
+                }
+              </ng-container>
+            }
+          </div>
+        }
+      </div>
+      }
+
+      <!-- Условия продажи/покупки-->
+      <div class="border flexContentColumn8 px-2 py-12px w-100 p-2">
+        <div class="flexContent4 jc-sb" (click)="buySaleCond = !buySaleCond">
+          <div class="w-260px d-flex">
+            <span class="font-w500 font-s16">{{
+              "viewOffer.buySaleCond" | translate
+            }}</span>
+
+            @if (fullInfo.goods?.length > 1) {
+              <i
+                class="compositeLotLittle ml-2"
+                id="compositeLot"
+              ></i>
+            }
+
+            <dx-tooltip
+              target="#compositeLot"
+              [showEvent]="{ name: 'mouseover', delay: 500 }"
+              hideEvent="mouseleave"
+            >
+              <div *dxTemplate="let data = data; of: 'content'">
+                {{ "viewOffer.compositeLot" | translate }}
+              </div>
+            </dx-tooltip>
+          </div>
+          <div
+            class="filtersArrow"
+            [ngClass]="{ 'tr-rt180': !buySaleCond }"
+          ></div>
+        </div>
+
+        <div [hidden]="buySaleCond">
+          <div class="flexContentColumn8">
+            <!-- Условия поставки -->
+            @if (fullInfo.deliveryConditions?.length > 0 && !changeDeliveryBasisForm) {
+              <div
+                class="flexContent4 flex-start"
+              >
+                <div class="label d-flex">
+                  <span>{{
+                    "trading.offersTable.termsDeliveryTime" | translate
+                  }}</span>
+
+                  @if (uniqueDelConditions?.length > 1) {
+                    <i
+                      class="multibasisLotLittle ml-2"
+                      id="multibasisLotLittle"
+                    ></i>
+                  }
+
+                  <dx-tooltip
+                    target="#multibasisLotLittle"
+                    [showEvent]="{ name: 'mouseover', delay: 500 }"
+                    hideEvent="mouseleave"
+                  >
+                    <div *dxTemplate="let data = data; of: 'content'">
+                      {{ "filters.multibasisLot" | translate }}
+                    </div>
+                  </dx-tooltip>
+                </div>
+
+                <div
+                  class="info flexContent4 flex-end"
+                  [ngClass]="{
+                    'ml-45': editRuleInIntersections(IdInterfaceField.deliveryTerms) === editingRules.editingIsNotAvailable }"
+                >
+                  @if (editRuleInIntersections(IdInterfaceField.deliveryTerms) !== editingRules.editingIsNotAvailable) {
+                    <div
+                      class="editPenGreen pointer"
+                      (click)="changeDeliveryBasis()"
+                    ></div>
+                  }
+
+                  <div>
+                    {{ mainBasis?.concatedCondition }}
+                  </div>
+                </div>
+              </div>
+            }
+
+
+            <!-- форма изменения условий поставки -->
+            <div [hidden]="!changeDeliveryBasisForm">
+              <div class="border flexContentColumn8 w-100 p-2">
+                <dx-validation-group name="basisGroup" class="form">
+
+                  <div class="flexContent4 jc-sb">
+                    <div class="flexContent4 w-100">
+                      <span class="font-w500 font-s16">
+                        {{ "trading.offersTable.termsDeliveryTime" | translate }}
+                      </span>
+
+                      @if (uniqueDelConditions?.length > 1) {
+                        <i class="multibasisLotLittle ml-2" id="multibasisLotLittle"></i>
+                      }
+                    </div>
+
+                    <div class="flexContent8">
+                      <dx-button
+                        (onClick)="saveDeliveryBasisForm($event)"
+                        [disabled]="!concatedBasisString"
+                      >
+                        @if (basisValue?.length > 0) {
+                          <a class="underline">{{ "btns.save" | translate }}</a>
+                        }
+                      </dx-button>
+                      <div
+                        class="close"
+                        (click)="changeDeliveryBasisForm = false"
+                      ></div>
+                    </div>
+                  </div>
+
+                  @if (basisValue?.length == 0) {
+                    <div
+                      class="flexContentColumn8"
+                    >
+                      <div class="notificationBlue h-auto p-2">
+                        <span class="message flexContent8 center">
+                          <i class="blueIcon"></i>
+                          <span class="secondTextColor font-s12 l-h16">{{
+                            "counterOffers.noBasisToAddMess" | translate
+                          }}</span>
+                        </span>
+                      </div>
+                    </div>
+                  }
+
+                  @if (basisValue?.length > 0) {
+                    <div
+                      class="flexContentColumn8"
+                    >
+                      <form [formGroup]="basisForm" class="flexContent8">
+                        <div
+                          class="changePosition flexContentColumn8 d-flex w-100"
+                        >
+                          <div class="flexContentColumn8">
+                            <div class="form-group">
+                              <label>{{
+                                "general.deliveryBasis" | translate
+                              }}</label>
+                              <dx-select-box
+                                [dataSource]="basisValue"
+                                displayExpr="basisName"
+                                valueExpr="this"
+                                height="40px"
+                                placeholder="{{
+                                  'filters.selection' | translate
+                                }}"
+                                formControlName="basis"
+                                (onValueChanged)="selectBasis($event)"
+                              >
+                                <dx-validator>
+                                  <dxi-validation-rule
+                                    type="required"
+                                  ></dxi-validation-rule>
+                                </dx-validator>
+                              </dx-select-box>
+                            </div>
+
+                            @if (basisChooseValue?.placeTypeId) {
+                              <div
+                                class="flexContent8 w-100 notRequired"
+                              >
+                                <div class="form-group">
+                                  <label>{{ basisChooseValue.placeName }}</label>
+                                  <div class="flexContentColumn4">
+                                    <!--    text-box перекрывает drop-down-box, чтобы было видно значение из выпадающего списка или поля ввода(добавить)    -->
+                                    <dx-text-box
+                                      placeholder="{{
+                                        'filters.selection' | translate
+                                      }}"
+                                      [showClearButton]="true"
+                                      class="textBoxView brd-none"
+                                      [readOnly]="true"
+                                      [disabled]="
+                                        editRuleInIntersections(IdInterfaceField.deliveryTerms) ==
+                                        editingRules.editingIsNotAvailable
+                                      "
+                                      width="{{ dropdownbox.offsetWidth - 70 }}"
+                                      [value]="this.EnterPlaceName"
+                                    >
+                                    </dx-text-box>
+
+                                    <div #dropdownbox class="relative">
+                                      @if (EnterPlaceName?.length > 0) {
+                                        <div
+                                          class="clear"
+                                        >
+                                          <i
+                                            class="clearIcon"
+                                            (click)="clearPlaceName()"
+                                          ></i>
+                                        </div>
+                                      }
+
+                                      <dx-drop-down-box
+                                        valueExpr="idLink"
+                                        displayExpr="valueName"
+                                        placeholder="{{
+                                          editRuleInIntersections(IdInterfaceField.deliveryTerms) !=
+                                          editingRules.editingIsNotAvailable
+                                            ? ('filters.selection' | translate)
+                                            : ''
+                                        }}"
+                                        height="40px"
+                                        [showClearButton]="false"
+                                        [dataSource]="placeDataBasis"
+                                        formControlName="placeName"
+                                        (onOpened)="onOpenedDropDown()"
+                                        [disabled]="
+                                          editRuleInIntersections(IdInterfaceField.deliveryTerms) ==
+                                          editingRules.editingIsNotAvailable
+                                        "
+                                      >
+                                        <div
+                                          *dxTemplate="let data of 'content'"
+                                          class="flexContentColumn8"
+                                        >
+                                          <div class="search">
+                                            <dx-text-box
+                                              placeholder="{{
+                                                'filters.searchLabel' | translate
+                                              }}"
+                                              [(value)]="searchValue"
+                                              [showClearButton]="true"
+                                              (onValueChanged)="
+                                                searchTxtBoxValueChange($event)
+                                              "
+                                            >
+                                              <dx-validator>
+                                                <dxi-validation-rule
+                                                  type="custom"
+                                                  message="{{
+                                                    'errors.minLengthBasisPlaceSearch'
+                                                      | translate
+                                                  }}"
+                                                  [ignoreEmptyValue]="true"
+                                                  [reevaluate]="true"
+                                                  [validationCallback]="
+                                                    lengthValidationSearch
+                                                  "
+                                                >
+                                                </dxi-validation-rule>
+                                              </dx-validator>
+
+                                              <dxi-button
+                                                name="search"
+                                                location="before"
+                                                [options]="searchIcon"
+                                              ></dxi-button>
+                                              <dxi-button name="clear"></dxi-button>
+                                            </dx-text-box>
+                                          </div>
+                                          <dx-tree-view
+                                            [dataSource]="placeDataBasis"
+                                            [animationEnabled]="false"
+                                            dataStructure="plain"
+                                            keyExpr="idLink"
+                                            parentIdExpr="idLinkParent"
+                                            selectionMode="single"
+                                            showCheckBoxesMode="normal"
+                                            [selectNodesRecursive]="false"
+                                            displayExpr="valueName"
+                                            [selectByClick]="true"
+                                            [searchEditorOptions]=""
+                                            [searchEnabled]="false"
+                                            [searchExpr]="'valueName'"
+                                            [searchTimeout]="3000"
+                                            itemTemplate="itemTemplate"
+                                            [useNativeScrolling]="true"
+                                            height="320px"
+                                            (onInitialized)="saveInstance($event)"
+                                            (onItemSelectionChanged)="
+                                              onChangePlaceType($event)
+                                            "
+                                          >
+                                            <div
+                                              *dxTemplate="
+                                                let item of 'itemTemplate'
+                                              "
+                                            >
+                                              <div
+                                                [class.disabled]="
+                                                  item.disableCountries
+                                                "
+                                              >
+                                                {{ item.valueName }}
+                                              </div>
+                                            </div>
+                                          </dx-tree-view>
+                                        </div>
+                                        <dx-validator>
+                                          @if (basisChooseValue.isRequiredPlace) {
+                                            <dxi-validation-rule
+                                              type="required"
+                                            ></dxi-validation-rule>
+                                          }
+                                        </dx-validator>
+                                      </dx-drop-down-box>
+                                    </div>
+                                    @if (!basisChooseValue.isRequiredPlace) {
+                                      <div
+                                        class="optinalField"
+                                      >
+                                        {{ "general.optionalField" | translate }}
+                                      </div>
+                                    }
+                                  </div>
+                                </div>
+
+                              <!--Для погранпереходов, портов и ж/д станций выбор идёт или из справочника или произвольный ввод-->
+                              @if (basisChooseValue.placeTypeId == 1) {
+                                <div
+                                  class="form-group"
+                                >
+                                  <label>{{
+                                    "editOffer.deliveryConditions.specifyingLocation"
+                                      | translate
+                                  }}</label>
+                                  <div class="flexContentColumn4">
+                                    <dx-text-box
+                                      placeholder="{{
+                                        'general.enter' | translate
+                                      }}"
+                                      [showClearButton]="true"
+                                      height="40px"
+                                      formControlName="specifyingLocation"
+                                      maxLength="250"
+                                      [class.disabled]="isDisabledSpecifyingLocation()"
+                                      (onValueChanged)="onCreateBasisString()"
+                                    >
+                                    </dx-text-box>
+                                    <div class="optinalField">
+                                      {{ "general.optionalField" | translate }}
+                                    </div>
+                                  </div>
+                                </div>
+                              }
+
+                              </div>
+                            }
+
+                          </div>
+
+                          <div class="stringConcated">
+                            {{
+                              this.concatedBasisString
+                                ? this.concatedBasisString
+                                : ("general.automaticallyText" | translate)
+                            }}
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                  }
+
+                </dx-validation-group>
+              </div>
+            </div>
+
+            <!-- Срок поставки -->
+            @if (!changeDeliveryPeriodForm) {
+              <div
+                class="flexContent4 flex-start"
+              >
+                <div class="label">
+                  {{ "trading.offersTable.deliveryTime" | translate }}
+                </div>
+                <div
+                  class="info flexContent4 flex-end"
+                  [ngClass]="{
+                    'ml-45':
+                      editRuleInIntersections(IdInterfaceField.deliveryTime) ==
+                      editingRules.editingIsNotAvailable
+                  }"
+                >
+                @if (editRuleInIntersections(IdInterfaceField.deliveryTime) !=
+                    editingRules.editingIsNotAvailable) {
+                      <div
+                      class="editPenGreen pointer"
+                      (click)="changeDeliveryPeriodForm = true"
+                    ></div>
+                }
+                  <div>
+                    {{
+                      fullInfo.generalInfo?.concatedDeliveryPeriod
+                        | upperCaseFirstLetter
+                    }}
+                  </div>
+                </div>
+              </div>
+            }
+
+            <!-- форма изменения срока поставки -->
+            @if (changeDeliveryPeriodForm) {
+              <app-delivery-period-edit
+                [fullInfo]="fullInfo"
+                [user]="user"
+                [deliveryTerm]="deliveryTerm"
+                [paymentTermConcated]="paymentTermConcated"
+                [changePaymentCondForm]="changePaymentCondForm"
+                (deliveryTermConcatedChange)="getDeliveryTermConcated($event)"
+                (deadlineErrorMessChange)="deadlineErrorMess = $event"
+                (deadlineParamsReset)="deadlineParamsReset($event)"
+                (save)="onDeliveryPeriodSaved($event)"
+                (close)="changeDeliveryPeriodForm = $event"
+                (deadlinesChanged)="onDeliveryDeadlinesChanged($event)"
+              ></app-delivery-period-edit>
+            }
+
+            <!-- Условия оплаты -->
+            @if (!changePaymentCondForm) {
+              <div class="flexContent4 flex-start">
+                <div class="label">
+                  {{ "trading.offersTable.termsPayment" | translate }}
+                </div>
+                <div
+                  class="info flexContent4 flex-start"
+                  [ngClass]="{
+                    'ml-45':
+                      editRuleInIntersections(IdInterfaceField.paymentTerms) ==
+                      editingRules.editingIsNotAvailable
+                  }"
+                >
+                @if (editRuleInIntersections(IdInterfaceField.paymentTerms) != editingRules.editingIsNotAvailable) {
+                  <div
+                  class="editPenGreen pointer"
+                  (click)="changePaymentCondForm = true"
+                 ></div>
+                }
+                  <div>{{ fullInfo.generalInfo?.concatedPaymentConditions }}</div>
+                </div>
+              </div>
+            }
+
+             <!-- форма изменения условия оплаты -->
+            @if (changePaymentCondForm) {
+              <app-payment-condition-edit
+                [fullInfo]="fullInfo"
+                [termsConditionsPayment]="termsConditionsPayment"
+                [user]="user"
+                [sessionIds]="sessionIds"
+                [deliveryTermConcated]="deliveryTermConcated"
+                [changeDeliveryPeriodForm]="changeDeliveryPeriodForm"
+                (paymentTermConcatedChange)="getPaymentTermConcated($event)"
+                (deadlineErrorMessChange)="deadlineErrorMess = $event"
+                (deadlineParamsReset)="deadlineParamsReset($event)"
+                (save)="onPaymentSaved($event)"
+                (close)="changePaymentCondForm = $event"
+                (deadlinesChanged)="onPaymentDeadlinesChanged($event)"
+              ></app-payment-condition-edit>
+            }
+           
+            <div class="flexContent4 flex-start">
+              <div class="label">{{ "viewOffer.costVATLot" | translate }}</div>
+              <div class="info date-roboto-mono ml-45">
+                {{ totalRowData?.costVat }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Валюта/значения НДС -->
+      <div class="border flexContentColumn8 px-2 py-12px w-100">
+        <form [formGroup]="dutchDownAuctionForm">
+          <div class="dutch-down-form">
+            <div class="flexContent16 w-100">
+              <div
+                class="form-group"
+                [style.width]="
+                  infoForm.get('contractType').value == AgreementType.Agency &&
+                  infoForm.get('brokerClient').value &&
+                  listClientBranch.length > 0
+                    ? '33%'
+                    : '50%'
+                "
+              >
+                <label>{{ "filters.currency" | translate }}</label>
+                <div>
+                  <dx-select-box
+                    [dataSource]="displayCurrency()"
+                    valueExpr="id"
+                    displayExpr="name"
+                    height="40px"
+                    placeholder="{{ 'filters.selection' | translate }}"
+                    formControlName="idCurrency"
+                    [showClearButton]="false"
+                    [elementAttr]="{ id: 'elementId', class: 'class-name' }"
+                    (onValueChanged)="changeCurrency($event)"
+                  >
+                    <dx-validator>
+                      <dxi-validation-rule
+                        type="required"
+                      ></dxi-validation-rule>
+                    </dx-validator>
+                  </dx-select-box>
+                </div>
+              </div>
+
+              <div
+                class="form-group"
+                [style.width]="
+                  infoForm.get('brokerClient').value &&
+                  listClientBranch.length > 0
+                    ? '33%'
+                    : '50%'
+                "
+              >
+                <label>{{ "general.vatRatePercent" | translate }}</label>
+                <div>
+                  <dx-select-box
+                    [dataSource]="amountVat()"
+                    valueExpr="id"
+                    displayExpr="name"
+                    height="40px"
+                    placeholder="{{ 'filters.selection' | translate }}"
+                    formControlName="vatPercent"
+                    [showClearButton]="false"
+                    (onValueChanged)="changeAmountVat($event)"
+                  >
+                    <dx-validator>
+                      <dxi-validation-rule
+                        type="required"
+                      ></dxi-validation-rule>
+                    </dx-validator>
+                  </dx-select-box>
+                </div>
+              </div>
+              <div
+                class="form-group"
+                [style.width]="
+                  infoForm.get('contractType').value == AgreementType.Agency &&
+                  infoForm.get('brokerClient').value &&
+                  listClientBranch.length > 0
+                    ? '33%'
+                    : '50%'
+                "
+              >
+                <label>{{ "trading.offersTable.amountVAT" | translate }}</label>
+                <div>
+                  <dx-number-box
+                    height="40px"
+                    placeholder="{{ 'filters.selection' | translate }}"
+                    [disabled]="true"
+                    dxNumberBoxClear
+                    [value]="amountVATCounter()"
+                  >
+                  <dxo-format
+                    type="fixedPoint"
+                    [precision]="currencyPrecision"
+                  >
+                  </dxo-format>
+                  </dx-number-box>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+
+      <!--    Корректируемая цена-->
+      @if (getGoodsSpecifications(
+        fullInfo.goods[0]?.goodsSpecifications,
+        IdInterfaceField.adjustedPrice
+      )) {
+        <div
+          class="buySaleCond border p-2 flexContent4"
+        >
+          <dx-check-box
+            text="{{ 'general.adjustablePrice' | translate }}"
+            iconSize="20px"
+            [disabled]="
+              editRuleInIntersections(IdInterfaceField.adjustedPrice) ==
+                editingRules.editingIsNotAvailable || isDisabledAdjustablePrice
+            "
+            [value]="adjustablePrice?.toString() == 'true'"
+            (onValueChanged)="
+              this.isDisabledMainButton = false; onChangedAdjustablePrice($event)
+            "
+          >
+          </dx-check-box>
+        </div>
+      }
+
+
+      @if (isAllowAnalog()) {
+        <div class="notificationBlue h-auto p-2 jc-sb center">
+          <span class="message flexContent8">
+            <i class="blueIcon"></i>
+            <span class="mainTextColor font-s14 l-h16">{{ "counterOffers.chooseAnalog" | translate }}</span>
+          </span>
+
+          <div class="flexContent16">
+            <button class="btn btn-primary submit w-220px" (click)="openChoosingAnalog()">{{ idCatalogGood ? ("trading.auctionsTab.changeAnalog" | translate) : ("trading.auctionsTab.chooseAnalog" | translate) }}</button>
+          </div>
+        </div>
+      }
+
+      @if (!isAllowAnalog()) {
+        <div>
+          <dx-check-box
+            text="{{ 'editOffer.expandLotItems' | translate }}"
+            iconSize="20px"
+            [(value)]="isExpandLotItems"
+            (onValueChanged)="onChangedExpandLotItems()"
+          >
+          </dx-check-box>
+        </div>
+      }
+
+      <!-- Товары -->
+      <form [formGroup]="goodForm">
+        <dx-validation-group
+          class="form flexContentColumn8 w-100"
+          #goodFormValid
+        >
+          @if (currencyPrecision) {
+            <div class="goods w-100">
+              @if(fullInfo.goods.length > 5) {
+                <div
+                  class="expandTableBtn d-flex jc-end mb-1"
+                  (click)="expandTable = !expandTable"
+                >
+                  {{
+                    expandTable
+                      ? ("viewOffer.collapseTable" | translate)
+                      : ("viewOffer.expandTable" | translate)
+                  }}
+                </div>
+              }
+              @if(fullInfo.goods.length > 0) {
+                <table class="w-100" #dataGoodTable>
+                  <tr>
+                    <th class="text-align-left w-230px">
+                      {{ "trading.offersTable.nameProduct" | translate }}
+                    </th>
+                    <th>{{ "trading.offersTable.volume" | translate }}</th>
+                    @if (fullInfo.generalInfo?.pricingTypeId == pricingType?.formulaWithQuotation) {
+                      <th>
+                        {{ "trading.offersTable.quotation" | translate }}
+                      </th>
+                    }
+
+                    @if (fullInfo.generalInfo?.pricingTypeId != pricingType?.price) {
+                      <th>
+                        {{ "trading.offersTable.amendment" | translate }}
+                      </th>
+                    }
+
+                    @if (fullInfo.generalInfo?.pricingTypeId != pricingType?.formulaWithoutQuotation) {
+                      <th>
+                        {{ "viewOffer.priceWithoutVAT" | translate }}
+                      </th>
+                    }
+                    @if (fullInfo.generalInfo?.pricingTypeId !=
+                    pricingType?.formulaWithoutQuotation) {
+                      <th>
+                        {{ "viewOffer.costVAT" | translate }}
+                      </th>
+                    }
+                    <th class="w-40px"></th>
+                  </tr>
+                  <tbody>
+                    <ng-container
+                      *ngFor="
+                        let good of expandTable
+                          ? fullInfo.goods
+                          : fullInfo.goods.slice(0, 5);
+                        let i = index;
+                        last as last;
+                        first as first
+                      "
+                    >
+                      <tr [ngClass]="{ viewRow: good.isOpened == true }">
+                        <td class="text-align-left">
+                          <span class="twostrings">{{ good.goodName }}</span>
+                        </td>
+                        <td class="date-roboto-mono">
+                          @if (editRuleInIntersections(IdInterfaceField.quantity) ===
+                          editingRules.decreaseValue) {
+                            <div class="flexContent10 fl-nowrap center">
+                              <ng-container
+                                *ngTemplateOutlet="
+                                  numberBox;
+                                  context: {
+                                    data: getGoodsSpecifications(
+                                      good?.goodsSpecifications,
+                                      IdInterfaceField.quantity
+                                    ),
+                                    idGood: good.idGood
+                                  }
+                                "
+                              ></ng-container>
+                              <span>{{ good.unitName }}</span>
+                            </div>
+                          }
+                          @if (editRuleInIntersections(IdInterfaceField.quantity) == editingRules.editingIsNotAvailable) {
+                            <div>
+                              {{
+                                getValue(
+                                  good?.goodsSpecifications,
+                                  IdInterfaceField.quantity
+                                )
+                                  | toNumber
+                                  | ruNumberFormat
+                                    : null
+                                    : good?.goodsSpecifications[0].fieldPrecision
+                              }}
+                              {{ good.unitName }}
+                            </div>
+                          }
+                        </td>
+
+                        <!-- Котировка -->
+                        @if (fullInfo.generalInfo?.pricingTypeId == pricingType?.formulaWithQuotation) {
+                          <td>
+                            {{
+                              getValue(
+                                good?.goodsSpecifications,
+                                IdInterfaceField.quotation
+                              )
+                                | toNumber
+                                | ruNumberFormat
+                                  : currencyPrecision
+                                  : currencyPrecision
+                            }}
+                            {{ good.quoteCurrency }}
+                          </td>
+                        }
+
+                        <!-- Поправка -->
+                        @if (fullInfo.generalInfo?.pricingTypeId != pricingType?.price) {
+                          <td>
+                            {{
+                              getPriceFromBasisForGood(
+                                good?.goodsSpecifications[0].idDemandOfferGood
+                              )
+                                | toNumber
+                                | ruNumberFormat
+                                  : (good.priceAdjustment == 2
+                                      ? currencyPrecision
+                                      : 0)
+                            }}
+                            {{ good.priceAdjustment == 1 ? "%" : good.currency }}
+                          </td>
+                        }
+
+                        @if (fullInfo.generalInfo?.pricingTypeId == pricingType?.price) {
+                          <td>
+                            <div class="flexContent10 fl-nowrap center">
+                              <ng-container
+                                *ngTemplateOutlet="
+                                  numberBox;
+                                  context: {
+                                    data: getGoodsSpecifications(
+                                      good?.goodsSpecifications,
+                                      IdInterfaceField.priceWithoutVAT
+                                    ),
+                                    idGood: good.idGood
+                                  }
+                                "
+                              ></ng-container>
+                              <span>{{ good.currency }}</span>
+                            </div>
+                          </td>
+                        }
+                        @if(fullInfo.generalInfo?.pricingTypeId != pricingType?.formulaWithoutQuotation) {
+                          <td>
+                            {{
+                              getNumberCost(good?.goodsSpecifications, "costVAT")
+                                ? (getNumberCost(good?.goodsSpecifications, "costVAT")
+                                  | ruNumberFormat
+                                    : currencyPrecision
+                                    : currencyPrecision)
+                                : null
+                            }}
+                            {{ good.currency }}
+                          </td>
+                        }
+
+                        <td class="w-40px">
+                          <div class="flexContent10" (click)="good.isOpened = true">
+                            <i
+                              class="viewGood"
+                              [ngStyle]="{
+                                'pointer-events': goodInfo ? 'none' : 'all'
+                              }"
+                            ></i>
+                          </div>
+                        </td>
+                      </tr>
+
+                      @if (good.isOpened === true && !isAllowAnalog()) {
+                        <ng-container>
+                          <tr>
+                            <td colspan="9" class="p-0 text-align-left">
+                              <div class="viewGoodInfo flexContentColumn12 p-2">
+                                <div class="name">
+                                  <label class="blackColor">{{
+                                    good.goodName
+                                  }}</label>
+                                  <i
+                                    class="close"
+                                    (click)="good.isOpened = false"
+                                  ></i>
+                                </div>
+
+                                <!--                        характеристики товара из каталога-->
+                                @if (good.idGood != null) {
+                                  <div class="description">
+                                    @for (prop of good.properties; track prop.propertyName) {
+                                      <span>
+                                        <span class="propName"> {{ prop.propertyName }}</span>
+                                        <span> {{ prop.propertyValue }}.</span>
+                                      </span>
+                                    }
+                                  </div>
+                                }
+
+                                <div class="flexContentColumn4">
+                                  <!-- для леса отделить в отдельный подраздел фактические значения (длина/ширина и тп) -->
+                                  @for (field of good?.goodsSpecifications |
+                                  sortActualDimensions; track field.idInterfaceField)
+                                  {
+                                    <div
+                                      class="flexContent8 flex-start"
+                                      [style.display]="
+                                        ACTUAL_SIZE_READINESS_FIELDS.includes(
+                                          field.idInterfaceField
+                                        )
+                                          ? 'flex'
+                                          : 'none'
+                                      "
+                                    >
+                                      <div class="fieldName font-s14">
+                                        {{ field.fieldName }}
+                                      </div>
+                                      <div class="font-s14">
+                                        {{
+                                          field | actualValue
+                                        }}
+                                      </div>
+                                    </div>
+                                  }
+
+                                  @for (field of good?.goodsSpecifications; track
+                                  field.idInterfaceField) {
+                                    <div
+                                      class="flexContent8 flex-start"
+                                      display-specs
+                                      [pricingTypeId]="fullInfo.generalInfo?.pricingTypeId"
+                                      [field]="field"
+                                      [style.display]=" (field | showGoodsFields)"
+                                    >
+                                      @if (field.isEdit) {
+                                        <ng-container
+                                          *ngTemplateOutlet="
+                                            editFiledTemplate;
+                                            context: {
+                                              field: field
+                                            }
+                                          "
+                                        ></ng-container>
+                                      } @else {
+                                        <div class="fieldName font-s14">
+                                          {{ field.fieldName }}
+                                        </div>
+
+                                      @if (SPECIAL_FIELDS_AGRI.includes(field.idInterfaceField) && field.idEditRule != editingRules.editingIsNotAvailable) {
+                                        <i
+                                          class="editPenGreen pointer mr-left-28px"
+                                          (click)="field.isEdit = true"
+                                        ></i>
+                                      }
+
+                                      <div class="font-s14">
+                                        {{
+                                          field | goodsValue
+                                        }}
+                                      </div>
+                                      }
+                                    </div>
+                                  }
+                                </div>
+
+                                <div class="flexContentColumn4">
+                                  <div class="flexContent8 flex-start">
+                                    <div class="fieldName font-s14">
+                                      {{ "trading.offersTable.VAT" | translate }} (%)
+                                    </div>
+                                    <div class="font-s14 date-roboto-mono">
+                                      {{ getVatAmountString(dutchDownAuctionForm.get('vatPercent').value) }}
+                                    </div>
+                                  </div>
+
+                                  <div class="flexContent8 flex-start">
+                                    <div class="fieldName font-s14">
+                                      {{
+                                        "trading.offersTable.amountVAT" | translate
+                                      }}
+                                    </div>
+                                    <div class="font-s14 date-roboto-mono">
+                                      {{
+                                        getNumberCost(
+                                          good?.goodsSpecifications,
+                                          "amountVAT"
+                                        ) ||
+                                        getNumberCost(
+                                          good?.goodsSpecifications,
+                                          "amountVAT"
+                                        ) == 0
+                                          ? (getNumberCost(
+                                              good?.goodsSpecifications,
+                                              "amountVAT"
+                                            )
+                                            | ruNumberFormat
+                                              : currencyPrecision
+                                              : currencyPrecision)
+                                          : null
+                                      }}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        </ng-container>
+
+                        <ng-template #editFiledTemplate let-field="field">
+                          <div class="border p-2 w-100">
+                            <div class="flexContentColumn8">
+                              <div class="flexContent8 jc-end">
+                                <dx-button
+                                  class="btn btn-withoutBorder h-20px backgroundTransparent"
+                                  (onClick)="onSaveEditField(field)"
+                                  ><span class="underline">{{
+                                    "btns.save" | translate
+                                  }}</span></dx-button
+                                >
+                                <div
+                                  class="close"
+                                  (click)="onCancelEditField(field)"
+                                ></div>
+                              </div>
+                              <div class="flexContent8 ai-c">
+                                <div class="fieldName font-s14">
+                                  {{ field.fieldName }}
+                                </div>
+                                <dx-select-box
+                                  [dataSource]="field.dataSource"
+                                  valueExpr="id"
+                                  displayExpr="name"
+                                  height="40px"
+                                  width="50%"
+                                  placeholder="{{ 'filters.selection' | translate }}"
+                                  [showClearButton]="false"
+                                  [value]="field.fieldValueNumber.toString()"
+                                  (onValueChanged)="onChangedField($event, field)"
+                                >
+                                  <dx-validator>
+                                    <dxi-validation-rule
+                                      type="required"
+                                    ></dxi-validation-rule>
+                                  </dx-validator>
+                                </dx-select-box>
+                              </div>
+                            </div>
+                          </div>
+                        </ng-template>
+                      }
+
+                      <!-- форма для заполенения товара-аналога -->
+                      @if (good.isOpened === true && isAllowAnalog()) {
+                        <ng-container>
+                          <tr>
+                            <td colspan="9" class="p-0 text-align-left">
+                              <div class="viewGoodInfo flexContentColumn12 p-2">
+                                <div class="name">
+                                  <label class="blackColor">{{
+                                    "general.properties" | translate
+                                  }}</label>
+                                </div>
+
+                                <app-analog-good-form
+                                  [idDemand]="idDemandOffer()"
+                                  [good]="fullInfo?.goods"
+                                  [goodAnalogLinks]="fullInfo?.goodAnalogLinks"
+                                />
+
+                                @if (isSpecialFields) {
+                                  <div class="special-fields-form w-100">
+                                    @for (field of specialFields; track
+                                    field.idInterfaceField) {
+                                      <div
+                                        class="flexContent8 flex-start"
+                                        [style.display]="
+                                          SPECIAL_FIELDS_AGRI.includes(
+                                            field.idInterfaceField
+                                          ) &&
+                                          field.idEditRule !=
+                                            editingRules.editingIsNotAvailable
+                                            ? 'flex'
+                                            : 'none'
+                                        "
+                                      >
+                                        <div class="special-fields-form-item w-100">
+                                          <label>{{ field.fieldName }}</label>
+                                          <dx-select-box
+                                            [dataSource]="field.dataSource"
+                                            valueExpr="id"
+                                            displayExpr="name"
+                                            height="40px"
+                                            placeholder="{{
+                                              'filters.selection' | translate
+                                            }}"
+                                            [showClearButton]="false"
+                                            [value]="field?.fieldValueNumber?.toString()"
+                                            (onValueChanged)="
+                                              onSaveEditFieldAnalog($event, field)
+                                            "
+                                          >
+                                            <dx-validator>
+                                              <dxi-validation-rule
+                                                type="required"
+                                              ></dxi-validation-rule>
+                                            </dx-validator>
+                                          </dx-select-box>
+                                        </div>
+                                      </div>
+                                    }
+                                  </div>
+                                }
+                              </div>
+                            </td>
+                          </tr>
+                        </ng-container>
+                      }
+
+                      <!-- Строка Итого -->
+                      @if (last) {
+                        <tr class="viewRow greenColor font-w500">
+                          <td class="text-align-left w-230px">
+                            {{ "viewOffer.total" | translate }}
+                          </td>
+                          @if (onSameUnits) {
+                            <td class="text-align-right date-roboto-mono">
+                              {{ totalRowData?.quantity }}
+                            </td>
+                          } @else {
+                           <td class="text-align-right date-roboto-mono">-</td>
+                          }
+                          <td class="text-align-right date-roboto-mono">-</td>
+                          <td class="text-align-right date-roboto-mono">
+                            {{ totalRowData?.costVat }}
+                          </td>
+                          <td></td>
+                        </tr>
+                      }
+                    </ng-container>
+
+                    <!-- форма для изменения цнены/кол-ва -->
+                    <ng-template #numberBox let-data="data" let-idGood="idGood">
+                      <dx-number-box
+                        dxNumberBoxClear
+                        placeholder="0{{
+                          data?.fieldPrecision == 2
+                            ? '.00'
+                            : data?.fieldPrecision == 3
+                            ? '.000'
+                            : data?.fieldPrecision == 4
+                            ? '.0000'
+                            : ''
+                        }}"
+                        height="32px"
+                        [min]="minFieldValue(data, idGood)"
+                        [max]="maxFieldValue(data, idGood)"
+                        formControlName="{{ idGood }}_{{ data.idInterfaceField }}"
+                        class="date-roboto-mono"
+                        [class.disabled]="
+                          editRuleInIntersections(data.idInterfaceField) ==
+                          editingRules.editingIsNotAvailable
+                        "
+                        (onValueChanged)="calculate(idGood, data.idInterfaceField)"
+                        valueChangeEvent="input"
+                      >
+                        <dxo-format
+                          type="fixedPoint"
+                          [precision]="data.fieldPrecision"
+                        >
+                        </dxo-format>
+                        <dx-validator>
+                          <dxi-validation-rule
+                            type="required"
+                          ></dxi-validation-rule>
+                          <!--поле не ноль (кроме поля поправка и количества(если товаров больше 1)) -->
+                          @if ((data.idInterfaceField !== IdInterfaceField.amendment && data.idInterfaceField !== IdInterfaceField.quantity) ||
+                           (data.idInterfaceField === IdInterfaceField.quantity && fullInfo.goods?.length === 1)) {
+                            <dxi-validation-rule
+                              type="compare"
+                              [comparisonType]="'!='"
+                              [comparisonTarget]="zeroComparison"
+                              message="{{ 'errors.null' | translate }}"
+                            ></dxi-validation-rule>
+                          }
+                          @if (data.idInterfaceField == IdInterfaceField.quantity &&
+                            fullInfo.goods?.length > 1 &&
+                            checkQuantityNotZero()) {
+                              <dxi-validation-rule
+                                type="compare"
+                                [comparisonType]="'!='"
+                                [comparisonTarget]="zeroComparison"
+                                message="{{ 'errors.checkQuantityNotZero' | translate }}"
+                              ></dxi-validation-rule>
+                          }
+                        </dx-validator>
+                      </dx-number-box>
+                    </ng-template>
+                  </tbody>
+                </table>
+              }
+            </div>
+          }
+        </dx-validation-group>
+      </form>
+
+      <!--Дополнительная информация-->
+      @if (fullInfo.generalInfo.detailsImportDomestic?.length > 0 ||
+          fullInfo.generalInfo.detailsExportForeign?.length > 0 ||
+          fullInfo.documents?.length > 0) {
+            <app-offers-additional-info
+              [generalInfo]="fullInfo.generalInfo"
+              [documents]="fullInfo.documents"
+              [userToken]="user?.token">
+            </app-offers-additional-info>
+        }
+
+      <!-- Кнопки -->
+      <div class="buttons flexContent16">
+        <button
+          class="btn btn-primary submit w-50"
+          (click)="onSubmit()"
+          [disabled]="isSubmitDisabled"
+        >
+          {{ "counterOffers.counterOffersSubmit" | translate }}
+        </button>
+        <button
+          class="btn btn-outline-primary submit w-50"
+          (click)="this.onClose.emit(false)"
+        >
+          {{ "btns.cancel" | translate }}
+        </button>
+      </div>
+    </dx-validation-group>
+  </form>
+</dx-scroll-view>
+
+<!--Контекстная проверка-->
+<dx-popup
+  contentTemplate="popupTemplate"
+  [hideOnOutsideClick]="false"
+  [visible]="!!this.stateMessage"
+  [showTitle]="true"
+  title="{{ 'errors.error' | translate }}"
+  width="600"
+  height="auto"
+  maxHeight="900"
+  [showCloseButton]="true"
+  (onHiding)="this.stateMessage = null"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+  <div *dxTemplate="let data of 'popupTemplate'">
+    <div class="borderRed errorPopup">
+      <i class="errorIcon"></i>
+      <div [innerHTML]="this.stateMessage"></div>
+    </div>
+  </div>
+</dx-popup>
+
+<dx-popup
+  contentTemplate="popup-content"
+  [(visible)]="openPopupAddPlace"
+  [hideOnOutsideClick]="false"
+  [showTitle]="true"
+  title="{{ 'editOffer.deliveryConditions.addDeliveryLocation' | translate }}"
+  [showCloseButton]="true"
+  height="auto"
+  width="auto"
+>
+  <div *dxTemplate="let data of 'popup-content'">
+    <form class="flexContentColumn20">
+      <div class="form-group">
+        <label>{{ basisChooseValue.placeName }}</label>
+        <dx-text-box
+          #location
+          placeholder="{{ 'general.enter' | translate }}"
+          [showClearButton]="true"
+          width="294"
+          height="40px"
+          [(value)]="enterPlace"
+          (onInitialized)="setFocus($event)"
+        >
+        </dx-text-box>
+      </div>
+      <div class="flexContent20 buttonsClass jc-end w-100">
+        <button
+          class="btn btn-primary submit w-50"
+          (click)="onChangePlaceTypeByEnter()"
+        >
+          {{ "btns.save" | translate }}
+        </button>
+        <button
+          class="btn btn-outline-primary submit w-50"
+          (click)="openPopupAddPlace = false"
+        >
+          {{ "btns.close" | translate }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!--(onInitialized)="$event."-->
+</dx-popup>
+
+@if (isAllowAnalog() && openSimilarProducts) {
+  <app-adding-similar-product-popup
+    [openSimilarProducts]="openSimilarProducts"
+    [idModel]="fullInfo.generalInfo?.idModel"
+    [idCatalogGood]="idCatalogGood ? idCatalogGood : null"
+    (addCatalogGood)="onAddCatalogGood($event)"
+    (close)="closeSimilarProdcutsPopup($event)"
+  />
+}
+
+<app-message-popup
+  [messagePopup]="messagePopup"
+  [messageString]="messageString"
+  (close)="closeMessagePopup($event)"
+/>
+
+@if (isAllowAnalog() && addNsiGood) {
+  <app-nsi-good-popup
+    [addNsiGood]="addNsiGood"
+    [nomenclatureGroup]="fullInfo.goods[0]?.idNomenclatureGroup"
+    [goodGroup]="fullInfo.goods[0]?.idGoodGroup"
+    [idDemand]="idDemandOffer()"
+    [good]="goodsCopy"
+    [idModel]="fullInfo.generalInfo?.idModel"
+    [goodAnalogLinks]="fullInfo?.goodAnalogLinks"
+    [infoForm]="infoForm.value"
+    (addNsiGoodEvent)="onAddNsiGood($event)"
+    (close)="closeNsiGoodPopup($event)"
+  />
+}
+

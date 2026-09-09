@@ -1,0 +1,209 @@
+<div class="buySaleCond border p-2">
+  <div class="flexContentColumn8 mt-3">
+    <div class="flexContent8 flex-start">
+      <div class="label"></div>
+      <div class="info flexContent16 cursor-default">
+        <div class="w-50">{{ "btns.buy" | translate }}</div>
+        <div class="w-50">
+          {{ "counterOffers.counterOffer" | translate }}
+        </div>
+      </div>
+    </div>
+
+    <div class="flexContent4 jc-sb">
+      <div class="w-260px font-s14 d-flex">
+        <span>{{ "general.properties" | translate }}</span>
+      </div>
+    </div>
+
+    @for (good of fullInfo.goods?.[0]?.goodValues; track good.idGood) {
+      @if (
+        !showDifferences || 
+        (showDifferences && !currentCvValueMatch(good))
+      ) {
+        <div class="flexContent4 flex-start">
+          <div class="label">
+            {{ good.referenceName }}
+          </div>
+  
+          <div class="info flexContent16 cursor-default">
+            <div class="w-50">
+              {{ good.valueNamesString }}
+            </div>
+  
+              @if (currentCvName(good)) {
+                <div class="w-50" [class.difference]="!currentCvValueMatch(good)">
+                  {{ currentCvName(good) }}
+                </div>
+              } 
+          </div>
+        </div>
+      }
+    }
+
+    <div class="flexContent4 jc-sb mt-2">
+      <div class="w-260px font-s14 d-flex">
+        <span>{{ "viewOffer.buySaleCond" | translate }}</span>
+      </div>
+    </div>
+
+    @if (
+      fullInfo.deliveryConditions?.length > 0 && 
+      (
+        !showDifferences || 
+        (showDifferences && !selectedRow.deliveryConditionMatch)
+      )
+    ) {
+    <div class="flexContent4 flex-start">
+      <div class="label d-flex">
+        <span>{{ "trading.offersTable.termsDeliveryTime" | translate }}</span>
+        @if (uniqueDelConditions?.length > 1) {
+         <i class="multibasisLotLittle ml-2" id="multibasisLotLittle"></i>
+        }
+        <dx-tooltip
+          target="#multibasisLotLittle"
+          [showEvent]="{ name: 'mouseover', delay: 500 }"
+          hideEvent="mouseleave"
+        >
+          <div *dxTemplate="let data = data; of: 'content'">
+            {{ "filters.multibasisLot" | translate }}
+          </div>
+        </dx-tooltip>
+      </div>
+
+      <div class="info flex-start flexContent16 cursor-default">
+        @if (uniqueDelConditions?.length > 1) {
+          <div class="w-50 flexContentColumn12">
+            <dx-select-box
+              [dataSource]="uniqueDelConditions"
+              valueExpr="concatedCondition"
+              displayExpr="concatedCondition"
+              height="32px"
+              [showClearButton]="false"
+              [value]="basisValue"
+              (onValueChanged)="onChangeBasis($event)"
+            />
+          </div>
+        } 
+        @if (uniqueDelConditions?.length === 1) {
+          <div class="w-50">
+            {{ uniqueDelConditions[0].concatedCondition }}
+          </div>
+        }
+        <div
+          class="w-50"
+          [class.difference]="!selectedRow.deliveryConditionMatch"
+        >
+          {{ selectedRow.concatedDeliveryCondition }}
+        </div>
+      </div>
+    </div>
+    } 
+
+    @if (
+      !showDifferences || 
+      (showDifferences && !selectedRow.deliveryPeriodMatch)
+    ) {
+    <div class="flexContent4 flex-start">
+      <div class="label">
+        {{ "trading.offersTable.deliveryTime" | translate }}
+      </div>
+
+      <div class="info flexContent16 cursor-default">
+        <div class="w-50">
+          {{
+            fullInfo.generalInfo?.concatedDeliveryPeriod | upperCaseFirstLetter
+          }}
+        </div>
+        <div class="w-50" [class.difference]="!selectedRow.deliveryPeriodMatch">
+          {{ selectedRow?.concatedDeliveryPeriod | upperCaseFirstLetter }}
+        </div>
+      </div>
+    </div>
+    } 
+    @if (
+      !showDifferences || 
+      (showDifferences && !selectedRow.paymentConditionsMatch)
+    ) {
+    <div class="flexContent4 flex-start">
+      <div class="label">
+        {{ "trading.offersTable.termsPayment" | translate }}
+      </div>
+
+      <div class="info flexContent16 cursor-default">
+        <div class="w-50">
+          {{ fullInfo.generalInfo?.concatedPaymentConditions }}
+        </div>
+        <div
+          class="w-50"
+          [class.difference]="!selectedRow.paymentConditionsMatch"
+        >
+          {{ selectedRow?.concatedPaymentConditions }}
+        </div>
+      </div>
+    </div>
+    } 
+    @if (
+      !showDifferences || 
+      (showDifferences && !selectedRow.totalAmountMatch)
+    ) {
+
+    <hr class="mt-2" />
+
+    <div class="flexContent4 flex-start">
+      <div class="label">
+        {{ "viewOffer.costVATLot" | translate }}
+      </div>
+
+      <div class="info flexContent16 date-roboto-mono cursor-default">
+        <div class="w-50">
+          <span>{{ totalRowData?.costVat }} </span>
+        </div>
+
+        <div class="w-50" [class.difference]="!selectedRow.totalAmountMatch">
+          <span
+            >{{
+              selectedRow.totalAmount
+                | ruNumberFormat : selectedRow.currencyPrecision
+            }}
+          </span>
+        </div>
+      </div>
+    </div>
+    }
+
+    @if (!showDifferences || (showDifferences && !selectedRow.currencyMatch)) {
+      <div class="flexContent4 flex-start">
+        <div class="label">
+          {{ "filters.currency" | translate }}
+        </div>
+
+        <div class="info flexContent16 date-roboto-mono cursor-default">
+          <div class="w-50">{{ fullInfo.goods?.[0]?.currency }}</div>
+          <div class="w-50" [class.difference]="!selectedRow.currencyMatch">
+            {{ selectedRow.currencyName }}
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (!showDifferences || (showDifferences && !selectedRow.vatMatch)) {
+    <div class="flexContent4 flex-start">
+      <div class="label">
+        {{ "trading.offersTable.VAT" | translate }}
+      </div>
+
+      <div class="info flexContent16 date-roboto-mono cursor-default">
+        <div class="w-50">{{ totalRowData?.vat }}</div>
+        <div class="w-50" [class.difference]="!selectedRow.vatMatch">
+          @if(selectedRow.vatPercent){
+          <span>{{ selectedRow.vatPercent }}%</span>
+          } @else {
+          <span>{{ "general.withoutVAT" | translate }}</span>
+          }
+        </div>
+      </div>
+    </div>
+    }
+  </div>
+</div>

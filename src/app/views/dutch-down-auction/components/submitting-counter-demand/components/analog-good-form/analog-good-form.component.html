@@ -1,0 +1,14 @@
+<div class="w-100 flexContentColumn8">
+  @for (item of valuesForDisplay(); track item.idReference) {
+    <div class="flexContent12">
+      <label class="fieldName font-s14">{{ item.referenceName }}</label>
+      <div class="flexContent8" [class.ml-30]="!item.isIconShow">
+        @if (item.isIconShow) {
+           <i class="isAnalog"></i>
+        }
+        <span class="font-s14">{{ item.value }}</span>
+      </div>
+      
+    </div>
+  }
+</div>

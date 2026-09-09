@@ -1,0 +1,139 @@
+<form [formGroup]="deliveryTermForm" class="flexContent16 fl-wrap wrap">
+  <div class="form-group">
+    <label>{{ "editOffer.startDelivery" | translate }}</label>
+
+    <div>
+      <dx-select-box
+        [dataSource]="uniqueDeliveryTerm"
+        valueExpr="deliveryStartId"
+        displayExpr="deliveryStartName"
+        height="40px"
+        placeholder="{{ 'filters.selection' | translate }}"
+        formControlName="startDelivery"
+        [showClearButton]="false"
+        (onOpened)="isEditedDeliveryTermChange.emit(true)"
+        (onValueChanged)="handleIsClearSchedule('deliveryStart')"
+      >
+        <dx-validator>
+          <dxi-validation-rule type="required" />
+        </dx-validator>
+      </dx-select-box>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>{{ "editOffer.deliveryType" | translate }}</label>
+
+    <div>
+      <dx-select-box
+        [dataSource]="deliveryTermType"
+        valueExpr="deliveryTermId"
+        displayExpr="deliveryTermName"
+        [disabled]="!deliveryTermForm.controls['startDelivery'].value"
+        height="40px"
+        placeholder="{{ 'filters.selection' | translate }}"
+        formControlName="deliveryType"
+        [showClearButton]="false"
+        (onOpened)="isEditedDeliveryTermChange.emit(true)"
+        (onValueChanged)="handleIsClearSchedule('deliveryType')"
+      >
+        <dx-validator>
+          <dxi-validation-rule type="required" />
+        </dx-validator>
+      </dx-select-box>
+    </div>
+  </div>
+
+  @if( deliveryTermType?.length > 0 && isDate()?.startDeliveryDateValue &&
+  deliveryTermForm.controls['deliveryType'].value) {
+  <div class="form-group">
+    <label>{{ "editOffer.deliveryStartDate" | translate }}</label>
+
+    <div>
+      <dx-date-box
+        type="date"
+        height="40px"
+        [useMaskBehavior]="true"
+        displayFormat="dd.MM.yyyy"
+        formControlName="startDate"
+        [min]="DateSessionPlusDay"
+        [max]="deliveryTermForm.controls['endDate'].value || null"
+        placeholder="{{ 'general.placeholderDateBox' | translate }}"
+        (onValueChanged)="onValueChangedDate('startDate', $event)"
+      >
+        @if (deliveryTermType?.length >0 && isDate()?.startDeliveryDateValue &&
+        deliveryTermForm.controls['deliveryType'].value) {
+        <dx-validator>
+          <dxi-validation-rule type="required" />
+        </dx-validator>
+        }
+      </dx-date-box>
+    </div>
+  </div>
+  } @if ( deliveryTermType?.length > 0 && isDate()?.endDeliveryDateValue &&
+  deliveryTermForm.controls['deliveryType']?.value) {
+  <div class="form-group">
+    <label>{{ "editOffer.deliveryEndDate" | translate }}</label>
+
+    <div>
+      <dx-date-box
+        type="date"
+        height="40px"
+        [useMaskBehavior]="true"
+        displayFormat="dd.MM.yyyy"
+        formControlName="endDate"
+        [min]="
+          deliveryTermForm.controls['startDate'].value || DateSessionPlusDay
+        "
+        placeholder="{{ 'general.placeholderDateBox' | translate }}"
+        (onValueChanged)="onValueChangedDate('endDate', $event)"
+      >
+        @if (deliveryTermType?.length >0 && isDate()?.endDeliveryDateValue &&
+        deliveryTermForm.controls['deliveryType']?.value) {
+        <dx-validator>
+          <dxi-validation-rule type="required" />
+
+          <dxi-validation-rule
+            #endValidator
+            type="compare"
+            comparisonType=">="
+            [ignoreEmptyValue]="true"
+            [reevaluate]="true"
+            [comparisonTarget]="validateEndDate"
+            message="{{ 'errors.errorMessageDate' | translate }}"
+          />
+        </dx-validator>
+        }
+      </dx-date-box>
+    </div>
+  </div>
+  } @if (deliveryTermForm.controls['startDelivery'].value != 3 &&
+  (deliveryTermForm.controls['deliveryType']?.value == 1 ||
+  deliveryTermForm.controls['deliveryType']?.value == 2)) {
+  <div class="form-group">
+    <label>{{ "editOffer.deliveryTime" | translate }}</label>
+
+    <div>
+      <dx-select-box
+        [dataSource]="deliveryTermValue"
+        valueExpr="id"
+        displayExpr="value"
+        height="40px"
+        placeholder="{{ 'filters.selection' | translate }}"
+        formControlName="deliveryTerm"
+        [showClearButton]="false"
+        (onOpened)="isEditedDeliveryTermChange.emit(true)"
+        (onValueChanged)="handleIsClearSchedule('deliveryTerm', $event)"
+      >
+        @if (deliveryTermForm.controls['startDelivery'].value != 3 &&
+        (deliveryTermForm.controls['deliveryType']?.value == 1 ||
+        deliveryTermForm.controls['deliveryType']?.value == 2)) {
+        <dx-validator>
+          <dxi-validation-rule type="required" />
+        </dx-validator>
+        }
+      </dx-select-box>
+    </div>
+  </div>
+  }
+</form>

@@ -1,0 +1,32 @@
+@import "src/assets/scss/_constants.scss";
+
+::ng-deep.view-offer-bidding-process-body-wrapper {
+  ::ng-deep.dx-datagrid-filter-panel {
+    justify-content: flex-start;
+    gap: 20px;
+    position: absolute;
+  }
+}
+
+::ng-deep.dx-datagrid-rowsview .dx-row-focused.dx-data-row > td {
+  border-bottom: 1px solid #dadada !important;
+}
+
+.session {
+  background-color: #f5f5f5;
+}
+
+main .main_component {
+  gap: 16px;
+}
+
+.isDifferent {
+  color: #ffb200;
+}
+
+.price {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+  align-items: flex-end;
+}

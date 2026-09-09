@@ -1,0 +1,27 @@
+@import "../../../assets//scss/constants";
+
+.sizeSplit {
+  width: 100%;
+  height: 99vh;
+}
+
+.submenu {
+  position: absolute;
+  top: 100px;
+  scroll-behavior: auto;
+  width: 158px;
+  background-color: $white;
+  box-shadow: 2px 2px 4px $lightGrayBackgroundColorButtonHover;
+  z-index: 100;
+  margin-left: 0px;
+}
+
+.show-counters {
+  border: none;
+  background-color: transparent;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  cursor: pointer;
+  color: #4caf50;
+}

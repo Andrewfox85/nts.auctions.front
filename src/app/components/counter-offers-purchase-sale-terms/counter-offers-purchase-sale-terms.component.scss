@@ -1,0 +1,18 @@
+@import "../../../assets/scss/constants";
+
+// WARNING!!! THESE STYLES ARE DUPLICATED
+
+.label {
+  width: 220px;
+  color: $secondTextColor;
+}
+
+.info {
+  line-height: 16px;
+  width: calc(100% - 220px);
+}
+
+hr {
+  width: 100%;
+  color: $lightGrayBackgroundColorButton;
+}

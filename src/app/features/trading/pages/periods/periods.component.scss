@@ -1,0 +1,52 @@
+@import "src/assets/scss/_constants.scss";
+
+.dx-datagrid-content.dx-datagrid-table.dx-row > td,
+.dx-datagrid-content.dx-datagrid-table.dx-row > tr > td {
+  vertical-align: middle !important;
+}
+
+.btns {
+  .btn {
+    height: 36px;
+    min-width: 36px;
+    width: 36px;
+  }
+}
+
+i {
+  &.disabled {
+    opacity: 0.5;
+  }
+}
+
+.empty-btn {
+  height: 20px;
+  min-width: 20px;
+  width: 20px;
+  background-color: transparent;
+}
+
+::ng-deep .disabledRow {
+  opacity: 0.6;
+}
+
+::ng-deep .disabledRow .icon-absolute-wrapper {
+  position: absolute;
+  opacity: 1 !important;
+  z-index: 10;
+  pointer-events: auto;
+}
+
+.dx-state-disabled.dx-switch,
+.dx-state-disabled.dx-switch.dx-switch-on {
+  opacity: 0.5 !important;
+}
+
+.filterBlock {
+  min-width: 250px !important;
+}
+
+.dx-state-disabled.dx-widget {
+  background: transparent !important;
+  opacity: 0.7;
+}

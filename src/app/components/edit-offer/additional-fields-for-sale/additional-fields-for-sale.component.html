@@ -1,0 +1,75 @@
+@if(getGoodsSpecifications(goods[0].goodsSpecifications,
+  IdInterfaceField.adjustedPrice) || isComplexLotGrades()){
+  <div class="buySaleCond border p-2 flexContentColumn12">
+    @if(isComplexLotGrades()){
+      <div class="flexContentColumn4">
+        <div class="form-group">
+          <label>{{
+              getGoodsSpecifications(
+                goods[0].goodsSpecifications,
+                IdInterfaceField.productLocation
+              ).fieldName
+            }}</label>
+          <div>
+            <dx-select-box
+              [dataSource]="this.productLocations"
+              valueExpr="id"
+              displayExpr="name"
+              height="40px"
+              width="50%"
+              placeholder="{{ 'filters.selection' | translate }}"
+              [showClearButton]="false"
+              [(value)]="productLocationValue"
+              (onValueChanged)="onProductLocationChanged($event)"
+            >
+              <dx-validator>
+                <dxi-validation-rule type="required"></dxi-validation-rule>
+              </dx-validator>
+            </dx-select-box>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!--    Корректируемая цена -->
+    @if (getGoodsSpecifications(goods[0].goodsSpecifications,
+      IdInterfaceField.adjustedPrice)){
+      <div class="flexContent4">
+        <dx-check-box
+          text="{{ 'general.adjustablePrice' | translate }}"
+          iconSize="20px"
+          [disabled]="
+              editRuleInIntersections(IdInterfaceField.adjustedPrice) ===
+                editingRules.editingIsNotAvailable || isDisabledAdjustablePrice
+            "
+          [(value)]="adjustablePrice"
+          (onValueChanged)="
+              this.isDisabledSaveButton.emit(false);
+              onAdjustablePriceChanged($event)
+            "
+        >
+        </dx-check-box>
+        @if (editRuleInIntersections(IdInterfaceField.adjustedPrice) !=
+        editingRules.editingIsNotAvailable){
+        <div
+          class="infoThinBlack w-20px h-20px"
+          id="adjustablePrice"
+        >
+          <dx-tooltip
+            target="#adjustablePrice"
+            [showEvent]="{ name: 'mouseenter', delay: 500 }"
+            hideEvent="mouseleave"
+          >
+            <div
+              *dxTemplate="let data = data; of: 'content'"
+              class="whiteTextColor text-align-left"
+            >
+              {{ "editOffer.adjustablePriceTooltip" | translate }}
+            </div>
+          </dx-tooltip>
+        </div>
+        }
+      </div>
+    }
+  </div>
+}

@@ -1,0 +1,177 @@
+<div id="dark" class="dark"></div>
+
+<div
+  id="mySidebar"
+  class="sidebar"
+  [ngClass]="{
+    width: type == 'viewOfferFromOffers' || type == 'viewOfferFromAuctions'
+  }"
+>
+  <div
+    class="header d-flex jc-sb"
+    [ngClass]="{
+      'border-bottom':
+        type != 'viewOfferFromOffers' && type != 'viewOfferFromAuctions'
+    }"
+  >
+    <span
+      *ngIf="type != 'viewOfferFromOffers' && type != 'viewOfferFromAuctions'"
+      >{{ dataForReq?.name }}</span
+    >
+
+    <div
+      *ngIf="type == 'viewOfferFromOffers' || type == 'viewOfferFromAuctions'"
+      class="session p-2 flexContent16 ai-c"
+    >
+      <span
+        class="status font-s12"
+        [ngClass]="{ greenStage: dataForReq.sessionStageId == 7 }"
+        >{{ dataForReq.sessionStageName }}</span
+      >
+      <span class="font-s14 secondTextColor"
+        >{{ "general.session" | translate }}
+        {{
+          dataForReq.datetimeBegin
+            | excelDate
+            | date : "dd.MM.yyyy HH:mm" : "+0000"
+        }}</span
+      >
+      <span class="font-s14 secondTextColor">№ {{ dataForReq.sessionId }}</span>
+      <span class="font-s14 secondTextColor">{{ dataForReq.sessionName }}</span>
+    </div>
+
+    <i class="close" (click)="closeSidebar()"></i>
+  </div>
+
+  <div class="content" *ngIf="type == 'createTemplate'">
+    <dx-validation-group class="flexContentColumn32">
+      <div class="flexContentColumn8">
+        <div class="flexContent20">
+          <div class="label">
+            {{ "trading.messagesTab.templateName" | translate }}
+          </div>
+          <div>{{ this.title?.length > 0 ? this.title?.length : 0 }}/100</div>
+        </div>
+        <dx-text-box
+          placeholder="{{ 'general.enterTitle' | translate }}"
+          [showClearButton]="false"
+          height="40px"
+          maxLength="100"
+          [(value)]="title"
+          valueChangeEvent="keyup"
+        >
+          <dx-validator>
+            <dxi-validation-rule type="required"></dxi-validation-rule>
+          </dx-validator>
+        </dx-text-box>
+      </div>
+      <div class="flexContentColumn8">
+        <div class="flexContent20">
+          <div class="label">
+            {{
+              ("trading.messagesTab.message" | translate | upperCaseFirstLetter)
+            }}
+          </div>
+          <div>
+            {{ this.message?.length > 0 ? this.message?.length : 0 }}/1000
+          </div>
+        </div>
+        <dx-text-area
+          height="124px"
+          placeholder="{{ 'general.text' | translate }}"
+          maxLength="1000"
+          [(value)]="message"
+          valueChangeEvent="keyup"
+        >
+          <dx-validator>
+            <dxi-validation-rule type="required"></dxi-validation-rule>
+          </dx-validator>
+        </dx-text-area>
+      </div>
+
+      <div class="buttons flexContent24 buttonsClass">
+        <dx-button class="w-50" (onClick)="onCreateTemplate($event)"
+          ><button
+            class="btn btn-primary submit w-100"
+            [disabled]="message?.length == 0 || title?.length == 0"
+          >
+            {{ "btns.save" | translate }}
+          </button></dx-button
+        >
+        <button class="btn btn-outline-primary w-50" (click)="closeSidebar()">
+          {{ "btns.cancel" | translate }}
+        </button>
+      </div>
+    </dx-validation-group>
+  </div>
+
+  <div *ngIf="type == 'deleteTemplate'" class="content">
+    <div class="flexContentColumn16">
+      <div>{{ "trading.messagesTab.deletingTemplateText" | translate }}</div>
+      <div class="flexContentColumn8">
+        <div class="flexContent20">
+          <div class="label">
+            {{ "trading.messagesTab.templateName" | translate }}
+          </div>
+        </div>
+        <dx-text-box
+          placeholder="{{ 'general.enterTitle' | translate }}"
+          [showClearButton]="false"
+          height="40px"
+          maxLength="100"
+          [(value)]="title"
+          [disabled]="true"
+          valueChangeEvent="keyup"
+        >
+        </dx-text-box>
+      </div>
+      <div class="flexContentColumn8">
+        <div class="flexContent20">
+          <div class="label">
+            {{
+              ("trading.messagesTab.message" | translate | upperCaseFirstLetter)
+            }}
+          </div>
+        </div>
+        <dx-text-area
+          height="124px"
+          placeholder="{{ 'general.text' | translate }}"
+          maxLength="500"
+          [(value)]="message"
+          [disabled]="true"
+          valueChangeEvent="keyup"
+        >
+        </dx-text-area>
+      </div>
+
+      <div class="buttons flexContent24 buttonsClass">
+        <button
+          class="btn btn-primary submit w-50"
+          (click)="onRemoveTemplate()"
+        >
+          {{ "btns.delete" | translate }}
+        </button>
+        <button class="btn btn-outline-primary w-50" (click)="closeSidebar()">
+          {{ "btns.cancel" | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- уведомления тостер -->
+<dx-toast
+  [(visible)]="isVisibleToast"
+  type="info"
+  width="auto"
+  height="auto"
+  [displayTime]="5000"
+>
+  <div *dxTemplate="let data of 'content'">
+    <div class="flexContent8 center">
+      <div class="checkIcon"></div>
+      <div>{{ messageToast }}</div>
+    </div>
+  </div>
+  <dxo-position my="top right" at="right top" of="window" offset="-23 50" />
+</dx-toast>

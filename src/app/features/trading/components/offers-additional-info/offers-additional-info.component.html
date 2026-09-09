@@ -1,0 +1,125 @@
+<div class="addInfo border p-2">
+  <div class="flexContent4 jc-sb" (click)="toggleAdditionalInfo()">
+    <span class="font-s16">{{ "viewOffer.additionalInfo" | translate }}</span>
+    <div class="filtersArrow" [class.tr-rt180]="!additionalInfo"></div>
+  </div>
+
+  <div [hidden]="additionalInfo">
+    <div class="flexContentColumn8 mt-3">
+      @if (generalInfo.detailsImportDomestic?.length > 0) {
+      <div class="flexContent4 flex-start">
+        <div class="label widthLabel">
+          {{ "viewOffer.additionalCond" | translate }}
+
+          @if (generalInfo.detailsExportForeign?.length > 0) {
+          <span>
+            {{ "viewOffer.additionalCondImport" | translate }}
+          </span>
+          }
+        </div>
+
+        <div class="text">
+          <div class="text-info" #additionalCond>
+            <div class="name" [class.opened]="additionalCondHidden">
+              <span class="breakWord">
+                {{ generalInfo.detailsImportDomestic }}
+              </span>
+            </div>
+          </div>
+
+          <div
+            [ngStyle]="{
+              display: additionalCond.offsetHeight > 40 ? 'flex' : 'none'
+            }"
+          >
+            @if (additionalCondHidden) {
+            <div (click)="toggleAdditionalCondHidden()">
+              <a>{{ "btns.collapse" | translate }}</a>
+            </div>
+            } 
+            @else {
+            <div (click)="toggleAdditionalCondHidden()">
+              <a>{{ "btns.expand" | translate }}</a>
+            </div>
+            }
+          </div>
+        </div>
+      </div>
+      } 
+      @if (generalInfo.detailsExportForeign?.length > 0) {
+        <div class="flexContent4 flex-start">
+          <div class="label widthLabel">
+            {{ "viewOffer.additionalCond" | translate }}
+
+            @if (generalInfo.detailsImportDomestic?.length > 0) {
+            <span>
+              {{ "viewOffer.additionalCondExport" | translate }}
+            </span>
+            }
+          </div>
+
+          <div class="text">
+            <div class="text-info" #additionalCond>
+              <div class="name" [class.opened]="additionalCondHidden">
+                <span class="breakWord">
+                  {{ generalInfo.detailsExportForeign }}
+                </span>
+              </div>
+            </div>
+
+            <div
+              [ngStyle]="{
+                display: additionalCond.offsetHeight > 40 ? 'flex' : 'none'
+              }"
+            >
+              @if (additionalCondHidden) {
+                <div (click)="toggleAdditionalCondHidden()">
+                  <a>{{ "btns.collapse" | translate }}</a>
+                </div>
+              } 
+              @else {
+                <div (click)="toggleAdditionalCondHidden()">
+                  <a>{{ "btns.expand" | translate }}</a>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      }
+      @if (documents?.length > 0 && checkNoPrivateDocuments()) {
+        <div class="flexContent4 flex-start">
+          <div class="label">{{ "viewOffer.commonFiles" | translate }}</div>
+          <div class="info flexContentColumn8">
+            @for (file of documents; track file.idDocument) { 
+              @if (!file.isPrivate) {
+                <div class="flexContent4 center">
+                  <i class="fileIcon"></i>
+                  <a class="file" (click)="downloadDoc(file)">
+                    {{ file.filename }}
+                  </a>
+                </div>
+            } 
+          }
+          </div>
+        </div>
+      } 
+      @if (documents?.length > 0 && checkIsPrivateDocuments()) {
+        <div class="flexContent4 flex-start">
+          <div class="label">{{ "viewOffer.hiddenFiles" | translate }}</div>
+          <div class="info flexContentColumn8">
+            @for (file of documents; track file.idDocument) { 
+              @if (file.isPrivate) {
+                <div class="flexContent4 center">
+                  <i class="fileIcon"></i>
+                  <a class="file" (click)="downloadDoc(file)">
+                    {{ file.filename }}
+                  </a>
+                </div>
+              } 
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

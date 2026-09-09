@@ -1,0 +1,95 @@
+.dx-checkbox {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  font-family: "Roboto", "Roboto Mono", sans-serif;
+  font-size: 14px;
+  color: #212121;
+  line-height: 1.4;
+  position: relative;
+  vertical-align: middle;
+  transition: color 0.2s ease-in-out;
+
+  &.dx-state-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+
+    .dx-checkbox-icon {
+      border-color: #ccc;
+      background-color: #f5f5f5;
+    }
+
+    .dx-checkbox-text {
+      color: #aaa;
+    }
+  }
+
+  .dx-checkbox-icon {
+    width: 20px;
+    height: 20px;
+    border: 1px solid #a6a6a6;
+    border-radius: 3px;
+    background-color: #fff;
+    margin-right: 5px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.15s ease-in-out,
+      border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out,
+      transform 0.15s ease-in-out;
+
+    &:hover {
+      border-color: #999;
+    }
+
+    &:active {
+      border-color: #666;
+      background-color: #f0f0f0;
+      transform: scale(0.96);
+    }
+
+    &.checked {
+      background-color: #fff;
+      color: #3b8d45;
+      border-color: #3b8d45 !important;
+      box-shadow: 0 0 0 2px rgba(59, 141, 69, 0.15);
+
+      .check-icon {
+        color: #3b8d45;
+        transform: scale(1.1);
+        opacity: 1;
+      }
+
+      &:hover {
+        border-color: #2f7338 !important;
+      }
+
+      &:active {
+        background-color: #eaf5ea;
+      }
+    }
+
+    .check-icon {
+      width: 16px;
+      height: 16px;
+      color: transparent;
+      transition: color 0.15s ease-in-out, transform 0.15s ease-in-out,
+        opacity 0.15s ease-in-out;
+      opacity: 0;
+    }
+  }
+
+  .dx-checkbox-text {
+    display: inline-block;
+    line-height: 20px;
+    white-space: nowrap;
+    vertical-align: middle;
+    transition: color 0.2s ease-in-out;
+
+    &:hover {
+      color: #222;
+    }
+  }
+}

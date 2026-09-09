@@ -1,0 +1,35 @@
+@import "src/assets/scss/_constants.scss";
+
+.minHeight {
+  min-height: 250px;
+
+  .submenu {
+    position: absolute;
+    width: 158px;
+    background-color: $white;
+    box-shadow: 2px 2px 4px $lightGrayBackgroundColorButtonHover;
+    z-index: 100;
+    margin-left: -130px;
+    top: 35px;
+  }
+
+  .typeMess {
+    border-radius: 2px;
+    background: $lightGrayBackgroundColorButton;
+    padding: 2px 4px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .urgentLabel {
+    padding: 2px 4px;
+    color: $sectionAgricultural;
+    background-color: $urgentMessage;
+  }
+
+  .systemMessageLabel {
+    padding: 2px 4px;
+    color: $sectionMetal;
+    background-color: $sectionMetalBackground;
+  }
+}

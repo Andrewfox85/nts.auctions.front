@@ -1,0 +1,1205 @@
+<main class="periods">
+  <div class="main_component">
+    <div class="flexContent24">
+      @if (!directSession) {
+      <div class="filterBlock">
+        <div class="head flexContentColumn16 jc-sb h-ft">
+          @if (this.sessionInfo().idAuctionType !=
+          auctionType.doubleCounterAuction) {
+          <div class="flexContentColumn8">
+            <div class="flexContent8">
+              <span class="secondTextColor">
+                {{ "trading.activationOrders" | translate }}
+              </span>
+
+              <i class="greyInfoThin" id="activate_info"></i>
+
+              <dx-tooltip
+                target="#activate_info"
+                [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                hideEvent="mouseleave"
+              >
+                <div
+                  *dxTemplate="let data = data; of: 'content'"
+                  class="whiteTextColor text-align-left"
+                >
+                  {{ "trading.periods.activationTooltip" | translate }}
+                </div>
+              </dx-tooltip>
+            </div>
+
+            <dx-radio-group
+              [items]="this.demoffactivationmode"
+              valueExpr="id"
+              displayExpr="name"
+              [(value)]="idDemoffActivationMode"
+              (onValueChanged)="
+                this.sessionInfo().idSessionPeriod ==
+                IdSessionPeriods.pretrading
+                  ? onChangedActiveMode()
+                  : null
+              "
+              [disabled]="
+                this.sessionInfo().idSessionPeriod !=
+                IdSessionPeriods.pretrading
+              "
+            />
+          </div>
+          } @if(this.sessionInfo().idAuctionType !=
+          auctionType.doubleCounterAuction){
+          <hr />
+          }
+
+          <div class="switchers-form flexContentColumn16">
+            @if (isTradingWithBuyersPurpose !== null){
+            <div class="switcher-item flexContent8 center">
+              <div>
+                <dx-switch
+                  switchedOffText=""
+                  switchedOnText=""
+                  (onValueChanged)="onBuceOptSetBuyersPurps()"
+                  [(value)]="isTradingWithBuyersPurpose"
+                />
+              </div>
+              <span>{{ "trading.periods.purposeGoods" | translate }}</span>
+            </div>
+            } @if (isTradingWithBuyersLimits !== null) {
+            <div class="switcher-item flexContent8 center">
+              <div>
+                <dx-switch
+                  switchedOffText=""
+                  switchedOnText=""
+                  (onValueChanged)="onBuceOptSetBuyersLimits()"
+                  [(value)]="isTradingWithBuyersLimits"
+                />
+              </div>
+              <span>{{
+                "trading.periods.purchaseLimitation" | translate
+              }}</span>
+            </div>
+            } @if (isAnaloguesBySpecialRules !== null &&
+            this.sessionInfo().isAnaloguesBySpecialRules) {
+            <div class="switcher-item flexContent8 center">
+              <div>
+                <dx-switch
+                  switchedOffText=""
+                  switchedOnText=""
+                  (onValueChanged)="onBuceOptSetAnalogRules()"
+                  [(value)]="isAnaloguesBySpecialRules"
+                />
+              </div>
+              <span>{{
+                "trading.periods.specialTradingMode" | translate
+              }}</span>
+            </div>
+            }
+          </div>
+
+          @if (isTradingWithBuyersLimits !== null) {
+          <div class="limitation" >
+            <button class="btn btn-outline-primary w-100" (click)="openLimitations()">
+              {{ "trading.periods.limitation" | translate }}
+            </button>
+          </div>
+          }
+
+          <div class="permission w-100" (click)="openPermissions()">
+            <button class="btn btn-primary w-100">
+              {{ "trading.periods.openPermission" | translate }}
+              {{ permissions?.permissionTotal }} /
+              {{ permissions?.permissionUsed }}
+            </button>
+          </div>
+        </div>
+      </div>
+      }
+      <div
+        class="table"
+        [ngStyle]="{ width: directSession ? '100%' : 'calc(100% - 274px)' }"
+      >
+        <dx-data-grid
+          [width]="'100%'"
+          [dataSource]="periods"
+          [showBorders]="false"
+          [showColumnLines]="true"
+          [allowColumnResizing]="true"
+          [allowColumnReordering]="true"
+          [showRowLines]="true"
+          (onRowPrepared)="onRowPrepared($event)"
+          appLocalizeContextMenu
+        >
+          <dxo-header-filter [visible]="true" [allowSearch]="true" />
+
+          <dxo-sorting [mode]="'none'" />
+
+          <dxo-scrolling [scrollByContent]="true" mode="standard" showScrollbar="always" />
+
+          <dxo-paging [enabled]="false" />
+
+          <dxi-column
+            caption="{{ 'trading.periods.tradingPeriod' | translate }}"
+            dataField="periodName"
+            cssClass="column text-align-left"
+            [minWidth]="250"
+            [allowFiltering]="false"
+            cellTemplate="cellTemplateName"
+          />
+
+          <div *dxTemplate="let data of 'cellTemplateName'">
+            <div>{{ data.data.periodName }}</div>
+
+            <span
+              class="strong"
+              [class.greenColor]="data.data.isActive"
+              [class.orangeColor]="data.data.isPaused"
+              [class.redColor]="data.data.isFinished"
+            >
+              {{
+                data.data.isActive
+                  ? ("trading.periods.active" | translate)
+                  : data.data.isPaused
+                  ? ("trading.periods.suspended" | translate)
+                  : data.data.isFinished
+                  ? ("trading.periods.completed" | translate)
+                  : ""
+              }}
+            </span>
+          </div>
+
+          <dxi-column
+            caption="{{ 'trading.periods.autostartPeriod' | translate }}"
+            dataField="isAutomaticStart"
+            cssClass="column text-align-center"
+            [minWidth]="200"
+            [allowFiltering]="false"
+            cellTemplate="cellTemplateAutoStartPeriod"
+          />
+
+          <div *dxTemplate="let data of 'cellTemplateAutoStartPeriod'">
+            <div class="d-flex jc-c w-100">
+              <dx-switch
+                switchedOffText=""
+                switchedOnText=""
+                [disabled]="
+                  data.data.disableAutoStart || data.data.isTechnicalPeriod
+                "
+                [value]="data.data.isAutomaticStart"
+                (onValueChanged)="editAutoStart($event, data.data)"
+              />
+            </div>
+          </div>
+
+          <dxi-column
+            caption="{{ 'trading.periods.startEndTime' | translate }}"
+            cssClass="column text-align-left date-roboto-mono"
+            [minWidth]="230"
+            alignment="rigth"
+            [allowFiltering]="false"
+            [allowSorting]="false"
+            cellTemplate="cellTemplateStartEndTime"
+          />
+
+          <div
+            *dxTemplate="let data of 'cellTemplateStartEndTime'"
+            class="flexContent8"
+          >
+            @if (data.data.datetimeStart) {
+            <div>
+              {{
+                data.data.datetimeStart
+                  | excelDate : true
+                  | date : "HH:mm:ss" : "+0000"
+              }}
+            </div>
+            } @else {
+            <span>-</span>
+            } / @if (data.data.datetimeFinish) {
+            <div>
+              {{
+                data.data.datetimeFinish
+                  | excelDate : true
+                  | date : "HH:mm:ss" : "+0000"
+              }}
+            </div>
+            } @else {
+            <span>-</span>
+            }
+          </div>
+
+          <dxi-column
+            caption=" {{ 'trading.periods.duration' | translate }}"
+            dataField="periodDuration"
+            cssClass="column text-align-left date-roboto-mono"
+            [minWidth]="200"
+            alignment="rigth"
+            [allowFiltering]="false"
+            [allowSorting]="false"
+            cellTemplate="cellTemplateDuration"
+          />
+
+          <div *dxTemplate="let data of 'cellTemplateDuration'">
+            @if (!data.data.isTechnicalPeriod) {
+            <div class="flexContent16 jc-sb">
+              <div>{{ data.data.periodDuration | formatTime }}</div>
+
+              @if ( (data.data.isActive || (data.data.isPaused &&
+              data.data.datetimeStart)) && !data.data.isTechnicalPeriod &&
+              !data.data.isFinished) {
+              <div>
+                <button
+                  class="btn empty-btn"
+                  [disabled]="data.data.isTechnicalPeriod"
+                  (click)="openPopup('duration', data.data)"
+                >
+                  <i class="pencilEditIcon"></i>
+                </button>
+              </div>
+              }
+
+              <!-- для продления периода -->
+              @if (data.data.canExtendFinished) {
+              <div>
+                <button
+                  class="btn empty-btn"
+                  (click)="openPopup('extendFinished', data.data)"
+                >
+                  <i class="pencilEditIcon"></i>
+                </button>
+              </div>
+              }
+            </div>
+            } @else {
+            <span>-</span>
+            }
+          </div>
+
+          <dxi-column
+            caption=" {{ 'trading.untilCompletion' | translate }}"
+            dataField="datetimeRemaind"
+            cssClass="column text-align-left date-roboto-mono"
+            [minWidth]="200"
+            alignment="rigth"
+            [allowFiltering]="false"
+            [allowSorting]="false"
+            cellTemplate="cellTemplateUntilCompletion"
+          />
+
+          <div *dxTemplate="let data of 'cellTemplateUntilCompletion'">
+            @if (!data.data.isFinished && data.data.datetimeRemaind) {
+            <div>
+              {{ data.data.datetimeRemaind | formatTime }}
+            </div>
+            } @else {
+            <span>-</span>
+            }
+          </div>
+
+          <dxi-column
+            caption=" {{ 'trading.priceStep' | translate }}, %"
+            dataField="options.priceUpPoints"
+            cssClass="column text-align-left date-roboto-mono"
+            [minWidth]="200"
+            alignment="rigth"
+            [allowFiltering]="false"
+            [allowSorting]="false"
+            cellTemplate="cellTemplatePriceStep"
+          />
+
+          <div
+            *dxTemplate="let data of 'cellTemplatePriceStep'"
+            class="flexContent16 jc-sb"
+          >
+            @if (data.data.options.priceUpPoints) {
+            <div>
+              {{ data.data.options.priceUpPoints | priceFormat }}
+            </div>
+            } @else {
+            <span>-</span>
+            } @if (data.data.options.priceUpPoints && (data.data.isActive ||
+            (data.data.isPaused && data.data.datetimeStart)) &&
+            !data.data.isTechnicalPeriod) {
+            <div>
+              <button
+                class="btn empty-btn"
+                [disabled]="data.data.isTechnicalPeriod"
+                (click)="openPopup('priceStep', data.data)"
+              >
+                <i class="pencilEditIcon"></i>
+              </button>
+            </div>
+            }
+          </div>
+
+          @if (this.sessionInfo().idAuctionType !=
+          auctionType.simpleBuyerAuction) {
+          <dxi-column
+            caption=" {{ 'trading.bidSubmissionTime' | translate }}"
+            dataField="options.timeBid"
+            cssClass="column text-align-left date-roboto-mono"
+            [minWidth]="200"
+            alignment="rigth"
+            [allowFiltering]="false"
+            [allowSorting]="false"
+            cellTemplate="cellTemplateBidSubmissionTime"
+          />
+          }
+
+          <div
+            *dxTemplate="let data of 'cellTemplateBidSubmissionTime'"
+            class="flexContent16 jc-sb"
+          >
+            <!--              берем вид mm:ss-->
+            @if (data.data.options.timeBid) {
+            <div>
+              {{ data.data.options.timeBid | formatTime | substringFrom : 3 }}
+            </div>
+            } @else {
+            <span>-</span>
+            } @if ( data.data.options.timeBid && (data.data.isActive ||
+            (data.data.isPaused && data.data.datetimeStart)) &&
+            !data.data.isTechnicalPeriod) {
+            <div>
+              <button
+                class="btn empty-btn"
+                [disabled]="data.data.isTechnicalPeriod"
+                (click)="openPopup('bidSubmissionTime', data.data)"
+              >
+                <i class="pencilEditIcon"></i>
+              </button>
+            </div>
+            }
+          </div>
+
+          @if (this.sessionInfo().idAuctionType ==
+          auctionType.simpleBuyerAuction) {
+          <dxi-column
+            caption=" {{ 'trading.applicationTime' | translate }}"
+            dataField="options.timeDemoff"
+            cssClass="column text-align-left date-roboto-mono"
+            [minWidth]="200"
+            alignment="rigth"
+            [allowFiltering]="false"
+            [allowSorting]="false"
+            cellTemplate="cellTemplateSubmissionTimeDemoff"
+          />
+          }
+
+          <div
+            *dxTemplate="let data of 'cellTemplateSubmissionTimeDemoff'"
+            class="flexContent16 jc-sb"
+          >
+            <!--              берем вид mm:ss-->
+            @if (data.data.options.timeDemoff) {
+            <div>
+              {{
+                data.data.options.timeDemoff | formatTime | substringFrom : 3
+              }}
+            </div>
+            } @else {
+            <span>-</span>
+            } @if ( data.data.options.timeDemoff && (data.data.isActive ||
+            (data.data.isPaused && data.data.datetimeStart)) &&
+            !data.data.isTechnicalPeriod) {
+            <div>
+              <button
+                class="btn empty-btn"
+                [disabled]="data.data.isTechnicalPeriod"
+                (click)="openPopup('bidSubmissionTime', data.data)"
+              >
+                <i class="pencilEditIcon"></i>
+              </button>
+            </div>
+            }
+          </div>
+
+          @if ( this.sessionInfo().idAuctionType ==
+          auctionType.reverseWholesaleAuction) {
+          <dxi-column
+            caption=" {{ 'trading.priceStepDown' | translate }}, %"
+            dataField="options.priceDownPoints"
+            cssClass="column text-align-left date-roboto-mono"
+            [minWidth]="200"
+            alignment="rigth"
+            [allowFiltering]="false"
+            [allowSorting]="false"
+            cellTemplate="cellTemplatepriceDownPoints"
+          />
+          }
+
+          <div
+            *dxTemplate="let data of 'cellTemplatepriceDownPoints'"
+            class="flexContent16 jc-sb"
+          >
+            @if (data.data.options.priceDownPoints) {
+            <div>
+              {{ data.data.options.priceDownPoints | priceFormat }}
+            </div>
+            } @else {
+            <span>-</span>
+            } @if (data.data.options.priceDownPoints && (data.data.isActive ||
+            (data.data.isPaused && data.data.datetimeStart)) &&
+            !data.data.isTechnicalPeriod) {
+            <div>
+              <button
+                class="btn empty-btn"
+                [disabled]="data.data.isTechnicalPeriod"
+                (click)="openPopup('priceDownPoints', data.data)"
+              >
+                <i class="pencilEditIcon"></i>
+              </button>
+            </div>
+            }
+          </div>
+
+          @if (this.sessionInfo().idAuctionType ==
+          auctionType.reverseWholesaleAuction) {
+          <dxi-column
+            caption=" {{ 'trading.timeToGoDown' | translate }}"
+            dataField="options.timeDowngrade"
+            cssClass="column text-align-left date-roboto-mono"
+            [minWidth]="200"
+            alignment="rigth"
+            [allowFiltering]="false"
+            [allowSorting]="false"
+            cellTemplate="cellTemplateSubmissionTimeDowngrade"
+          />
+          }
+
+          <div
+            *dxTemplate="let data of 'cellTemplateSubmissionTimeDowngrade'"
+            class="flexContent16 jc-sb"
+          >
+            <!--           берем вид mm:ss-->
+            @if (data.data.options.timeDowngrade) {
+            <div>
+              {{
+                data.data.options.timeDowngrade | formatTime | substringFrom : 3
+              }}
+            </div>
+            } @else {
+            <span>-</span>
+            } @if ( data.data.options.timeDowngrade && (data.data.isActive ||
+            (data.data.isPaused && data.data.datetimeStart)) &&
+            !data.data.isTechnicalPeriod) {
+            <div>
+              <button
+                class="btn empty-btn"
+                [disabled]="data.data.isTechnicalPeriod"
+                (click)="openPopup('timeDowngrade', data.data)"
+              >
+                <i class="pencilEditIcon"></i>
+              </button>
+            </div>
+            }
+          </div>
+
+          <dxi-column
+            caption=" {{ 'trading.periods.actions' | translate }}"
+            cssClass="column text-align-left"
+            [minWidth]="250"
+            alignment="rigth"
+            [allowFiltering]="false"
+            [allowSorting]="false"
+            cellTemplate="cellTemplateActions"
+          />
+
+          <div
+            *dxTemplate="let data of 'cellTemplateActions'"
+            class="flexContent16"
+          >
+            <button
+              class="btn empty-btn"
+              [disabled]="data.data.isFinished || data.data.disableStart"
+              (click)="startPeriod(data.data.periodName, data.data)"
+            >
+              <i
+                [class.startIcon]="
+                  data.data.isFinished || data.data.disableStart
+                "
+                [class.startGreenIcon]="
+                  !(data.data.isFinished || data.data.disableStart)
+                "
+              ></i>
+            </button>
+
+            <button
+              class="btn empty-btn"
+              [disabled]="data.data.isFinished || data.data.disablePause"
+              (click)="submissionPopup('pause', data.data)"
+            >
+              <i
+                [class.pauseIcon]="
+                  data.data.isFinished || data.data.disablePause
+                "
+                [class.pauseOrangeIcon]="
+                  !(data.data.isFinished || data.data.disablePause)
+                "
+              ></i>
+            </button>
+
+            <button
+              class="btn empty-btn"
+              [disabled]="data.data.isFinished || data.data.disableFinish"
+              (click)="submissionPopup('finish', data.data)"
+            >
+              <i
+                [class.stopIcon]="
+                  data.data.isFinished || data.data.disableFinish
+                "
+                [class.stopRedIcon]="
+                  !(data.data.isFinished || data.data.disableFinish)
+                "
+              ></i>
+            </button>
+
+            <button
+              class="btn empty-btn"
+              [disabled]="data.data.isFinished || data.data.disableNext"
+              (click)="submissionPopup('next', data.data)"
+            >
+              <i
+                [class.nextIcon]="data.data.isFinished || data.data.disableNext"
+                [class.nextBlueIcon]="
+                  !(data.data.isFinished || data.data.disableNext)
+                "
+              ></i>
+            </button>
+
+            @if (data.data.disableFinish && !data.data.isTechnicalPeriod &&
+            !data.data.isFinished) {
+            <button
+              class="btn empty-btn"
+              [disabled]="data.data.isTechnicalPeriod"
+              (click)="openPopup('setting', data.data)"
+            >
+              <i class="pencilEditIcon"></i>
+            </button>
+            } @if (data.row.rowIndex == periods?.length - 1 && periods?.length
+            != 1 && !data.data.isFinished && !data.data.isActive &&
+            !data.data.isPaused) {
+            <button
+              (click)="submissionPopup('delete', data.data.periodName)"
+              class="btn empty-btn"
+            >
+              <i class="deleteIcon"></i>
+            </button>
+            }
+          </div>
+        </dx-data-grid>
+
+        <button
+          class="btn btn-outline-primary w-100 mt-4"
+          (click)="this.getAvailablePeriods('adding')"
+          [disabled]="availablePeriods?.length == 0"
+        >
+          <i
+            class="plus mr-2"
+            [class.disabled]="availablePeriods?.length === 0"
+          ></i
+          >{{ "trading.periods.addPeriod" | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <dx-popup
+    contentTemplate="popup"
+    [hideOnOutsideClick]="false"
+    [visible]="popup"
+    [showTitle]="true"
+    [title]="popupTitle"
+    width="520"
+    height="auto"
+    [showCloseButton]="true"
+    (onHiding)="clearPopup()"
+  >
+    <dxo-animation
+      [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+    />
+
+    <div *dxTemplate="let data of 'popup'">
+      <!--    Добавление/ изменение периода-->
+      @if (['setting', 'adding'].includes(this.popupType)) {
+      <div class="flexContentColumn16">
+        <form [formGroup]="addingForm" class="w-100">
+          <div class="period border p-3 w-100">
+            <dx-radio-group
+              [items]="availablePeriods"
+              valueExpr="periodId"
+              displayExpr="periodName"
+              (onValueChanged)="
+                this.popupType == 'adding'
+                  ? this.openPopup('adding', $event.value)
+                  : null
+              "
+              formControlName="periodId"
+            />
+          </div>
+
+          <div class="setting border w-100">
+            <!-- продолжительность-->
+            <div class="item border-bottom flexContent8 p-3 jc-sb center">
+              <span>{{ "trading.periods.duration" | translate }}</span>
+              <div
+                class="btns flexContent8"
+                [class.disabled]="
+                  isTechnicalPeriod(this.addingForm.get('periodId').value)
+                "
+              >
+                <button
+                  class="btn secondary-btn"
+                  (click)="changeDuration('decrease')"
+                >
+                  <i class="blackMinus"></i>
+                </button>
+
+                <dx-text-box
+                  width="100"
+                  height="36"
+                  formControlName="duration"
+                  mask="00:00:00"
+                  (onValueChanged)="onKeyDown($event, 'duration')"
+                  valueChangeEvent="keyup"
+                />
+
+                <!-- (onValueChanged)="onTimeChange($event)"  -->
+
+                <button
+                  class="btn secondary-btn"
+                  (click)="changeDuration('increase')"
+                >
+                  <i class="blackPlus"></i>
+                </button>
+              </div>
+            </div>
+            <!--  шаг цены-->
+
+            @if ( this.addingForm.get('priceStep')?.value ||
+            this.addingForm.get('priceStep')?.value == 0) {
+            <div class="item border-bottom flexContent8 p-3 jc-sb center">
+              <span>{{ "trading.priceStep" | translate }}, %</span>
+
+              <div class="btns flexContent8">
+                <button
+                  class="btn secondary-btn"
+                  (click)="
+                    this.addingForm
+                      .get('priceStep')
+                      .patchValue(
+                        this.addingForm.get('priceStep').value < 0.06
+                          ? 0.01
+                          : this.addingForm.get('priceStep').value - 0.05
+                      )
+                  "
+                >
+                  <i class="blackMinus"></i>
+                </button>
+
+                <dx-number-box
+                  dxNumberBoxClear
+                  width="100"
+                  height="36"
+                  [min]="0.01"
+                  [max]="100"
+                  [step]="0.05"
+                  formControlName="priceStep"
+                >
+                  <dxo-format type="fixedPoint" [precision]="2" />
+                </dx-number-box>
+                <!--  (onValueChanged)="onTimeChange($event)" -->
+                <button
+                  class="btn secondary-btn"
+                  (click)="
+                    this.addingForm
+                      .get('priceStep')
+                      .patchValue(
+                        this.addingForm.get('priceStep').value > 99.95
+                          ? 100
+                          : this.addingForm.get('priceStep').value + 0.05
+                      )
+                  "
+                >
+                  <i class="blackPlus"></i>
+                </button>
+              </div>
+            </div>
+            }
+
+            <!--        время подачи заявки/время подачи ставки-->
+            @if (this.addingForm.get('SubmissionTime')?.value) {
+            <div class="item border-bottom flexContent8 p-3 jc-sb center">
+              <span>{{
+                this.sessionInfo().idAuctionType !=
+                auctionType.simpleBuyerAuction
+                  ? ("trading.bidSubmissionTime" | translate)
+                  : ("trading.applicationTime" | translate)
+              }}</span>
+
+              <div class="btns flexContent8">
+                <button
+                  class="btn secondary-btn"
+                  (click)="
+                    changeBidSubmissionTime(
+                      this.addingForm.get('SubmissionTime'),
+                      'decrease'
+                    )
+                  "
+                >
+                  <i class="blackMinus"></i>
+                </button>
+
+                <dx-text-box
+                  width="100"
+                  height="36"
+                  formControlName="SubmissionTime"
+                  mask="00:00"
+                  (onValueChanged)="
+                    onKeyDown(
+                      $event,
+                      'SubmissionTime',
+                      this.addingForm.get('SubmissionTime')
+                    )
+                  "
+                  valueChangeEvent="keyup"
+                />
+
+                <button
+                  class="btn secondary-btn"
+                  (click)="
+                    changeBidSubmissionTime(
+                      this.addingForm.get('SubmissionTime'),
+                      'increase'
+                    )
+                  "
+                >
+                  <i class="blackPlus"></i>
+                </button>
+              </div>
+            </div>
+            }
+
+            <!--          Шаг понижения-->
+            @if ( this.addingForm.get('priceDownPoints')?.value ||
+            this.addingForm.get('priceDownPoints')?.value == 0) {
+            <div class="item border-bottom flexContent8 p-3 jc-sb center">
+              <span>{{ "trading.priceStepDown" | translate }}, %</span>
+
+              <div class="btns flexContent8">
+                <button
+                  class="btn secondary-btn"
+                  (click)="
+                    this.addingForm
+                      .get('priceDownPoints')
+                      .patchValue(
+                        this.addingForm.get('priceDownPoints').value < 0.06
+                          ? 0.01
+                          : this.addingForm.get('priceDownPoints').value - 0.05
+                      )
+                  "
+                >
+                  <i class="blackMinus"></i>
+                </button>
+
+                <dx-number-box
+                  dxNumberBoxClear
+                  width="100"
+                  height="36"
+                  [min]="0.01"
+                  [max]="100"
+                  [step]="0.05"
+                  formControlName="priceDownPoints"
+                >
+                  <dxo-format type="fixedPoint" [precision]="2" />
+                </dx-number-box>
+
+                <!--  (onValueChanged)="onTimeChange($event)" -->
+
+                <button
+                  class="btn secondary-btn"
+                  (click)="
+                    this.addingForm
+                      .get('priceDownPoints')
+                      .patchValue(
+                        this.addingForm.get('priceDownPoints').value > 99.95
+                          ? 100
+                          : this.addingForm.get('priceDownPoints').value + 0.05
+                      )
+                  "
+                >
+                  <i class="blackPlus"></i>
+                </button>
+              </div>
+            </div>
+            }
+
+            <!--  время понижения-->
+            @if (this.addingForm.get('timeDowngrade')?.value) {
+            <div class="item border-bottom flexContent8 p-3 jc-sb center">
+              <span>{{ "trading.timeToGoDown" | translate }}</span>
+
+              <div class="btns flexContent8">
+                <button
+                  class="btn secondary-btn"
+                  (click)="
+                    changeBidSubmissionTime(
+                      this.addingForm.get('timeDowngrade'),
+                      'decrease'
+                    )
+                  "
+                >
+                  <i class="blackMinus"></i>
+                </button>
+
+                <dx-text-box
+                  width="100"
+                  height="36"
+                  formControlName="timeDowngrade"
+                  mask="00:00"
+                  (onValueChanged)="
+                    onKeyDown(
+                      $event,
+                      'timeDowngrade',
+                      this.addingForm.get('timeDowngrade')
+                    )
+                  "
+                  valueChangeEvent="keyup"
+                />
+
+                <button
+                  class="btn secondary-btn"
+                  (click)="
+                    changeBidSubmissionTime(
+                      this.addingForm.get('timeDowngrade'),
+                      'increase'
+                    )
+                  "
+                >
+                  <i class="blackPlus"></i>
+                </button>
+              </div>
+            </div>
+            }
+
+            <!--        автостарт-->
+            <div class="item flexContent8 p-3 jc-sb">
+              <span>{{ "trading.periods.autoStartPeriod" | translate }}</span>
+
+              <div>
+                <dx-switch
+                  switchedOffText=""
+                  switchedOnText=""
+                  formControlName="autostartPeriod"
+                  [class.disabled]="
+                    this.availablePeriods[0].disableAutoStart ||
+                    isTechnicalPeriod(this.addingForm.get('periodId').value)
+                  "
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="flexContent16 w-100">
+            <button
+              class="btn btn-primary w-50"
+              (click)="
+                this.popupType == 'setting' ? onPeriodsEdit() : addPeriod()
+              "
+            >
+              {{
+                this.popupType == "setting"
+                  ? ("btns.save" | translate)
+                  : ("btns.add" | translate)
+              }}
+            </button>
+            <button class="btn btn-outline-primary w-50" (click)="clearPopup()">
+              {{ "btns.close" | translate }}
+            </button>
+          </div>
+        </form>
+      </div>
+      }
+
+      <!--todo-->
+
+      <!--Изменение определенных полей-->
+      @if ( [ 'duration', 'priceStep', 'priceDownPoints', 'bidSubmissionTime',
+      'timeDowngrade', 'extendFinished' ].includes(this.popupType)) {
+      <div class="flexContentColumn32">
+        @if (this.popupType == 'duration' || this.popupType == 'extendFinished')
+        {
+        <div class="setting border w-100">
+          <div class="item border-bottom flexContent8 p-3 jc-sb center">
+            <span>{{ "trading.currentDuration" | translate }}</span>
+
+            <div>{{ valuePopup.periodDuration | formatTime }}</div>
+          </div>
+
+          @if (this.popupType == 'duration') {
+          <div class="item border-bottom flexContent8 p-3 jc-sb center">
+            <span>{{ "trading.untilCompletion" | translate }}</span>
+
+            <div>
+              {{
+                valuePopup.isPaused
+                  ? (valuePopup.datetimeRemaind | formatTime)
+                  : (valuePopup.datetimeRemaind | formatTime)
+              }}
+            </div>
+          </div>
+          }
+
+          <div class="item border-bottom flexContent8 p-3 jc-sb center">
+            <span>{{ "trading.additionalTime" | translate }}</span>
+
+            <div>
+              <dx-number-box
+                dxNumberBoxClear
+                width="100"
+                height="36"
+                [(value)]="this.duration"
+                format="00"
+                [min]="1"
+                [max]="99"
+              />
+            </div>
+          </div>
+        </div>
+        } @if (['priceStep', 'priceDownPoints'].includes(this.popupType)) {
+        <div class="setting border w-100">
+          <div class="item border-bottom flexContent8 p-3 jc-sb center">
+            <span
+              >{{
+                popupType === "priceStep"
+                  ? ("trading.priceStep" | translate)
+                  : ("trading.priceStepDown" | translate)
+              }}
+              , %</span
+            >
+            <div class="btns flexContent8">
+              <button
+                class="btn secondary-btn"
+                (click)="priceStep = priceStep < 0.06 ? 0.01 : priceStep - 0.05"
+              >
+                <i class="blackMinus"></i>
+              </button>
+
+              <dx-number-box
+                dxNumberBoxClear
+                width="100"
+                height="36"
+                [min]="0.01"
+                [max]="100"
+                [step]="0.05"
+                [(value)]="priceStep"
+              >
+                <dxo-format type="fixedPoint" [precision]="2" />
+              </dx-number-box>
+
+              <!--  (onValueChanged)="onTimeChange($event)" -->
+
+              <button
+                class="btn secondary-btn"
+                (click)="
+                  priceStep = this.priceStep > 99.95 ? 100 : priceStep + 0.05
+                "
+              >
+                <i class="blackPlus"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        } @if (['bidSubmissionTime', 'timeDowngrade'].includes(this.popupType))
+        {
+        <div class="setting border w-100">
+          <div class="item border-bottom flexContent8 p-3 jc-sb center">
+            @if (this.popupType == 'bidSubmissionTime') {
+            <span>{{
+              this.sessionInfo().idAuctionType != auctionType.simpleBuyerAuction
+                ? ("trading.bidSubmissionTime" | translate)
+                : ("trading.applicationTime" | translate)
+            }}</span>
+            } @if (this.popupType == 'timeDowngrade') {
+            <span>{{ "trading.timeToGoDown" | translate }}</span>
+            }
+
+            <div class="btns flexContent8">
+              <button
+                class="btn secondary-btn"
+                (click)="changeBidSubmissionTime(time, 'decrease')"
+              >
+                <i class="blackMinus"></i>
+              </button>
+
+              <dx-text-box
+                #bidSubmission
+                width="100"
+                height="36"
+                [(value)]="time"
+                mask="00:00"
+                (onValueChanged)="onKeyDown($event, 'SubmissionTime', time)"
+                valueChangeEvent="keyup"
+              />
+
+              <button
+                class="btn secondary-btn"
+                (click)="changeBidSubmissionTime(time, 'increase')"
+              >
+                <i class="blackPlus"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        }
+
+        <div class="flexContent16 w-100">
+          <button
+            class="btn btn-primary w-50"
+            (click)="
+              this.popupType == 'duration'
+                ? onEditDuraction()
+                : this.popupType == 'extendFinished'
+                ? onExtendFinished()
+                : periodsEditOption(this.popupType)
+            "
+          >
+            {{
+              this.popupType == "extendFinished"
+                ? ("trading.extendFinishedBtn" | translate)
+                : ("btns.save" | translate)
+            }}
+          </button>
+          <button class="btn btn-outline-primary w-50" (click)="clearPopup()">
+            {{ "btns.close" | translate }}
+          </button>
+        </div>
+      </div>
+      }
+    </div>
+  </dx-popup>
+
+  <dx-popup
+    contentTemplate="popupSubmission"
+    [hideOnOutsideClick]="false"
+    [visible]="popupSubmission"
+    [showTitle]="true"
+    [title]="popupSubmissionTitle"
+    width="400"
+    height="auto"
+    maxHeight="900"
+    [showCloseButton]="true"
+    (onHiding)="
+      popupSubmission = false; this.finishRadioTransaction = 'withTransaction'
+    "
+  >
+    <dxo-animation
+      [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+    />
+
+    <div *dxTemplate="let data of 'popupSubmission'">
+      <div class="flexContentColumn32">
+        <div class="flexContentColumn16">
+          <div>
+            <span>{{ popupSubmissionMess }}</span>
+
+            <span class="strong">{{ periodNameForDisplay.periodName }}</span>
+
+            @if (popupSubmissionType != 'next') {
+            <span>?</span>
+            } @if (![2, 4].includes(periodNameForDisplay.periodId) &&
+            popupSubmissionType == 'next') {
+            <span>
+              и начать
+              <span class="strong">{{
+                periodNameForDisplay.nextPeriodName
+              }}</span
+              >?</span
+            >
+            }
+          </div>
+
+          <!--        При завершении периода торгов или периода торгов и подведения итогов работнику доступна фиксация сделок по заявкам на продажу, по которым идет торг-->
+          @if ( [2, 4].includes(periodNameForDisplay.periodId) &&
+          (this.popupSubmissionType == 'finish' || this.popupSubmissionType ==
+          'next')) {
+          <div class="border flexContentColumn16 p-3">
+            <dx-radio-group
+              [items]="[
+                {
+                  id: 'withTransaction',
+                  name: 'trading.completeWithTransactionFixing' | translate
+                },
+                {
+                  id: 'withoutTransactions',
+                  name:
+                    'trading.completeWithoutCommittingTransactions' | translate
+                }
+              ]"
+              valueExpr="id"
+              displayExpr="name"
+              [(value)]="finishRadioTransaction"
+            />
+          </div>
+          } @if ([2, 4].includes(periodNameForDisplay.periodId) &&
+          popupSubmissionType === 'next') {
+          <div>
+            <span>
+              и начать
+              <span class="strong">{{
+                periodNameForDisplay.nextPeriodName
+              }}</span
+              >?</span
+            >
+          </div>
+          }
+        </div>
+
+        <div class="buttons flexContent24 buttonsClass">
+          <button
+            class="btn btn-primary submit w-50"
+            (click)="onPopupSubmit(popupSubmissionType, periodNameForDisplay)"
+          >
+            {{
+              popupSubmissionType == "pause"
+                ? ("btns.pause" | translate)
+                : popupSubmissionType == "finish"
+                ? ("btns.finish" | translate)
+                : popupSubmissionType == "delete"
+                ? ("btns.delete" | translate)
+                : ("btns.finishAndNext" | translate)
+            }}
+          </button>
+
+          <button
+            class="btn btn-outline-primary w-50"
+            (click)="onPopupRadioTransaction()"
+          >
+            {{ "btns.close" | translate }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </dx-popup>
+
+  <!--<dx-toast
+  #toast
+  [(visible)]="isVisibleToast"
+  [type]="type"
+  [width]="'fit-content'"
+  [maxWidth]="400"
+  [closeOnClick]="true"
+  [height]="'auto'"
+  contentTemplate="content"
+
+  [displayTime]="5000">
+  <div *dxTemplate="let data of 'content'">
+    <div [innerHTML]="message" class="w-fit-cnt l-h16"></div>
+  </div>
+  <dxo-position my="top right" at="right top" of="window" offset="-23 50"></dxo-position>
+</dx-toast>-->
+  <!--  [position]="{
+my: 'top right',
+at: 'top right',
+of: 'window'
+}"-->
+  <!---->
+</main>

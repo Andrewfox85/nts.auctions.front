@@ -1,0 +1,188 @@
+<dx-scroll-view
+  [useNative]="false"
+  [showScrollbar]="'onScroll'"
+  height="calc(100vh - 125px)"
+>
+  <div class="sizeSplit">
+    <as-split direction="vertical">
+      <!-- таблица встречных -->
+      <as-split-area size="15">
+        <dx-scroll-view [useNative]="true">
+          <div class="flexContentColumn8">
+            @if(this.sessionIds.session.idAuctionType ===
+            auctionType.simpleBuyerAuction && currencyForFilter?.length > 0){
+            <div
+              class="flexContent4 pointer"
+              (click)="toggleShowFilters()"
+              #showFilter
+            >
+              <div>{{ "filters.currency" | translate }}:</div>
+
+              <div>{{ selectedItemKeysFilter[0]?.name }}</div>
+
+              <i class="arrowDown"></i>
+            </div>
+
+            @if (showFilters) {
+            <div>
+              <div class="submenu">
+                <dx-list
+                  [items]="currencyForFilter"
+                  [height]="200"
+                  [width]="'auto'"
+                  [selectionMode]="'single'"
+                  displayExpr="name"
+                  keyExpr="this"
+                  [(selectedItemKeys)]="selectedItemKeysFilter"
+                  (onSelectionChanged)="onCurrencyFilterChanged($event)"
+                />
+              </div>
+            </div>
+            } }
+
+            <app-counter-offer-table
+              [counters]="counters"
+              [selectedRow]="selectedRow"
+              [isAllowAnalog]="isAllowAnalog"
+              (selectedRowChange)="onRowSelected($event)"
+              (compareFields)="compareFields()"
+              (myCounterState)="changeWithMyCounterstate($event)"
+            >
+            </app-counter-offer-table>
+          </div>
+        </dx-scroll-view>
+      </as-split-area>
+
+      <!-- основная инфа -->
+      <as-split-area size="85">
+        @if (selectedRow) {
+        <div class="flexContentColumn12 mt-2">
+          <div>
+            <dx-check-box
+              text="{{ 'counterOffers.showDifferences' | translate }}"
+              iconSize="20px"
+              [value]="showDifferences"
+              (onValueChanged)="onCheckboxValueChange()"
+            >
+            </dx-check-box>
+          </div>
+
+          @if (sessionIds.session.idAuctionType === auctionType.simpleSellerAuction) {
+            <ng-container *ngTemplateOutlet="conditions"></ng-container>
+            <ng-container *ngTemplateOutlet="goodsTable"></ng-container>
+          } @else {
+            <ng-container *ngTemplateOutlet="goodsTable"></ng-container>
+            <ng-container *ngTemplateOutlet="conditions"></ng-container>
+          }
+
+          <!-- Условия продажи/покупки-->
+          <ng-template #conditions>
+              <app-counter-offers-purchase-sale-terms
+              [sessionIds]="sessionIds"
+              [fullInfo]="fullInfo"
+              [showDifferences]="showDifferences"
+              [selectedRow]="selectedRow"
+              [uniqueDelConditions]="uniqueDelConditions"
+              [basisValue]="basisValue"
+              [totalRowData]="totalRowData"
+              [onChangeBasis]="onChangeBasis"
+              [getValue]="getValue"
+            ></app-counter-offers-purchase-sale-terms>
+          </ng-template>
+          
+          <!-- Товары -->
+          <ng-template #goodsTable>
+              <app-counter-offers-goods-table
+              [sessionIds]="sessionIds"
+              [fullInfo]="fullInfo"
+              [deliveryConditionsChoose]="deliveryConditionsChoose"
+              [currencyPrecision]="currencyPrecision"
+              [selectedRow]="selectedRow"
+              [totalRowData]="totalRowData"
+              [goodInfo]="goodInfo"
+              [onSameUnits]="onSameUnits"
+              [getValue]="getValue"
+              [isSpecialFields]="isSpecialFields()"
+              [showDifferences]="showDifferences"
+            ></app-counter-offers-goods-table>
+          </ng-template>
+         
+          <!--Дополнительная информация-->
+          @if (fullInfo.generalInfo.detailsImportDomestic?.length > 0 ||
+              fullInfo.generalInfo.detailsExportForeign?.length > 0 ||
+              this.fullInfo.documents?.length > 0) {
+              <app-offers-additional-info
+                [generalInfo]="fullInfo.generalInfo"
+                [documents]="fullInfo.documents"
+                [userToken]="user?.token">
+              </app-offers-additional-info>
+          }
+
+          <!-- Инф-ция о продавце/покупателе (в зав-сти от вида торгов) -->
+          @if (fullInfo.generalInfo.firmName) {
+          <app-counter-offers-seller-info
+            [fullInfo]="fullInfo"
+            [uniqueDeliveryScopes]="uniqueDeliveryScopes"
+          ></app-counter-offers-seller-info>
+          }
+
+          <!--Инф-ция о покупателе/продавце (в зав-сти от вида торгов) -->
+          @if (user?.IsWorker && (selectedRow.buyerConcatedFirmName ||
+          selectedRow.sellerConcatedFirmName) || selectedRow?.isMine) {
+          <app-counter-offers-buyer-info
+            [selectedRow]="selectedRow"
+            [directionId]="fullInfo.generalInfo.directionId"
+          >
+          </app-counter-offers-buyer-info>
+          }
+          <div class="buttons flexContent8 jc-end">
+            @if ((selectedRow?.isMine || user?.IsWorker) &&
+            sessionIds.session.idSessionPeriod == IdSessionPeriods.trading &&
+            sessionIds.session.isActive) {
+            <button
+              class="btn btn-outline-primary submit w-260px"
+              (click)="showDeleteVisiblePopup()"
+            >
+              {{ "counterOffers.deleteCounterOffers" | translate }}
+            </button>
+            }
+          </div>
+        </div>
+      }
+      </as-split-area>
+    </as-split>
+  </div>
+</dx-scroll-view>
+
+<dx-popup
+  contentTemplate="deletePopup"
+  [hideOnOutsideClick]="false"
+  [visible]="isVisibleDeletePopup"
+  [showTitle]="true"
+  title="{{ 'counterOffers.deleteCounterOffers' | translate }}"
+  width="455"
+  height="auto"
+  [showCloseButton]="true"
+  (onHiding)="hideDeleteVisiblePopup()"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+  <div *dxTemplate="let data of 'deletePopup'" class="flexContentColumn32">
+    <div class="flexContentColumn4">
+      <span>{{ "counterOffers.deleteCounterOffersMess" | translate }}</span>
+    </div>
+
+    <div class="buttonsClass flexContent20 mt-3">
+      <button class="btn btn-primary submit w-50" (click)="deleteCounter()">
+        {{ "btns.delete" | translate }}
+      </button>
+      <button
+        class="btn btn-outline-primary btn-inherit w-50"
+        (click)="hideDeleteVisiblePopup()"
+      >
+        {{ "btns.close" | translate }}
+      </button>
+    </div>
+  </div>
+</dx-popup>

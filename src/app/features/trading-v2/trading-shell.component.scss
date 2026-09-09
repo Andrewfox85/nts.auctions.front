@@ -1,0 +1,42 @@
+@import "src/assets/scss/_constants.scss";
+
+:host {
+  display: block;
+  height: auto;
+  width: 100%;
+  min-height: min-content;
+  overflow: visible;
+}
+
+main.trading.trading-v2-shell {
+  width: 100%;
+  height: auto;
+  max-height: none;
+  overflow: visible;
+  box-sizing: border-box;
+
+  .main_component {
+    height: auto;
+    overflow: visible;
+  }
+
+  .trading_body {
+    height: auto;
+    overflow: visible;
+  }
+}
+
+.trading-v2-tabs {
+  display: block;
+  width: 100%;
+}
+
+.trading-v2-tab-outlet {
+  display: block;
+  width: 100%;
+  overflow: visible;
+
+  > router-outlet {
+    display: none;
+  }
+}

@@ -1,0 +1,391 @@
+<!--Сообщения-->
+
+@if (this.user?.IsWorker) {
+<div class="flexContentColumn16 minHeight">
+  <dx-data-grid
+    [dataSource]="messages"
+    [showBorders]="false"
+    [showColumnLines]="true"
+    [allowColumnResizing]="true"
+    [allowColumnReordering]="true"
+    [showRowLines]="true"
+    (onContentReady)="onContentReady($event)"
+    (onRowPrepared)="onRowPrepared($event)"
+    (onContextMenuPreparing)="onContextMenuPreparing($event)"
+    appLocalizeContextMenu
+  >
+    <dxo-toolbar>
+      @if (this.privileges) {
+      <dxi-item name="broker" location="before">
+        <div class="flexContent24">
+          <div class="flexContent8">
+            <div class="font-w500 l-h20">
+              {{ "trading.messages" | translate }}:
+            </div>
+
+            <a
+              [class.blackColor]="
+                this.categoryMessages !== CATEGORY_MESSAGES.ALL
+              "
+              (click)="chooseCategoryMessage(CATEGORY_MESSAGES.ALL)"
+            >
+              {{ "trading.messagesTab.all" | translate }}
+            </a>
+
+            <a
+              [class.blackColor]="
+                this.categoryMessages !== CATEGORY_MESSAGES.INCOMING
+              "
+              (click)="chooseCategoryMessage(CATEGORY_MESSAGES.INCOMING)"
+            >
+              {{ "trading.messagesTab.incoming" | translate }} ({{
+                countInboxUnanswered
+              }})</a
+            >
+
+            <a
+              [class.blackColor]="
+                this.categoryMessages !== CATEGORY_MESSAGES.OUTGOING
+              "
+              (click)="chooseCategoryMessage(CATEGORY_MESSAGES.OUTGOING)"
+            >
+              {{ "trading.messagesTab.outgoing" | translate }}
+            </a>
+          </div>
+
+          <div
+            class="flexContent4 pointer"
+            (click)="toggleShowFilters()"
+            #showFilter
+          >
+            <div>{{ "trading.messagesTab.show" | translate }}</div>
+
+            <i class="arrowDown"></i>
+          </div>
+
+          @if (showFilters) {
+          <div>
+            <div class="submenu" (click)="onClickOnSubMenu($event)">
+              <dx-list
+                [items]="dataSourceForShowFilter"
+                [height]="'auto'"
+                [width]="'auto'"
+                [selectionMode]="'multiple'"
+                displayExpr="name"
+                keyExpr="this"
+                (onSelectionChanged)="onShowFilterChanged($event)"
+                [showSelectionControls]="true"
+                [(selectedItemKeys)]="selectedItemKeysShowFilter"
+              />
+            </div>
+          </div>
+          }
+        </div>
+      </dxi-item>
+
+      <dxi-item name="createNewMessage" location="after">
+        <button class="btn btn-primary" (click)="openPopup('createNewMessage')">
+          <div class="flexContent8">
+            <i class="whitePencilEdit"></i>
+
+            <span>{{ "btns.createNewMess" | translate }}</span>
+          </div>
+        </button>
+      </dxi-item>
+
+      <dxi-item name="search" location="after">
+        <div class="search">
+          <div class="form-group">
+            <div class="input-group">
+              <dx-text-box
+                placeholder="{{ 'filters.searchLabel' | translate }}"
+                [showClearButton]="true"
+                width="320"
+                height="40"
+                [(value)]="search"
+                (onValueChanged)="onSearchValueChanged($event)"
+                maxLength="250"
+              >
+                <dxi-button
+                  name="search"
+                  location="before"
+                  [options]="searchIcon"
+                />
+
+                <dxi-button name="clear" />
+              </dx-text-box>
+            </div>
+          </div>
+        </div>
+      </dxi-item>
+      } @if (privilegesObserver) {
+      <dxi-item name="search-filters" location="after">
+        <div class="search d-flex jc-end">
+          <div class="form-group">
+            <div class="input-group">
+              <dx-text-box
+                placeholder="{{ 'filters.searchLabel' | translate }}"
+                [showClearButton]="true"
+                width="320"
+                height="40"
+                [(value)]="search"
+                maxLength="250"
+              >
+                <dxi-button
+                  name="search"
+                  location="before"
+                  [options]="searchIcon"
+                />
+
+                <dxi-button name="clear" />
+              </dx-text-box>
+            </div>
+          </div>
+        </div>
+      </dxi-item>
+      }
+    </dxo-toolbar>
+
+    <dxo-header-filter [visible]="true" [allowSearch]="true" />
+
+    <dxo-scrolling [scrollByContent]="true" mode="standard" showScrollbar="always" />
+
+    <dxo-paging [pageSize]="numberEntriesPage[1]" />
+
+    <dxo-state-storing
+      [enabled]="true"
+      type="localStorage"
+      storageKey="messages"
+    />
+
+    <dxo-pager
+      [visible]="true"
+      [allowedPageSizes]="numberEntriesPage"
+      displayMode="compact"
+      [showPageSizeSelector]="true"
+    />
+
+    @if (this.privileges) {
+    <dxi-column
+      caption=""
+      cellTemplate="cellTemplateIsObservable"
+      [width]="68"
+    />
+    }
+
+    <div
+      *dxTemplate="let data of 'cellTemplateIsObservable'"
+      class="flexContent4"
+    >
+      @if (data.data.isInbox) {
+      <div>
+        @if (data.data.idStatus !== 2) {
+        <i
+          class="UnansweredMess"
+          id="unansweredMess_{{ data.data.idMessage }}"
+        ></i>
+        } @if (data.data.idStatus === 2) {
+        <i class="answeredMess" id="answeredMess_{{ data.data.idMessage }}"></i>
+        }
+
+        <!-- отвеченное сообщение-->
+
+        <dx-tooltip
+          target="#unansweredMess_{{ data.data.idMessage }}"
+          [showEvent]="{ name: 'mouseenter', delay: 500 }"
+          hideEvent="mouseleave"
+        >
+          <div *dxTemplate="let data = data; of: 'content'">
+            {{ "trading.messagesTab.unansweredMessage" | translate }}
+          </div>
+        </dx-tooltip>
+
+        <dx-tooltip
+          target="#answeredMess_{{ data.data.idMessage }}"
+          [showEvent]="{ name: 'mouseenter', delay: 500 }"
+          hideEvent="mouseleave"
+        >
+          <div *dxTemplate="let data = data; of: 'content'">
+            {{ "trading.messagesTab.answeredMessage" | translate }}
+          </div>
+        </dx-tooltip>
+      </div>
+      } @else {
+      <div style="height: 24px; width: 24px"></div>
+      }
+
+      <div>
+        @if (!data.data.isWatched) {
+        <i
+          class="isNotObserved"
+          id="isNotObserved_{{ data.data.idMessage }}"
+        ></i>
+        } @if (data.data.isWatched) {
+        <i class="isObserved" id="isObserved_{{ data.data.idMessage }}"></i>
+        }
+
+        <dx-tooltip
+          target="#isNotObserved_{{ data.data.idMessage }}"
+          [showEvent]="{ name: 'mouseenter', delay: 500 }"
+          hideEvent="mouseleave"
+        >
+          <div *dxTemplate="let data = data; of: 'content'">
+            {{ "trading.messagesTab.observed" | translate }}
+          </div>
+        </dx-tooltip>
+
+        <dx-tooltip
+          target="#isObserved_{{ data.data.idMessage }}"
+          [showEvent]="{ name: 'mouseenter', delay: 500 }"
+          hideEvent="mouseleave"
+        >
+          <div *dxTemplate="let data = data; of: 'content'">
+            {{ "trading.messagesTab.addedToWatchlist" | translate }}
+          </div>
+        </dx-tooltip>
+      </div>
+    </div>
+
+    <ng-template #noIcon>
+      <div style="height: 24px; width: 24px"></div>
+    </ng-template>
+
+    <dxi-column
+      caption="{{ 'trading.tradersTable.trader' | translate }}"
+      dataField="traderFullName"
+      cssClass="column text-align-left"
+      [minWidth]="240"
+      cellTemplate="cellTemplateTrader"
+    >
+      <dxo-header-filter [dataSource]="orderHeaderTrader" />
+    </dxi-column>
+
+    <div *dxTemplate="let data of 'cellTemplateTrader'">
+      <div class="flexContent4">
+        @if (this.privileges) {
+        <div class="font-s10 l-h12 typeMess w-fit-cnt">
+          {{
+            data.data.isInbox
+              ? ("trading.messagesTab.incoming"
+                | translate
+                | upperCaseFirstLetter)
+              : ("trading.messagesTab.outgoing"
+                | translate
+                | upperCaseFirstLetter)
+          }}
+        </div>
+        } @if (data.data.isImportant) {
+        <div class="urgentLabel font-s10 l-h12">
+          {{ "trading.messagesTab.urgent" | translate }}
+        </div>
+        } @if (data.data.isSystem) {
+        <div class="systemMessageLabel font-s10 l-h12">
+          {{ "trading.messagesTab.systemMessage" | translate }}
+        </div>
+        }
+      </div>
+
+      <div>
+        {{
+          data.data.isPublic
+            ? ("trading.messagesTab.allTraders" | translate)
+            : data.data.traderFullName
+        }}
+      </div>
+    </div>
+
+    <dxi-column
+      caption="{{ 'trading.tradersTable.participant' | translate }}"
+      dataField="concatedFirmName"
+      cssClass="column text-align-left"
+      [minWidth]="240"
+    />
+
+    <dxi-column
+      caption="{{ 'trading.tradersTable.contacts' | translate }}"
+      dataField="telephoneForSms"
+      cssClass="column text-align-left"
+      [minWidth]="240"
+      [allowSorting]="false"
+      [allowFiltering]="false"
+      [allowSearch]="true"
+    />
+
+    <dxi-column
+      caption="{{
+        'trading.messagesTab.message' | translate | upperCaseFirstLetter
+      }}"
+      dataField="text"
+      cssClass="column text-align-left"
+      cellTemplate="cellTemplateMessage"
+      [width]="500"
+      [allowSorting]="false"
+      [allowFiltering]="false"
+      [allowSearch]="true"
+    />
+
+    <div *dxTemplate="let data of 'cellTemplateMessage'">
+      <div [innerHTML]="data.data.text"></div>
+    </div>
+
+    <!--    дата и время получения сообщения-->
+    <dxi-column
+      caption="{{ 'trading.messagesTab.receivedTime' | translate }}"
+      dataField=""
+      cssClass="column text-align-left"
+      [width]="140"
+      [allowSorting]="true"
+      cellTemplate="cellTemplateDateMessage"
+      calculateSortValue="dateMessage"
+      [allowFiltering]="false"
+    />
+
+    <div *dxTemplate="let data of 'cellTemplateDateMessage'">
+      @if (data.data.dateMessage && data.data.isInbox) {
+      <div>
+        {{
+          data.data.dateMessage | excelDate : true | date : "HH:mm:ss" : "+0000"
+        }}
+      </div>
+      }
+    </div>
+
+    <!--    дата и время ответа на сообщение-->
+    @if (this.privileges) {
+    <dxi-column
+      caption="{{ 'trading.messagesTab.sentTime' | translate }}"
+      dataField=""
+      cssClass="column text-align-left"
+      [width]="140"
+      cellTemplate="cellTemplateDateReply"
+      [allowFiltering]="false"
+      calculateSortValue="dateMessage"
+      [allowSorting]="true"
+    />
+    }
+
+    <div *dxTemplate="let data of 'cellTemplateDateReply'">
+      @if (data.data.dateMessage && !data.data.isInbox) {
+      <div>
+        {{
+          data.data.dateMessage | excelDate : true | date : "HH:mm:ss" : "+0000"
+        }}
+      </div>
+      }
+    </div>
+  </dx-data-grid>
+</div>
+
+} @if (isPopupOpen) {
+<new-message
+  [popupType]="popupType"
+  [replyMessage]="replyMessage"
+  [sectionInfo]="{
+    sectionId: sessionIds().sectionId,
+    sessionId: sessionIds().sessionId
+  }"
+  (componentData)="
+    this.isPopupOpen = $event; replyMessage = null; this.getData()
+  "
+/>
+}

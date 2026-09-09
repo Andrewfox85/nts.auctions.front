@@ -1,0 +1,12 @@
+@import "src/assets/scss/_variables.scss";
+
+.session-stage {
+  padding: 4px 8px;
+  height: 24px;
+  background-color: $sectionForestBackground;
+  color: $mainActiveColor;
+}
+
+.session {
+  padding: 4px 8px;
+}

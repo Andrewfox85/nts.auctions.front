@@ -1,0 +1,19 @@
+@import "../../../../../../../../assets/scss/constants";
+@import "../../../../../../../../assets/scss/config";
+
+.catalog-btn {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #4caf50;
+}
+
+.form-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  flex: 1 0 0;
+}

@@ -1,0 +1,856 @@
+<main class="trading">
+  <div class="main_component">
+    @if (sessionInfo){
+    <div class="trading_body flexContentColumn16">
+      <!-- Информация о сессии и торгах -->
+      <div class="head_info p-3 border flexContentColumn16">
+        <div class="session_info flexContent20 pointer">
+          <div
+            class="session p-2 flexContent16 ai-c"
+            (click)="openOtherAuctions()"
+          >
+            <span
+              >{{ "general.section" | translate }}:
+              {{ sessionInfo?.sectionName }}
+            </span>
+
+            <span>{{ "general.session" | translate }}: № {{ sessionId }}</span>
+
+            <span
+              >{{ "general.dateAndTime" | translate }} :
+              {{
+                sessionInfo?.datetimeBegin
+                  | excelDate
+                  | date : "dd.MM.yyyy HH:mm" : "+0000"
+              }}</span
+            >
+
+            <span>{{ sessionInfo?.sessionName }}</span>
+            <span
+              class="status"
+              [ngClass]="{
+                greenStage: sessionInfo?.sessionStageId === sessionStage.transferAuctionCompleted,
+                blueStage: sessionInfo?.sessionStageId === sessionStage.admissionComleted
+              }"
+              >{{ sessionInfo?.sessionStageName }}</span
+            >
+          </div>
+
+          <div class="admission d-flex center">
+            <span
+              class="strong"
+              [ngClass]="{
+                orangeColor: sessionInfo?.sessionStageId === sessionStage.admissionComleted,
+                greenColor: sessionInfo?.isAdmissionFinished,
+                redColor: !sessionInfo?.isAdmissionFinished
+              }"
+              >
+              @if (sessionInfo?.sessionStageId === sessionStage.admissionComleted) {
+                {{ "trading.admissionIsMet" | translate }}
+              } @else if (sessionInfo?.isAdmissionFinished) {
+                {{ "trading.admissionFulfilled" | translate }}
+              } @else {
+                {{ "trading.admissionFailed" | translate }}
+              }              
+             </span
+            >
+          </div>
+        </div>
+
+        <div class="trading_info flexContent20">
+          <div class="trading flexContent48">
+            <div class="item flexContentColumn8">
+              <span class="secondTextColor">{{
+                "trading.currentTradingPeriod" | translate
+              }}</span>
+
+              <span class="strong">{{ sessionInfo?.sessionPeriod }}</span>
+            </div>
+
+            <div class="item flexContentColumn8">
+              <span class="secondTextColor">{{
+                "trading.state" | translate
+              }}</span>
+              <!--Если Период закрытия(12) / Когда предторговый период еще не запущен, у трейдера в состоянии отображается "Не активен"-->
+              @if (sessionInfo?.idSessionPeriod === IdSessionPeriods.closing) {
+                <span class="strong">-</span>
+              } @else if (
+                !user?.IsWorker &&
+                sessionInfo?.isPaused &&
+                sessionInfo?.idSessionPeriod === IdSessionPeriods.pretrading &&
+                sessionInfo?.datetimeRemaind == null
+              ) {
+                <span class="strong">{{ "trading.periods.inactive" | translate }}</span>
+              } @else {
+                <ng-container *ngTemplateOutlet="sessionState"></ng-container>
+              }
+            </div>
+
+            <ng-template #sessionState>
+              <span
+                class="strong"
+                [ngClass]="{
+                  greenColor: sessionInfo?.isActive,
+                  orangeColor: sessionInfo?.isPaused,
+                  redColor: sessionInfo?.isFinished
+                }"
+              >
+                {{
+                  sessionInfo?.isActive
+                    ? ("trading.periods.active" | translate)
+                    : sessionInfo?.isPaused
+                    ? ("trading.periods.suspended" | translate)
+                    : sessionInfo?.isFinished
+                    ? ("trading.periods.completed" | translate)
+                    : ""
+                }}
+              </span>
+            </ng-template>
+
+            <div class="item flexContentColumn8">
+              <span class="secondTextColor">{{
+                "trading.untilCompletion" | translate
+              }}</span>
+              @if (
+                sessionInfo?.idSessionPeriod !== IdSessionPeriods.closing &&
+                (sessionInfo?.datetimeRemaind && sessionInfo?.datetimeRemaind > 0)
+              ) {
+                <span>{{ sessionInfo?.datetimeRemaind | formatTime }}</span>
+              } @else {
+                <span>-</span>
+              }
+            </div>
+
+            <div class="item flexContentColumn8">
+              <span class="secondTextColor"
+                >{{ "trading.priceStep" | translate }}, %</span
+              >
+              @if (sessionInfo?.idSessionPeriod !== IdSessionPeriods.closing && sessionInfo?.options?.priceUpPoints) {
+                <span>{{
+                  sessionInfo?.options?.priceUpPoints | priceFormat
+                }}</span>
+              } @else {
+                <span>-</span>
+              }
+            </div>
+
+            @if (this.sessionInfo?.idAuctionType !== auctionType.simpleBuyerAuction) {
+              <div class="item flexContentColumn8">
+                <span class="secondTextColor">{{
+                  "trading.bidSubmissionTime" | translate
+                }}</span>
+                @if (sessionInfo?.idSessionPeriod !== IdSessionPeriods.closing && sessionInfo?.options?.timeBid) {
+                 <span>{{
+                  sessionInfo?.options?.timeBid | formatTime | substringFrom : 3
+                }}</span>
+                } @else {
+                  <span>-</span>
+                }
+              </div>
+            } 
+            @if (this.sessionInfo?.idAuctionType === auctionType.simpleBuyerAuction) {
+              <div class="item flexContentColumn8">
+                <span class="secondTextColor">{{
+                  "trading.applicationTime" | translate
+                }}</span>
+                @if (sessionInfo?.idSessionPeriod !== IdSessionPeriods.closing && sessionInfo?.options?.timeDemoff) {
+                 <span>{{
+                   sessionInfo?.options?.timeDemoff
+                     | formatTime
+                     | substringFrom : 3
+                  }}</span>
+                } @else {
+                 <span>-</span>
+                }
+              </div>
+            } 
+            @if (this.sessionInfo?.idAuctionType === auctionType.reverseWholesaleAuction) {
+            <div class="item flexContentColumn8">
+              <span class="secondTextColor">{{
+                "trading.priceStepDown" | translate
+              }}</span>
+              @if (sessionInfo?.idSessionPeriod !== IdSessionPeriods.closing && sessionInfo?.options?.priceDownPoints) {
+                <span>{{
+                  sessionInfo?.options?.priceDownPoints | priceFormat
+                }}</span>
+              } @else {
+                <span>-</span>
+              }
+            </div>
+            } 
+            @if (this.sessionInfo?.idAuctionType === auctionType.reverseWholesaleAuction) {
+              <div class="item flexContentColumn8">
+                <span class="secondTextColor">{{
+                  "trading.timeToGoDown" | translate
+                }}</span>
+                @if (sessionInfo?.idSessionPeriod !== IdSessionPeriods.closing && sessionInfo?.options?.timeDowngrade) {
+                  <span>{{
+                    sessionInfo?.options?.timeDowngrade
+                      | formatTime
+                      | substringFrom : 3
+                  }}</span>
+                } @else {
+                  <span>-</span>
+                }
+              </div>
+            }
+          </div>
+
+          @if (workerPrivileges) {
+          <div class="action_btn d-flex center">
+            <button class="btn secondary-btn">
+              <dx-drop-down-button
+                [height]="40"
+                [width]="40"
+                [showArrowIcon]="false"
+                [dropDownOptions]="{ width: 290 }"
+                (onItemClick)="onChangeDropDown($event)"
+                icon="./assets/img/icons/dots.svg"
+                [items]="
+                  !this.sessionInfo?.isAllowedTargetedTransact
+                    ? [
+                        {
+                          icon: './assets/img/icons/admission.svg',
+                          name: 'header.top_line.menu.admission',
+                          id: 'admission',
+                          disabled:
+                            this.sessionInfo?.idSessionPeriod !== IdSessionPeriods.pretrading ||
+                            this.sessionInfo?.isActive
+                        },
+                        {
+                          icon: './assets/img/icons/calculator.svg',
+                          name: 'trading.calcExchangeFee',
+                          id: 'calculator',
+                          disabled:
+                          this.sessionInfo?.idSessionPeriod === IdSessionPeriods.pretrading
+                        },
+                        {
+                          icon: './assets/img/icons/endSession.svg',
+                          name: 'trading.endSession',
+                          red: true,
+                          id: 'endSession'
+                        }
+                      ]
+                    : !directTabs &&
+                      this.sessionInfo?.isAllowedTargetedTransact &&
+                      this.sessionInfo?.datetimeEnd == null
+                    ? [
+                        {
+                          icon: './assets/img/icons/admission.svg',
+                          name: 'header.top_line.menu.admission',
+                          id: 'admission',
+                          disabled:
+                            this.sessionInfo?.idSessionPeriod !== IdSessionPeriods.pretrading ||
+                            this.sessionInfo?.isActive
+                        },
+                        {
+                          icon: './assets/img/icons/endSession.svg',
+                          name: 'trading.endMainTrading',
+                          red: true,
+                          id: 'endSession'
+                        }
+                      ]
+                    : [
+                        {
+                          icon: './assets/img/icons/admission.svg',
+                          name: 'header.top_line.menu.admission',
+                          id: 'admission',
+                          disabled:
+                            this.sessionInfo?.idSessionPeriod !== IdSessionPeriods.pretrading ||
+                            this.sessionInfo?.isActive
+                        },
+                        {
+                          icon: './assets/img/icons/addToArchive.svg',
+                          name: 'trading.intermediatetransferToArchive',
+                          id: 'intermediatetransferToArchive'
+                        },
+                        {
+                          icon: './assets/img/icons/endSession.svg',
+                          name: 'trading.endSession',
+                          red: true,
+                          id: 'endSession'
+                        }
+                      ]
+                "
+                itemTemplate="template"
+                [useItemTextAsTitle]="false"
+                ><!--
+                              [items]="[{icon: './assets/img/icons/admission.svg', name: 'header.top_line.menu.admission', id: 'admission', disabled: this.sessionInfo?.idSessionPeriod != 1 || this.sessionInfo?.isActive},
+                            {icon: './assets/img/icons/calculator.svg', name: 'trading.calcExchangeFee', id: 'calculator'},
+                            {icon: './assets/img/icons/endSession.svg', name: 'trading.endSession', red: true, id: 'endSession'}]"
+                             sessionInfo?.idSessionPeriod != 13 && this.sessionInfo?.isAllowedTargetedTransact  -->
+                <div *dxTemplate="let data of 'template'" class="padding">
+                  <div class="flexContent16">
+                    <img src="{{ data.icon }}" />
+                    <div [ngClass]="{ redColor: data.red }">
+                      {{ data.name | translate }}
+                    </div>
+                  </div>
+                </div>
+              </dx-drop-down-button>
+            </button>
+          </div>
+          }
+
+          @if(!user?.IsWorker && idDirectionRole != idDirectionTraderRole.NULL_ROLE){
+            <div class="changeTag h-ft">{{ idDirectionRole === idDirectionTraderRole.PURCHASE ? ('general.buyer' | translate) :
+              idDirectionRole === idDirectionTraderRole.SALE ? ('general.seller' | translate) : (('general.buyer' | translate)+ '/' + ('general.seller' | translate))}}</div>
+          }
+        </div>
+      </div>
+
+      @if (tabIndex !== undefined) {
+      <div class="tabs">
+        <dx-tab-panel
+          [(selectedIndex)]="tabIndex"
+          [repaintChangesOnly]="true"
+          (onSelectionChanged)="onSelectionChangedTab($event)"
+        >
+          <!-- Торги  -->
+          @if (isTradingTabVisible) {
+          <dxi-item
+            id="trading"
+            title="{{ 'trading.trading' | translate }}"
+            [disabled]="disableTabs"
+          >
+            <div *dxTemplate class="tab-content flexContentColumn8">
+              <app-auctions
+                [sessionInfo]="sessionInfo"
+                [sessionIds]="{ sectionId: sectionId, sessionId: sessionId }"
+                [tabIndex]="selectedId"
+                [isAdmissionFinished]="isAdmissionFinished"
+                [idDirectionRole]="idDirectionRole"
+              />
+            </div>
+          </dxi-item>
+          }
+
+          <!-- Заявки / Адресные заявки -->
+          @if (isOffersTabVisible) {
+            <dxi-item
+              id="offers"
+              title="{{
+                directTabs
+                  ? ('trading.directOffersTab.directOffers' | translate)
+                  : user?.IsWorker
+                  ? ('btns.offers' | translate)
+                  : ('trading.myOffers' | translate)
+              }}"
+              [disabled]="disableTabs"
+            >
+              <div *dxTemplate class="tab-content flexContentColumn8">
+                <app-offers
+                  [sessionInfo]="sessionInfo"
+                  [sessionIds]="{ sectionId: sectionId, sessionId: sessionId }"
+                  [tabIndex]="selectedId"
+                  [isFromTraders]="isFromTradersOffers"
+                  [dataForFilter]="isFromTradersOffers ? dataForFilterOffers : null"
+                  [isAdmissionFinished]="isAdmissionFinished"
+                  [isIntermediateTransfer]="isIntermediateTransfer"
+                />
+              </div>
+            </dxi-item>
+          }
+          
+
+          <!-- Регистрации -->
+          @if (isRegsTabVisible) {
+            <dxi-item
+              id="registration"
+              title="{{
+                user?.IsWorker
+                  ? ('trading.registration' | translate)
+                  : ('trading.myRegs' | translate)
+              }}"
+              [disabled]="disableTabs"
+            >
+              <div *dxTemplate class="tab-content flexContentColumn8">
+                <app-registrations
+                  [sessionInfo]="sessionInfo"
+                  [sessionIds]="{ sectionId: sectionId, sessionId: sessionId }"
+                  [tabIndex]="selectedId"
+                  [isFromTraders]="isFromTradersRegs"
+                  [dataForFilter]="isFromTradersRegs ? dataForFilterRegs : null"
+                  [isAdmissionFinished]="isAdmissionFinished"
+                />
+              </div>
+            </dxi-item>
+          }
+
+          <!-- Трейдеры только работник -->
+          @if (user?.IsWorker && !directTabs) {
+          <dxi-item
+            id="traders"
+            title="{{ 'trading.traders' | translate }}"
+            [disabled]="disableTabs"
+          >
+            <div *dxTemplate class="tab-content flexContentColumn8">
+              <app-traders
+                [sessionInfo]="sessionInfo"
+                [sessionIds]="{ sectionId: sectionId, sessionId: sessionId }"
+                [tabIndex]="selectedId"
+                [isAdmissionFinished]="isAdmissionFinished"
+                (newTab)="newTab($event)"
+              />
+            </div>
+          </dxi-item>
+          }
+
+          <!-- Задаток -->
+          @if (!user?.IsWorker || workerPrivileges) {
+          <dxi-item
+            id="deposit"
+            title="{{ 'trading.deposit' | translate }}"
+            [disabled]="disableTabs"
+          >
+            <div *dxTemplate class="tab-content flexContentColumn8">
+              <app-deposit
+                [sessionInfo]="sessionInfo"
+                [sessionIds]="{ sectionId: sectionId, sessionId: sessionId }"
+                [isAdmissionFinished]="isAdmissionFinished"
+                [tabIndex]="selectedId"
+              />
+            </div>
+          </dxi-item>
+          }
+
+          <!-- Сделки -->
+          @if (isDealsTabVisible) {
+            <dxi-item
+              id="deals"
+              title="{{ 'trading.deals' | translate }}"
+              [disabled]="disableTabs"
+            >
+              <div *dxTemplate class="tab-content flexContentColumn8">
+                <app-deals
+                  [sessionInfo]="sessionInfo"
+                  [sessionIds]="{ sectionId: sectionId, sessionId: sessionId }"
+                  [tabIndex]="selectedId"
+                  [isAdmissionFinished]="isAdmissionFinished"
+                  [isCalcFeeFinished]="isCalcFeeFinished"
+                />
+              </div>
+            </dxi-item>
+          }
+
+          <!-- Сообщения -->
+          <dxi-item
+            tabTemplate="tabMessages"
+            template="itemMessages"
+            id="messages"
+            class="d-flex flex-end"
+          />
+
+          <div
+            *dxTemplate="let item of 'tabMessages'"
+            class="flexContent4 ai-c"
+          >
+            <div>
+              {{ "trading.messages" | translate }}
+            </div>
+
+            @if (countInboxUnanswered > 0 && (this.user?.IsWorker ||
+            (!this.user?.IsWorker && tabIndex != 5))) {
+            <div class="redWarningErorr size16"></div>
+            }
+          </div>
+
+          <div
+            *dxTemplate="let item of 'itemMessages'"
+            class="tab-content flexContentColumn8"
+          >
+            <div class="mt-3">
+              @if (user?.IsWorker) {
+              <app-messages
+                [sessionIds]="{ sectionId: sectionId, sessionId: sessionId }"
+                (countInboxUnansweredEvent)="this.countInboxUnanswered = $event"
+                [tabIndex]="selectedId"
+                [isAdmissionFinished]="isAdmissionFinished"
+              />
+              } @if (!this.user?.IsWorker) {
+              <app-chat-trader
+                [sessionIds]="{ sectionId: sectionId, sessionId: sessionId }"
+                [tabIndex]="selectedId"
+                [isAdmissionFinished]="isAdmissionFinished"
+              />
+              }
+            </div>
+          </div>
+
+          <!-- Настройки только работник -->
+          @if (user?.IsWorker && workerPrivileges) {
+          <dxi-item id="setting" title="{{ 'trading.setting' | translate }}">
+            <div *dxTemplate class="tab-content flexContentColumn8">
+              <app-periods
+                [sessionInfo]="sessionInfo"
+                [sessionIds]="{ sectionId: sectionId, sessionId: sessionId }"
+                [tabIndex]="selectedId"
+                [isAdmissionFinished]="isAdmissionFinished"
+              />
+            </div>
+          </dxi-item>
+          }
+        </dx-tab-panel>
+      </div>
+      }
+    </div>
+    }
+  </div>
+</main>
+
+<dx-popup
+  contentTemplate="violationsPopup"
+  [hideOnOutsideClick]="false"
+  [visible]="violationsPopup"
+  [showTitle]="true"
+  title="{{ 'general.entryToAuctions' | translate }}"
+  width="550"
+  height="auto"
+  maxHeight="900"
+  [showCloseButton]="true"
+  (onHiding)="violationsPopupClose()"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  />
+
+  <div *dxTemplate="let data of 'violationsPopup'">
+    <div class="flexContentColumn16">
+      @if (warningMessage) {
+      <div class="errorPopup borderRed">
+        <i class="errorIcon"></i>
+        <div>{{ warningMessage }}</div>
+      </div>
+      } @if (isExistsViolations?.toString() == 'false' && (!warningMessage ||
+      warningMessage.length === 0)) {
+      <div class="notificationBlue borderBlue">
+        <i class="blueIcon"></i>
+        <div>
+          {{
+            "errors.isNotExistsViolations" | translate : currentDateForDisplay
+          }}
+        </div>
+      </div>
+      } @if (isExistsViolations?.toString() == 'true' && (!warningMessage ||
+      warningMessage.length === 0)) {
+      <div class="borderOrange notificationOrange">
+        <i class="unavailableIcon"></i>
+        <div>
+          {{ "errors.isExistsViolations" | translate : currentDateForDisplay }}
+        </div>
+      </div>
+      } @if (transferingMessage) {
+      <div class="errorPopup borderRed">
+        <i class="errorIcon"></i>
+        <div>{{ "trading.transferToArchiveNoInfo" | translate }}</div>
+      </div>
+      } @if (isExistsViolations?.toString() == 'true' && (!warningMessage ||
+      warningMessage.length === 0)) {
+      <a (click)="goToPersonalPageIndex()">{{
+        "footer.top_line.first.link_2" | translate
+      }}</a>
+      }
+    </div>
+  </div>
+</dx-popup>
+
+<!-- переход в другую сессию -->
+<dx-popup
+  contentTemplate="otherAuctionsPopup"
+  [hideOnOutsideClick]="false"
+  [visible]="otherAuctionsPopup"
+  [showTitle]="true"
+  title="{{ 'general.entryToAuctions' | translate }}"
+  width="560"
+  height="auto"
+  [showCloseButton]="true"
+  (onHiding)="otherAuctionsPopup = false"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  />
+
+  <div *dxTemplate="let data of 'otherAuctionsPopup'">
+    <div class="flexContentColumn16">
+      <div class="notificationBlue borderBlue">
+        <i class="blueIcon"></i>
+        <div>{{ "trading.choosenSessionNewTab" | translate }}</div>
+      </div>
+
+      <form [formGroup]="form">
+        <div class="flexContentColumn16 w-100">
+          <div class="form-group">
+            <label>{{ "filters.section" | translate }}</label>
+
+            <div class="flexContentColumn8">
+              <dx-select-box
+                [dataSource]="sections"
+                valueExpr="id"
+                displayExpr="name"
+                height="40px"
+                placeholder="{{ 'filters.selection' | translate }}"
+                formControlName="section"
+                [showClearButton]="true"
+                (onValueChanged)="onChangeSection($event)"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>{{ "filters.session" | translate }}</label>
+
+            <div class="flexContentColumn8">
+              <dx-select-box
+                [dataSource]="sessionsForDisplay"
+                valueExpr="sessionId"
+                displayExpr="sessionName"
+                height="40px"
+                placeholder="{{ 'filters.selection' | translate }}"
+                formControlName="session"
+                fieldTemplate="sessionTemplate"
+                [disabled]="!this.form.get('section')?.value"
+                [showClearButton]="true"
+              >
+                <div *dxTemplate="let item of 'item'">
+                  <div
+                    id="nameSession{{ item.sessionId }}"
+                    class="flexContent8"
+                  >
+                    <div class="date-roboto-mono">№{{ item.sessionId }}</div>
+                    <div class="overflowText">{{ item.sessionName }}</div>
+                  </div>
+
+                  <dx-tooltip
+                    target="#nameSession{{ item.sessionId }}"
+                    [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                    hideEvent="mouseleave"
+                  >
+                    <div *dxTemplate="let data = data; of: 'content'">
+                      {{ item.sessionName }}
+                    </div>
+                  </dx-tooltip>
+                </div>
+
+                <!--              Отображение в выбранном значании ид + название сессиии-->
+                <div *dxTemplate="let item of 'sessionTemplate'">
+                  <dx-text-box
+                    placeholder="{{ 'filters.selection' | translate }}"
+                    class="date-roboto-mono"
+                    [value]="sessionTemplateSelectBox(item)"
+                    [readOnly]="true"
+                  />
+                </div>
+              </dx-select-box>
+            </div>
+          </div>
+
+          <div class="buttons flexContent24 buttonsClass mt-2">
+            <button
+              class="btn btn-primary submit w-50"
+              [disabled]="!form.valid"
+              (click)="
+                goToOtherAuctions(
+                  this.form.get('section')?.value,
+                  this.form.get('session')?.value
+                )
+              "
+            >
+              {{ "btns.goToAuction" | translate }}
+            </button>
+            <button
+              class="btn btn-outline-primary w-50"
+              (click)="otherAuctionsPopup = false"
+            >
+              {{ "btns.close" | translate }}
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</dx-popup>
+
+<dx-popup
+  contentTemplate="popupTemplate"
+  [hideOnOutsideClick]="false"
+  [visible]="popupDropDown"
+  [showTitle]="true"
+  [title]="popupDropDownTitle"
+  width="455"
+  height="auto"
+  [showCloseButton]="true"
+  (onHiding)="popupDropDown = false"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  />
+
+  <div *dxTemplate="let data of 'popupTemplate'">
+    <div class="flexContentColumn32">
+      <form [formGroup]="admissionForm" class="flexContentColumn16">
+        @if (!this.sessionInfo?.isAdmissionFinished) {
+        <div>
+          {{ "trading.startAdmissionToExchangeTrading" | translate }}
+          {{ "trading.startAdmissionSettings" | translate }}
+          :
+        </div>
+        } @if (this.sessionInfo?.isAdmissionFinished) {
+        <div class="flexContentColumn8">
+          <span>{{
+            "trading.startAdmissionToExchangeTrading" | translate
+          }}</span>
+
+          <span>
+            <dx-radio-group
+              [items]="[
+                {
+                  id: 'forAllApplicationsRegistrations',
+                  name: 'trading.forAllApplicationsRegistrations' | translate
+                },
+                {
+                  id: 'onRejectedApplicationsRegistrations',
+                  name:
+                    'trading.onRejectedApplicationsRegistrations' | translate
+                }
+              ]"
+              valueExpr="id"
+              displayExpr="name"
+              formControlName="radioButton"
+            />
+          </span>
+          <span>{{ "trading.startAdmissionSettings" | translate }}:</span>
+        </div>
+        }
+
+        <div class="border w-100">
+          <div class="item border-bottom flexContent8 p-3 jc-sb center">
+            <span>{{
+              "trading.regsTable.violationsControl" | translate | lowercase
+            }}</span>
+
+            <dx-switch
+              switchedOffText=""
+              switchedOnText=""
+              formControlName="isAdmissionControlViols"
+            />
+          </div>
+
+          <div class="w-100">
+            <div class="item border-bottom flexContent8 p-3 jc-sb center">
+              <span>{{
+                "trading.regsTable.depositControl" | translate | lowercase
+              }}</span>
+
+              <dx-switch
+                switchedOffText=""
+                switchedOnText=""
+                formControlName="isAdmissionControlDeposit"
+                (onValueChanged)="
+                  this.admissionForm.controls.specialAdmissionProcedure.patchValue(
+                    false
+                  )
+                "
+              />
+            </div>
+          </div>
+
+          <div class="w-100">
+            <div class="item flexContent8 p-3 jc-sb center">
+              <span>{{
+                "trading.regsTable.specialAdmissionProcedure"
+                  | translate
+                  | lowercase
+              }}</span>
+
+              <dx-switch
+                switchedOffText=""
+                switchedOnText=""
+                formControlName="specialAdmissionProcedure"
+                [disabled]="
+                  !this.admissionForm.controls.isAdmissionControlDeposit?.value
+                "
+              />
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <div class="flexContent16 w-100">
+        <button
+          class="btn btn-primary w-50"
+          [disabled]="
+            this.sessionInfo?.sessionStageId === sessionStage.admissionComleted ||
+            this.sessionInfo?.idSessionPeriod !== IdSessionPeriods.pretrading
+          "
+          (click)="onStartAdmission()"
+        >
+          {{ "btns.startAdmission" | translate }}
+        </button>
+        <button
+          class="btn btn-outline-primary w-50"
+          (click)="popupDropDown = false; popupDropDownTitle = null"
+        >
+          {{ "btns.close" | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</dx-popup>
+
+<dx-popup
+  contentTemplate="submissionPopup"
+  [hideOnOutsideClick]="false"
+  [visible]="submissionPopup"
+  [showTitle]="true"
+  title="{{ 'trading.moveToArchive' | translate }}"
+  width="490"
+  height="auto"
+  [showCloseButton]="true"
+  (onHiding)="onSubmissionPopup()"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  />
+
+  <div *dxTemplate="let data of 'submissionPopup'">
+    <div class="flexContentColumn24">
+      @if (!sessionInfo?.isAllowedTargetedTransact && submissionType ==
+      'endSession') {
+      <div>
+        {{ "trading.transferToArchiveMess" | translate }}
+      </div>
+      } @if ( (sessionInfo?.isAllowedTargetedTransact && submissionType ==
+      'intermediatetransfer') || (sessionInfo?.isAllowedTargetedTransact &&
+      sessionInfo?.idSessionPeriod != 13 && submissionType == 'endSession')) {
+      <div>
+        {{ "trading.endMainTradingMess" | translate }}
+      </div>
+      } @if (sessionInfo?.idSessionPeriod == 13 &&
+      sessionInfo?.isAllowedTargetedTransact && submissionType == 'endSession')
+      {
+      <div>
+        {{ "trading.transferToArchiveMess" | translate }}
+      </div>
+      }
+
+      <div class="flexContent16 w-100">
+        <button
+          class="btn btn-primary w-50"
+          (click)="
+            submissionType == 'intermediatetransfer'
+              ? intermediateTransfer()
+              : endSession()
+          "
+        >
+          {{ "btns.transfer" | translate }}
+        </button>
+        <button
+          class="btn btn-outline-primary w-50"
+          (click)="submissionPopup = false; this.submissionType = ' '"
+        >
+          {{ "btns.close" | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</dx-popup>

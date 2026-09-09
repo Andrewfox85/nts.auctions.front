@@ -1,0 +1,167 @@
+<div class="sellerInformation border p-2">
+  <div class="flexContent4 jc-sb" (click)="changeSellerInformationHidden()">
+    <span class="font-s16">{{ "trading.dealsTab.seller" | translate }}</span>
+    <div
+      class="filtersArrow"
+      [class.tr-rt180]="!sellerInformationHidden()"
+    ></div>
+  </div>
+
+  <div [hidden]="sellerInformationHidden()">
+    <form [formGroup]="editForm">
+      <div class="flexContentColumn16 mt-3 w-100">
+        <div class="flexContent8 flex-start">
+          <div class="label">
+            {{ "trading.tradersTable.participant" | translate }}
+          </div>
+          <div class="info">
+            {{ generalInfo()?.sellerInfo?.sellerConcatedFirmName }}
+          </div>
+        </div>
+
+        @if (selectedType() === PARTICIPANT_TYPES.BROKER) { 
+          <div class="flexContent8 flex-start">
+            <div class="label">
+              {{ "general.contractType" | translate }}
+            </div>
+            <div class="info">
+              {{ "general.agencyAgreement" | translate }}
+            </div>
+          </div>
+        }
+
+        <div class="flexContent8 flex-start">
+          <div>
+            <span class="flexContent8">
+              <input
+                type="radio"
+                name="role"
+                id="broker"
+                [checked]="selectedType() === PARTICIPANT_TYPES.BROKER"
+                [disabled]="brokerList().length === 0" 
+                (change)="onTypeChange(PARTICIPANT_TYPES.BROKER)" 
+              />
+
+              <label for="broker" class="pb-0 blackColor font-s14">
+                {{ "general.brokerRole" | translate }}
+              </label>
+            </span>
+          </div>
+
+           <div>
+              <span class="flexContent8">
+                <input
+                  type="radio"
+                  name="role"
+                  id="visitor"
+                  [checked]="selectedType() === PARTICIPANT_TYPES.VISITOR"
+                  [disabled]="visitorList().length === 0"
+                  (change)="onTypeChange(PARTICIPANT_TYPES.VISITOR)"
+                />
+
+                <label for="visitor" class="pb-0 blackColor font-s14">
+                  {{ "general.visitorRole" | translate }}
+                </label>
+              </span>
+            </div>
+        </div>
+
+        @if (infoForEdit()?.length === 0) {
+          <div class="flexContentColumn8 w-100">
+            <div class="notificationBlue h-auto p-2">
+              <span class="message flexContent8 center">
+                <i class="blueIcon"></i>
+                <span class="secondTextColor font-s14 l-h16">
+                  {{ "viewDeal.editingSellerIsNotAvailable" | translate }}
+                </span>
+              </span>
+            </div>
+          </div>
+        } 
+
+        <div class="flexContent16 w-100">
+          @if (selectedType() === PARTICIPANT_TYPES.BROKER) {
+            <div class="form-group w-50">
+              <label>{{ "general.client" | translate }}</label>
+              <dx-select-box
+                [dataSource]="uniqueFirmClients()"
+                valueExpr="idFirmClient"
+                displayExpr="concatedNameFirmClient"
+                height="40px"
+                placeholder="{{ 'filters.selection' | translate }}"
+                formControlName="sellerIdClientNew"
+                [searchEnabled]="true"
+                [showClearButton]="true"
+                [minSearchLength]="3"
+                [showDataBeforeSearch]="true"
+                (onValueChanged)="onChooseClient($event.value)"
+              >
+              </dx-select-box>
+            </div>
+          }
+          
+          @if (branchDataSource().length > 0) {
+          <div class="form-group w-50">
+            <label>{{ "general.structuralSubdivision" | translate }}</label>
+            <dx-select-box
+              [dataSource]="branchDataSource()"
+              valueExpr="idBranch"
+              displayExpr="nameBranch"
+              height="40px"
+              placeholder="{{ 'filters.selection' | translate }}"
+              formControlName="sellerIdBranchNew"
+              [searchEnabled]="true"
+              [minSearchLength]="3"
+              [showDataBeforeSearch]="true"
+              [showClearButton]="true"
+            >
+            </dx-select-box>
+          </div>
+          }
+
+          <div class="form-group w-50">
+            <label>{{ "general.vatRatePercent" | translate }}</label>
+            <dx-select-box
+              [dataSource]="vatRatePercents()"
+              valueExpr="id"
+              displayExpr="name"
+              height="40px"
+              placeholder="{{ 'filters.selection' | translate }}"
+              formControlName="vatPercent"
+              [searchEnabled]="true"
+              [showClearButton]="true"
+              [minSearchLength]="3"
+              [showDataBeforeSearch]="true"
+              (onValueChanged)="onChangeVat($event.value)"
+            >
+              <dx-validator>
+                <dxi-validation-rule type="required"></dxi-validation-rule>
+              </dx-validator>
+            </dx-select-box>
+          </div>
+        </div>
+        
+        <div class="flexContentColumn8 w-100">
+          <div class="flexContent20">
+            <label>{{ "viewDeal.editReason" | translate }}</label>
+            <label>
+              {{
+                editForm.get("textReason")?.value?.length > 0
+                  ? editForm.get("textReason")?.value?.length
+                  : 0
+              }}/500
+            </label>
+          </div>
+          <dx-text-area
+            height="124px"
+            placeholder="{{ 'general.text' | translate }}"
+            maxLength="500"
+            valueChangeEvent="keyup"
+            formControlName="textReason"
+          ></dx-text-area>
+        </div>
+        
+      </div>
+    </form>
+  </div>
+</div>

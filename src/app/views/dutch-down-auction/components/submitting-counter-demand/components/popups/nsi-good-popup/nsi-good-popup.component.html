@@ -1,0 +1,73 @@
+<dx-popup
+  contentTemplate="popupContent"
+  [visible]="addNsiGood()"
+  [hideOnOutsideClick]="false"
+  [showTitle]="true"
+  title="{{ 'counterOffers.nsiGoodPopupTitle' | translate }}"
+  [showCloseButton]="true"
+  height="auto"
+  width="700"
+  (onShown)="onPopupShown()"
+  (onHidden)="closePopup()"
+>
+  <div *dxTemplate="let data of 'popupContent'">
+    @if (goodForm()) {
+      <form [formGroup]="goodForm()">
+        <div class="content flexContent12 flex-start w-100">
+          <div class="w-100">
+            <div class="flexContentColumn16">
+              @for (item of goodValuesForDisplay(); track item.idReference) {
+                  <div class="form-item" 
+                       nsiTree
+                       [ref]="item">
+
+                    @if (item.parentIdReference && item.parentIdReference !== GOOD_REF_ID) {
+                      <i class="childArrow mt-3"></i>
+                    }  
+
+                    <div class="flexContentColumn8 w-100">
+                      <label class="font-s14">{{ item.referenceName }}</label>
+
+                      <dx-select-box
+                        [dataSource]="item.listValues"
+                        [formControlName]="item.idReference.toString()"
+                        displayExpr="valueName"
+                        valueExpr="idValue"
+                        [searchEnabled]="true"
+                        [showClearButton]="false"
+                        [class.disabled]="isDisabled(item)"
+                        (onValueChanged)="onChangeName($event, item)"
+                      >
+                      </dx-select-box>
+                    </div>
+                </div>
+              }
+            </div>
+          </div>
+      </div>
+    </form>
+  }
+
+  <div class="flexContent20 buttonsClass jc-end w-100 mt-3">
+    <button
+      class="btn btn-primary submit w-50"
+      [disabled]="!canAddGood"
+      (click)="addNsiGoodToForm()"
+    >
+      {{ "btns.addGood" | translate }}
+    </button>
+    <button
+      class="btn btn-outline-primary submit w-50"
+      (click)="closePopup()"
+    >
+      {{ "btns.close" | translate }}
+    </button>
+  </div>
+
+  @if (isCatalogGoods) {
+    <div class="catalog-btn w-100 mt-3" (click)="closePopup('openCatalogPopup')">
+      <span>{{ "counterOffers.goToCatalog" | translate }}</span>
+    </div>
+  }
+  </div>
+</dx-popup>

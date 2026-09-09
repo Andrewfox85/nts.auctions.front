@@ -1,0 +1,315 @@
+<div class="goods flexContentColumn4 flex-end w-100">
+  @if (fullInfo.goods?.length > 0 && selectedRow.goods?.length > 0) {
+  <table class="w-100">
+    <tr>
+      <th></th>
+      <th class="text-align-center" colspan="4">
+        {{
+          this.sessionIds.session.idAuctionType ===
+          auctionType.simpleBuyerAuction
+            ? ("btns.buy" | translate)
+            : ("btns.sell" | translate)
+        }}
+      </th>
+      <th class="text-align-center" colspan="4">
+        {{ "counterOffers.counterOffer" | translate }}
+      </th>
+    </tr>
+
+    <tr>
+      <th class="text-align-left w-260px">
+        {{ "trading.offersTable.nameProduct" | translate }}
+      </th>
+
+      <!-- заявка на проаджу -->
+      <th>{{ "trading.offersTable.volume" | translate }}</th>
+      @if (fullInfo.generalInfo?.pricingTypeId ==
+      pricingType?.formulaWithQuotation) {
+      <th>
+        {{ "trading.offersTable.quotation" | translate }}
+      </th>
+      } @if (fullInfo.generalInfo?.pricingTypeId != pricingType?.price) {
+      <th>
+        {{ "trading.offersTable.amendment" | translate }}
+      </th>
+      } @if (fullInfo.generalInfo?.pricingTypeId !=
+      pricingType?.formulaWithoutQuotation) {
+      <th>
+        {{ "viewOffer.priceWithoutVAT" | translate }}
+      </th>
+      } @if (fullInfo.generalInfo?.pricingTypeId !=
+      pricingType?.formulaWithoutQuotation) {
+      <th>
+        {{ "viewOffer.costVAT" | translate }}
+      </th>
+      }
+      <th class="w-40px"></th>
+
+      <!-- встречка -->
+      <th>{{ "trading.offersTable.volume" | translate }}</th>
+      @if (fullInfo.generalInfo?.pricingTypeId ==
+      pricingType?.formulaWithQuotation) {
+      <th>
+        {{ "trading.offersTable.quotation" | translate }}
+      </th>
+      } @if (fullInfo.generalInfo?.pricingTypeId != pricingType?.price) {
+      <th>
+        {{ "trading.offersTable.amendment" | translate }}
+      </th>
+      } @if (fullInfo.generalInfo?.pricingTypeId !=
+      pricingType?.formulaWithoutQuotation) {
+      <th>
+        {{ "viewOffer.priceWithoutVAT" | translate }}
+      </th>
+      } @if (fullInfo.generalInfo?.pricingTypeId !=
+      pricingType?.formulaWithoutQuotation) {
+      <th>
+        {{ "viewOffer.costVAT" | translate }}
+      </th>
+      }
+    </tr>
+    <tbody>
+      @for (good of (expandTable ? fullInfo.goods : fullInfo.goods.slice(0, 5));
+      track good; let i = $index, last = $last, first = $first) {
+      <ng-container>
+        <tr [class.viewRow]="good.isOpened == true">
+          <td
+            class="w-260px text-align-left cursor-default"
+            id="name{{ good.idGood }}"
+          >
+            <span class="twostrings">{{ good.goodName }}</span>
+            <dx-tooltip
+              target="#name{{ good.idGood }}"
+              [showEvent]="{ name: 'mouseenter', delay: 500 }"
+              hideEvent="mouseleave"
+            >
+              <div
+                *dxTemplate="let data = data; of: 'content'"
+                class="whiteTextColor text-align-left"
+              >
+                {{ good.goodName }}
+              </div>
+            </dx-tooltip>
+          </td>
+
+          <!-- заявка на продажу -->
+          <td class="date-roboto-mono">
+            {{
+              getValue(good.goodsSpecifications, 1)
+                | toNumber
+                | ruNumberFormat : good.goodsSpecifications[0].fieldPrecision
+            }}
+            {{ good.unitName }}
+          </td>
+          @if (fullInfo.generalInfo?.pricingTypeId ==
+          pricingType?.formulaWithQuotation) {
+          <td class="date-roboto-mono">
+            {{
+              getValue(good.goodsSpecifications, 56)
+                | toNumber
+                | ruNumberFormat : good.goodsSpecifications[0].fieldPrecision
+            }}
+            {{ good.quoteCurrency }}
+          </td>
+          } @if (fullInfo.generalInfo?.pricingTypeId != pricingType?.price) {
+          <td class="date-roboto-mono">
+            {{
+              good.getValue(good.goodsSpecifications, 54)
+                | toNumber
+                | ruNumberFormat
+                  : (good.priceAdjustment.id == 2 ? currencyPrecision : 0)
+            }}
+            {{ good.priceAdjustment.id == 1 ? "%" : good.currency }}
+          </td>
+          }
+
+          <!--    цена меняется от базиса </td>-->
+          @if (fullInfo.generalInfo?.pricingTypeId !=
+          pricingType?.formulaWithoutQuotation) {
+          <td class="date-roboto-mono">
+            {{
+              getPriceFromBasisForGood(
+                good.goodsSpecifications[0].idDemandOfferGood
+              ) | ruNumberFormat : currencyPrecision : currencyPrecision
+            }}
+            {{ good.currency }}
+          </td>
+          } @if (fullInfo.generalInfo?.pricingTypeId !=
+          pricingType?.formulaWithoutQuotation) {
+          <td class="date-roboto-mono">
+            {{
+              getNumberCost(good.goodsSpecifications)
+                | ruNumberFormat : currencyPrecision : currencyPrecision
+            }}
+            {{ good.currency }}
+          </td>
+          }
+
+          <td class="w-40px">
+            <div class="flexContent10" (click)="good.isOpened = true">
+              <i
+                class="viewGood"
+                [ngStyle]="{
+                  'pointer-events': goodInfo ? 'none' : 'all'
+                }"
+              ></i>
+            </div>
+          </td>
+
+          <!-- встречка -->
+          <td
+            class="date-roboto-mono"
+            [class.difference]="
+              getCompareValue(
+                good.goodsSpecifications[0].idDemandOfferGood,
+                'volumeMatch'
+              ) === false
+            "
+          >
+            {{
+              getValueFromCounter(
+                good.goodsSpecifications[0].idDemandOfferGood,
+                "volume"
+              )
+            }}
+            {{ good.unitName }}
+          </td>
+          @if (fullInfo.generalInfo?.pricingTypeId != pricingType?.price) {
+          <td
+            class="date-roboto-mono"
+            [class.difference]="
+              getCompareValue(
+                good.goodsSpecifications[0].idDemandOfferGood,
+                'priceAdjustmentMatch'
+              ) === false
+            "
+          >
+            {{
+              getValueFromCounter(
+                good.goodsSpecifications[0].idDemandOfferGood,
+                "priceAdjustment"
+              ) | ruNumberFormat : currencyPrecision : currencyPrecision
+            }}
+            {{ good.priceAdjustment.id == 1 ? "%" : good.currency }}
+          </td>
+          } @if (fullInfo.generalInfo?.pricingTypeId !=
+          pricingType?.formulaWithoutQuotation) {
+          <td
+            class="date-roboto-mono"
+            [class.difference]="
+              getCompareValue(
+                good.goodsSpecifications[0].idDemandOfferGood,
+                'priceWithoutVatMatch'
+              ) === false
+            "
+          >
+            {{
+              getValueFromCounter(
+                good.goodsSpecifications[0].idDemandOfferGood,
+                "priceWithoutVat"
+              ) | ruNumberFormat : currencyPrecision : currencyPrecision
+            }}
+            {{ this.selectedRow.currencyName }}
+          </td>
+          } @if (fullInfo.generalInfo?.pricingTypeId !=
+          pricingType?.formulaWithoutQuotation) {
+          <td
+            class="date-roboto-mono"
+            [class.difference]="
+              getCompareValue(
+                good.goodsSpecifications[0].idDemandOfferGood,
+                'costVatMatch'
+              ) === false
+            "
+          >
+            {{
+              getValueFromCounter(
+                good.goodsSpecifications[0].idDemandOfferGood,
+                "totalAmount"
+              ) | ruNumberFormat : currencyPrecision : currencyPrecision
+            }}
+            {{ this.selectedRow.currencyName }}
+          </td>
+          }
+        </tr>
+
+        <!-- TODO CHECK IF EXPLICITY COMPARISON IS NECESSARY -->
+        @if (good.isOpened === true) {
+          <tr>
+            <td colspan="8" class="p-0 text-align-left">
+              <app-display-good-chracteristics
+                [good]="good"
+                [showDifferences]="showDifferences"
+                [fullInfo]="fullInfo"
+                [isSpecialFields]="isSpecialFields"
+                [sessionIds]="sessionIds"
+                [getValue]="getValue"
+                [currencyPrecision]="currencyPrecision"
+                [selectedRow]="selectedRow"
+              >
+              </app-display-good-chracteristics>
+            </td>
+          </tr>
+        }
+
+        <!-- Строка Итого -->
+        @if (last) {
+        <tr class="viewRow greenColor">
+          <td class="text-align-left w-260px">
+            {{ "viewOffer.total" | translate }}
+          </td>
+          @if (onSameUnits) {
+            <td class="text-align-right date-roboto-mono">
+              {{ totalRowData?.quantity }}
+            </td>
+          } @else {
+            <td class="text-align-right date-roboto-mono">-</td>
+          }
+
+          <td class="text-align-right date-roboto-mono">-</td>
+          <td class="text-align-right date-roboto-mono">
+            {{ totalRowData?.costVat }}
+          </td>
+          <td></td>
+          @if (selectedRow?.totalVolume) {
+          <td
+            class="text-align-right date-roboto-mono"
+            [class.difference]="!selectedRow.totalVolumeMatch"
+          >
+            {{ selectedRow.totalVolume }}
+            {{ fullInfo?.goods[0].unitName }}
+          </td>
+          } @if (!selectedRow?.totalVolume) {
+          <td class="text-align-right date-roboto-mono">-</td>
+          }
+
+          <td class="text-align-right date-roboto-mono">-</td>
+          <td
+            class="text-align-right date-roboto-mono"
+            [class.difference]="!selectedRow.totalAmountMatch"
+          >
+            {{
+              selectedRow.totalAmount
+                | ruNumberFormat : selectedRow.currencyPrecision
+            }}
+            {{ this.selectedRow.currencyName }}
+          </td>
+        </tr>
+        }
+      </ng-container>
+      }
+    </tbody>
+  </table>
+  } @if (fullInfo.goods.length > 5) {
+  <div class="expandTableBtn w-auto" (click)="expandTable = !expandTable">
+    <div class="flexContent4 p-1">
+      {{
+        expandTable
+          ? ("viewOffer.collapseTable" | translate)
+          : ("viewOffer.expandTable" | translate)
+      }}
+      <i class="expandTable" [class.tr-rt180]="expandTable"></i>
+    </div>
+  </div>
+  }
+</div>

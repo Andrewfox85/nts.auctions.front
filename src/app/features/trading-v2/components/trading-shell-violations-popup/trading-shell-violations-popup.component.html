@@ -1,0 +1,65 @@
+<dx-popup
+  contentTemplate="violationsPopup"
+  [hideOnOutsideClick]="false"
+  [visible]="visible"
+  [showTitle]="true"
+  title="{{ 'general.entryToAuctions' | translate }}"
+  width="550"
+  height="auto"
+  maxHeight="900"
+  [showCloseButton]="true"
+  (onHiding)="onClose()"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  />
+
+  <div *dxTemplate="let data of 'violationsPopup'">
+    <div class="flexContentColumn16">
+      @if (warningMessage) {
+        <div class="errorPopup borderRed">
+          <i class="errorIcon"></i>
+          <div>{{ warningMessage }}</div>
+        </div>
+      }
+      @if (
+        isExistsViolations?.toString() == 'false' &&
+        (!warningMessage || warningMessage.length === 0)
+      ) {
+        <div class="notificationBlue borderBlue">
+          <i class="blueIcon"></i>
+          <div>
+            {{
+              'errors.isNotExistsViolations' | translate : currentDateForDisplay
+            }}
+          </div>
+        </div>
+      }
+      @if (
+        isExistsViolations?.toString() == 'true' &&
+        (!warningMessage || warningMessage.length === 0)
+      ) {
+        <div class="borderOrange notificationOrange">
+          <i class="unavailableIcon"></i>
+          <div>
+            {{ 'errors.isExistsViolations' | translate : currentDateForDisplay }}
+          </div>
+        </div>
+      }
+      @if (transferingMessage) {
+        <div class="errorPopup borderRed">
+          <i class="errorIcon"></i>
+          <div>{{ 'trading.transferToArchiveNoInfo' | translate }}</div>
+        </div>
+      }
+      @if (
+        isExistsViolations?.toString() == 'true' &&
+        (!warningMessage || warningMessage.length === 0)
+      ) {
+        <a (click)="goToPersonalPage.emit()">{{
+          'footer.top_line.first.link_2' | translate
+        }}</a>
+      }
+    </div>
+  </div>
+</dx-popup>

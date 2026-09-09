@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>НТС</title>
+    <base href="/auctions/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/assets/img/icons/logo.svg" />
+  </head>
+  <body>
+    <app-root></app-root>
+  </body>
+      <script>
+      const originalWarn = console.warn;
+
+      console.warn = (...args) => {
+        const message = typeof args[0] === "string" ? args[0] : "";
+
+        if (
+          message.includes(
+            "You are running production build of Inferno in development mode."
+          )
+        ) {
+          return;
+        }
+
+        if (
+          message.includes(
+            "W0019 - DevExtreme: Unable to Locate a Valid License Key."
+          )
+        ) {
+          return;
+        }
+
+        originalWarn.apply(console, args);
+      };
+
+      const originalDefine = window.CustomElementRegistry.prototype.define;
+
+      window.CustomElementRegistry.prototype.define = function (
+        name,
+        constructor,
+        options
+      ) {
+        if (name === "dx-license") {
+          if (this.get(name)) {
+            return;
+          }
+        }
+        originalDefine.call(this, name, constructor, options);
+      };
+
+      if (!window.customElements.get("dx-license")) {
+        try {
+          window.customElements.define(
+            "dx-license",
+            class extends HTMLElement {
+              connectedCallback() {
+                this.remove();
+              }
+            }
+          );
+        } catch (e) {
+          console.warn(
+            "Error defining dx-license custom element after prototype hack:",
+            e
+          );
+        }
+      }
+
+      const hideStyle = document.createElement("style");
+      hideStyle.textContent = `
+dx-license,
+dx-license * {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  position: fixed !important;
+  top: -9999px !important;
+  left: -9999px !important;
+  z-index: -9999 !important;
+}`;
+      document.head.appendChild(hideStyle);
+
+      const origAppendChild = Element.prototype.appendChild;
+      Element.prototype.appendChild = function (child) {
+        if (child.tagName === "DX-LICENSE") return child;
+        return origAppendChild.call(this, child);
+      };
+
+      const origInsertBefore = Element.prototype.insertBefore;
+      Element.prototype.insertBefore = function (child, ref) {
+        if (child.tagName === "DX-LICENSE") return child;
+        return origInsertBefore.call(this, child, ref);
+      };
+
+      document.querySelectorAll("dx-license").forEach((e) => e.remove());
+
+      document.addEventListener("DOMContentLoaded", () => {
+        new MutationObserver((list) => {
+          document.querySelectorAll("dx-license").forEach((e) => e.remove());
+        }).observe(document.body, { childList: true, subtree: true });
+      });
+    </script>
+</html>

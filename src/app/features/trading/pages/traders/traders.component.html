@@ -1,0 +1,824 @@
+<main class="traders">
+  <div class="main_component">
+    <div class="content">
+      <div class="toolbarTable flexContent8">
+        <!-- обновлено -->
+        <div>
+          <button
+            class="btn h-32px secondary-btn w-280px"
+            id="updateGrid"
+            [disabled]="!participants"
+            (click)="getData()"
+          >
+            <div class="flexContent8 ai-c blackColor">
+              <div class="toolbar update"></div>
+              {{ "filters.updatedIn" | translate }}
+              <div class="date-roboto-mono font-s12">
+                {{ this.currentTimeDate | date : "HH:mm dd.MM.yyyy" : "+0300" }}
+              </div>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <div class="mt-25">
+        <app-filters
+          [filtersOn]="{
+            hideFilters: 'hideFilters',
+            tradersIn: 'tradersIn',
+            tradersOut: 'tradersOut',
+            directionBuy: 'directionBuy',
+            directionSale: 'directionSale',
+            offers: 'offers',
+            registrations: 'registrations',
+            activeStatus: 'activeStatus',
+            unactiveStatus: 'unactiveStatus',
+            rejectedStatus: 'rejectedStatus'
+          }"
+          (componentData)="getFilterData($event)"
+          [nameOfCachePage]="'traders'"
+        />
+      </div>
+
+      @if (participants) {
+      <div class="body">
+        <div class="traders-body-wrapper">
+          <div class="body_content">
+            <dx-data-grid
+              [dataSource]="filteredParticipants"
+              [showBorders]="false"
+              [showColumnLines]="true"
+              [allowColumnResizing]="true"
+              [allowColumnReordering]="true"
+              [showRowLines]="true"
+              (onContextMenuPreparing)="onContextMenuPreparing($event)"
+              (onRowPrepared)="onRowPrepared($event)"
+              appLocalizeContextMenu
+            >
+              <dxo-filter-panel [visible]="true" />
+
+              <dxo-header-filter [visible]="true" [allowSearch]="true" />
+
+              <dxo-search-panel
+                [visible]="true"
+                [width]="320"
+                placeholder="{{ 'filters.searchLabel' | translate }}"
+              />
+
+              <dxo-paging [pageSize]="numberEntriesPage[1]" />
+
+              <dxo-state-storing
+                [enabled]="true"
+                type="localStorage"
+                storageKey="traders"
+              />
+
+              <dxo-pager
+                [visible]="true"
+                [allowedPageSizes]="numberEntriesPage"
+                displayMode="compact"
+                [showPageSizeSelector]="true"
+                [showInfo]="true"
+                [infoText]="infoText"
+              />
+
+              <dxo-scrolling [scrollByContent]="true" mode="standard" showScrollbar="always" />
+
+              <dxi-column
+                caption="№"
+                cssClass="column date-roboto-mono"
+                width="70"
+                [allowHiding]="false"
+                alignment="left"
+                [allowFiltering]="false"
+                [fixed]="true"
+                [allowFixing]="false"
+                cellTemplate="cellTemplateRowNumber"
+              />
+
+              <div *dxTemplate="let data of 'cellTemplateRowNumber'">
+                <div>{{ data.row.rowIndex + 1 }}</div>
+              </div>
+
+              <dxi-column
+                caption="{{ 'trading.tradersTable.participant' | translate }}"
+                dataField="firmName"
+                cssClass="column text-align-left"
+                [minWidth]="200"
+                [allowSorting]="true"
+                [allowFiltering]="true"
+              />
+
+              <dxi-column
+                caption="{{ 'trading.tradersTable.trader' | translate }}"
+                dataField="traderFullName"
+                cssClass="column text-align-left"
+                [minWidth]="250"
+                [allowSorting]="true"
+                [allowFiltering]="true"
+              />
+
+              <dxi-column
+                caption="{{
+                  'trading.tradersTable.loadingPlanGIAS' | translate
+                }}"
+                dataField="isWaitingForGiasSync"
+                cssClass="column text-align-left"
+                [minWidth]="140"
+                [allowSorting]="true"
+                [allowFiltering]="true"
+                cellTemplate="cellTemplateLoadingPlanGIAS"
+              />
+              <div *dxTemplate="let data of 'cellTemplateLoadingPlanGIAS'">
+                <div [class.redColor]="!data.data.isWaitingForGiasSync">
+                  {{
+                    data.data.isWaitingForGiasSync
+                      ? ("trading.tradersTable.loaded" | translate)
+                      : ("trading.tradersTable.notLoaded" | translate)
+                  }}
+                </div>
+              </div>
+
+              <dxi-column
+                caption="{{ 'trading.tradersTable.contacts' | translate }}"
+                cssClass="column text-align-center"
+                [minWidth]="200"
+                [allowSorting]="true"
+                [allowFiltering]="false"
+                cellTemplate="cellTemplateContacts"
+              />
+
+              <div *dxTemplate="let data of 'cellTemplateContacts'">
+                <div class="flexContent8 jc-sb center">
+                  <div class="flexContentColumn8">
+                    <span>{{ data.data.telephoneForSMS }}</span>
+                    <span>{{ data.data.email }}</span>
+                  </div>
+
+                  <div
+                    class="chat pointer"
+                    (click)="goToTheChat(data.data)"
+                  ></div>
+                </div>
+              </div>
+
+              <dxi-column
+                caption="{{ 'trading.tradersTable.enterTime' | translate }}"
+                cssClass="column text-align-right"
+                [minWidth]="150"
+                allowSorting="true"
+                [allowFiltering]="false"
+                cellTemplate="cellTemplateEnterTime"
+              />
+
+              <div *dxTemplate="let data of 'cellTemplateEnterTime'">
+                @if(data.data.loginDatetime) {
+                <div class="flexContentColumn8">
+                  <span>{{
+                    data.data.loginDatetime
+                      | excelDate : true
+                      | date : "dd.MM.yyyy" : "+0000"
+                  }}</span>
+
+                  <span>{{
+                    data.data.loginDatetime
+                      | excelDate : true
+                      | date : "HH:mm" : "+0000"
+                  }}</span>
+                </div>
+                }
+              </div>
+
+              <dxi-column
+                caption="{{ 'trading.tradersTable.sale' | translate }}"
+                cssClass="column text-align-center"
+                [minWidth]="300"
+              >
+                <dxi-column
+                  caption="{{ 'filters.active' | translate }}"
+                  cssClass="column  text-align-center"
+                  [minWidth]="110"
+                  alignment="left"
+                  [allowFiltering]="false"
+                  [allowSorting]="false"
+                  cellTemplate="cellTemplateActiveSale"
+                />
+
+                <div *dxTemplate="let data of 'cellTemplateActiveSale'">
+                  <div>
+                    @if (data.data.demoffSale.numberActivated > 0) {
+                    <span
+                      class="link pointer"
+                      (click)="goToNewTab(data.data, NewTabType.OFFERS_SALE_ACTIVE)"
+                      >{{ data.data.demoffSale.numberActivated }} /
+                    </span>
+                    } @if (data.data.demoffSale.numberActivated == 0) {
+                    <span>0 /</span>
+                    } @if (data.data.regsSale.numberActivated > 0) {
+                    <span
+                      class="link pointer"
+                      (click)="goToNewTab(data.data, NewTabType.REGS_ACTIVE, IdDirection.sale)"
+                    >
+                      {{ data.data.regsSale.numberActivated }}
+                    </span>
+                    } @if (data.data.regsSale.numberActivated == 0) {
+                    <span> 0</span>
+                    }
+                  </div>
+                </div>
+
+                <dxi-column
+                  caption="{{ 'filters.unactive' | translate }}"
+                  cssClass="column text-align-center"
+                  [minWidth]="110"
+                  alignment="left"
+                  [allowFiltering]="false"
+                  [allowSorting]="false"
+                  cellTemplate="cellTemplateUnactiveSale"
+                />
+
+                <div *dxTemplate="let data of 'cellTemplateUnactiveSale'">
+                  <div>
+                    @if (data.data.demoffSale.numberInactive > 0) {
+                    <span
+                      class="link pointer"
+                      (click)="goToNewTab(data.data, NewTabType.OFFERS_SALE_INACTIVE)"
+                      >{{ data.data.demoffSale.numberInactive }} /
+                    </span>
+                    } @if (data.data.demoffSale.numberInactive == 0) {
+                    <span>0 /</span>
+                    } @if (data.data.regsSale.numberInactive > 0) {
+                    <span
+                      class="link pointer"
+                      (click)="goToNewTab(data.data, NewTabType.REGS_INACTIVE, IdDirection.sale)"
+                    >
+                      {{ data.data.regsSale.numberInactive }}
+                    </span>
+                    } @if (data.data.regsSale.numberInactive == 0) {
+                    <span> 0</span>
+                    }
+                  </div>
+                </div>
+
+                <dxi-column
+                  caption="{{ 'filters.rejected' | translate }}"
+                  cssClass="column text-align-center"
+                  [minWidth]="110"
+                  alignment="left"
+                  [allowFiltering]="false"
+                  [allowSorting]="false"
+                  cellTemplate="cellTemplateRejectedSale"
+                />
+
+                <div *dxTemplate="let data of 'cellTemplateRejectedSale'">
+                  <div>
+                    @if (data.data.demoffSale.numberDeclined > 0) {
+                    <span
+                      class="link pointer"
+                      (click)="goToNewTab(data.data, NewTabType.OFFERS_SALE_DECLINED)"
+                      >{{ data.data.demoffSale.numberDeclined }} /
+                    </span>
+                    } @if (data.data.demoffSale.numberDeclined == 0) {
+                    <span>0 /</span>
+                    } @if (data.data.regsSale.numberDeclined > 0) {
+                    <span
+                      class="link pointer"
+                      (click)="goToNewTab(data.data, NewTabType.REGS_DECLINED, IdDirection.sale)"
+                    >
+                      {{ data.data.regsSale.numberDeclined }}
+                    </span>
+                    } @if (data.data.regsSale.numberDeclined == 0) {
+                    <span> 0</span>
+                    }
+                  </div>
+                </div>
+              </dxi-column>
+
+              <dxi-column
+                caption="{{ 'trading.tradersTable.buy' | translate }}"
+                cssClass="column text-align-center"
+                [minWidth]="300"
+              >
+                <dxi-column
+                  caption="{{ 'filters.active' | translate }}"
+                  cssClass="column  text-align-center"
+                  [minWidth]="110"
+                  alignment="left"
+                  [allowFiltering]="false"
+                  [allowSorting]="false"
+                  cellTemplate="cellTemplateActiveBuy"
+                />
+
+                <div *dxTemplate="let data of 'cellTemplateActiveBuy'">
+                  <div>
+                    @if (data.data.demoffBuy.numberActivated > 0) {
+                    <span
+                      class="link pointer"
+                      (click)="goToNewTab(data.data, NewTabType.OFFERS_BUY_ACTIVE)"
+                      >{{ data.data.demoffBuy.numberActivated }} /
+                    </span>
+                    } @if (data.data.demoffBuy.numberActivated == 0) {
+                    <span>0 / </span>
+                    } @if (data.data.regsBuy.numberActivated > 0) {
+                    <span
+                      class="link pointer"
+                      (click)="goToNewTab(data.data, NewTabType.REGS_ACTIVE, IdDirection.buy)"
+                    >
+                      {{ data.data.regsBuy.numberActivated }}
+                    </span>
+                    } @if (data.data.regsBuy.numberActivated == 0) {
+                    <span> 0 </span>
+                    }
+                  </div>
+                </div>
+
+                <dxi-column
+                  caption="{{ 'filters.unactive' | translate }}"
+                  cssClass="column text-align-center"
+                  [minWidth]="110"
+                  alignment="left"
+                  [allowFiltering]="false"
+                  [allowSorting]="false"
+                  cellTemplate="cellTemplateUnactiveBuy"
+                />
+
+                <div *dxTemplate="let data of 'cellTemplateUnactiveBuy'">
+                  <div>
+                    @if (data.data.demoffBuy.numberInactive > 0) {
+                    <span
+                      class="link pointer"
+                      (click)="goToNewTab(data.data, NewTabType.OFFERS_BUY_INACTIVE)"
+                      >{{ data.data.demoffBuy.numberInactive }} /
+                    </span>
+                    } @if (data.data.demoffBuy.numberInactive == 0) {
+                    <span>0 /</span>
+                    } @if (data.data.regsBuy.numberInactive > 0) {
+                    <span
+                      class="link pointer"
+                      (click)="goToNewTab(data.data, NewTabType.REGS_INACTIVE, IdDirection.buy)"
+                    >
+                      {{ data.data.regsBuy.numberInactive }}
+                    </span>
+                    } @if (data.data.regsBuy.numberInactive == 0) {
+                    <span> 0</span>
+                    }
+                  </div>
+                </div>
+
+                <dxi-column
+                  caption="{{ 'filters.rejected' | translate }}"
+                  cssClass="column text-align-center"
+                  [minWidth]="110"
+                  alignment="left"
+                  [allowFiltering]="false"
+                  [allowSorting]="false"
+                  cellTemplate="cellTemplateRejectedBuy"
+                />
+
+                <div *dxTemplate="let data of 'cellTemplateRejectedBuy'">
+                  <div>
+                    @if (data.data.demoffBuy.numberDeclined > 0) {
+                    <span
+                      class="link pointer"
+                      (click)="goToNewTab(data.data, NewTabType.OFFERS_BUY_DECLINED)"
+                      >{{ data.data.demoffBuy.numberDeclined }} /
+                    </span>
+                    } @if (data.data.demoffBuy.numberDeclined == 0) {
+                    <span>0 /</span>
+                    } @if (data.data.regsBuy.numberDeclined > 0) {
+                    <span
+                      class="link pointer"
+                      (click)="goToNewTab(data.data, NewTabType.REGS_DECLINED, IdDirection.buy)"
+                    >
+                      {{ data.data.regsBuy.numberDeclined }}
+                    </span>
+                    } @if (data.data.regsBuy.numberDeclined == 0) {
+                    <span> 0</span>
+                    }
+                  </div>
+                </div>
+              </dxi-column>
+            </dx-data-grid>
+          </div>
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+</main>
+
+<!-- исключение трейдера -->
+<dx-popup
+  contentTemplate="excludePopup"
+  [hideOnOutsideClick]="false"
+  [visible]="excludePopup"
+  [showTitle]="true"
+  title="{{ 'trading.tradersTable.excludeTitle' | translate }}"
+  width="600"
+  height="auto"
+  [showCloseButton]="true"
+  (onHiding)="clearExcludeForm()"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  />
+
+  <div *dxTemplate="let data of 'excludePopup'">
+    <div class="flexContentColumn16">
+      <form [formGroup]="excludeForm">
+        <div>
+          <span>{{
+            "trading.tradersTable.excludeSubmission" | translate : excludeData
+          }}</span>
+        </div>
+
+        <div class="flexContentColumn4">
+          <label>{{ "filters.directionOffersRegs" | translate }}</label>
+          <div class="checkboxes flexContentColumn8">
+            <dx-check-box
+              text="{{ 'filters.directionSale' | translate }}"
+              iconSize="20px"
+              [disabled]="traderDirections?.length === 1"
+              formControlName="directionSale"
+            />
+
+            <dx-check-box
+              text="{{ 'filters.directionBuy' | translate }}"
+              iconSize="20px"
+              [disabled]="traderDirections?.length === 1"
+              formControlName="directionBuy"
+            />
+          </div>
+        </div>
+
+        <div class="flexContentColumn8 w-100">
+          <div class="flexContent20">
+            <label>{{
+              "trading.tradersTable.excludeReason" | translate
+            }}</label>
+            <label
+              >{{
+                this.excludeReason?.length > 0 ? this.excludeReason?.length : 0
+              }}/500</label
+            >
+          </div>
+
+          <dx-text-area
+            height="124px"
+            placeholder="{{ 'general.text' | translate }}"
+            maxLength="500"
+            [(value)]="excludeReason"
+            valueChangeEvent="keyup"
+            formControlName="reason"
+          />
+        </div>
+
+        <div class="buttons flexContent24 buttonsClass">
+          <button
+            class="btn btn-primary submit w-50"
+            [disabled]="
+              !excludeForm.valid ||
+              (!this.excludeForm.get('directionBuy').value &&
+                !this.excludeForm.get('directionSale').value)
+            "
+            (click)="excludeTrader()"
+          >
+            {{ "trading.tradersTable.exclude" | translate }}
+          </button>
+          <button
+            class="btn btn-outline-primary w-50"
+            (click)="clearExcludeForm()"
+          >
+            {{ "btns.close" | translate }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</dx-popup>
+
+<!-- замена -->
+<dx-popup
+  contentTemplate="replacePopup"
+  [hideOnOutsideClick]="false"
+  [visible]="replacePopup"
+  [showTitle]="true"
+  title="{{ 'trading.tradersTable.replaceTitle' | translate }}"
+  width="500"
+  height="auto"
+  [showCloseButton]="true"
+  (onHiding)="clearReplaceForm()"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  />
+
+  <div *dxTemplate="let data of 'replacePopup'">
+    <div class="flexContentColumn16">
+      <form [formGroup]="replaceForm">
+        <div class="form-group">
+          <label>{{ "trading.tradersTable.participant" | translate }}</label>
+
+          <div class="flexContentColumn8">
+            <dx-select-box
+              [dataSource]="participant"
+              valueExpr="firmId"
+              displayExpr="firmName"
+              [disabled]="true"
+              height="40px"
+              placeholder="{{ 'filters.selection' | translate }}"
+              formControlName="participant"
+            >
+              <div *dxTemplate="let data of 'dropDownButton'"></div>
+            </dx-select-box>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>{{ "trading.tradersTable.trader" | translate }}</label>
+
+          <div class="flexContentColumn8">
+            <dx-select-box
+              [dataSource]="trader"
+              valueExpr="traderId"
+              displayExpr="traderFullName"
+              [disabled]="true"
+              height="40px"
+              placeholder="{{ 'filters.selection' | translate }}"
+              formControlName="trader"
+            >
+              <div *dxTemplate="let data of 'dropDownButton'"></div>
+            </dx-select-box>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>{{ "trading.tradersTable.newTrader" | translate }}</label>
+
+          <dx-select-box
+            [dataSource]="traders"
+            placeholder="{{ 'filters.selection' | translate }}"
+            valueExpr="this"
+            displayExpr="name"
+            height="40px"
+            formControlName="newTrader"
+          />
+        </div>
+
+        <div class="buttons flexContent24 buttonsClass">
+          <button
+            class="btn btn-primary submit w-50"
+            [disabled]="!replaceForm.valid"
+            (click)="replaceTrader()"
+          >
+            {{ "btns.transfer" | translate }}
+          </button>
+
+          <button
+            class="btn btn-outline-primary w-50"
+            (click)="clearReplaceForm()"
+          >
+            {{ "btns.close" | translate }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</dx-popup>
+
+<!-- для результатов -->
+<dx-popup
+  contentTemplate="resultPopup"
+  [hideOnOutsideClick]="false"
+  [visible]="resultPopup"
+  [showTitle]="true"
+  [title]="resultPopupTitle"
+  width="600"
+  height="auto"
+  [showCloseButton]="true"
+  (onHiding)="resultPopup = false; getData()"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+  <div *dxTemplate="let data of 'resultPopup'">
+    @if (resultPopupType == 'exclude') {
+    <div>
+      @if (resultType == 'success') {
+      <div class="successGreen borderGreen">
+        <i class="checkIcon"></i>
+        <div>
+          <span>{{
+            "trading.tradersTable.resultMess" | translate : resultData
+          }}</span>
+          <li class="mt-3 ml-3">
+            {{ "trading.tradersTable.activeOffers" | translate }} ({{
+              resultData.activeOffers
+            }})
+          </li>
+          <li class="ml-3">
+            {{ "trading.tradersTable.activeRegs" | translate }} ({{
+              resultData.activeRegs
+            }})
+          </li>
+        </div>
+      </div>
+      } @if (resultType == 'error') {
+      <div class="errorPopup borderRed">
+        <i class="errorIcon"></i>
+        <div>
+          <span>{{
+            "trading.tradersTable.excludeError" | translate : excludeData
+          }}</span>
+        </div>
+      </div>
+      }
+    </div>
+    } @if (resultPopupType == 'replace') {
+    <div>
+      @if (resultType == 'success') {
+      <div class="successGreen borderGreen">
+        <i class="checkIcon"></i>
+        <div>
+          <span>{{
+            "trading.tradersTable.replaceResult" | translate : resultData
+          }}</span>
+          @if (resultData.totalOffersSell > 0) {
+          <li class="mt-3 ml-3">
+            {{ "trading.tradersTable.saleOffers" | translate : resultData }}
+          </li>
+          } @if (resultData.totalOffersBuy > 0) {
+          <li class="ml-3">
+            {{ "trading.tradersTable.buyOffers" | translate : resultData }}
+          </li>
+          } @if (resultData.totalRegsSell > 0) {
+          <li class="ml-3">
+            {{ "trading.tradersTable.saleRegs" | translate : resultData }}
+          </li>
+          } @if (resultData.totalRegsBuy > 0) {
+          <li class="ml-3">
+            {{ "trading.tradersTable.buyRegs" | translate : resultData }}
+          </li>
+          }
+        </div>
+      </div>
+      }
+
+      <!-- у трейдера нет заявок - обычная ошибка -->
+      @if (resultType == 'error') {
+      <div class="errorPopup borderRed">
+        <i class="errorIcon"></i>
+        <div>
+          <span>{{
+            "trading.tradersTable.replaceTraderError" | translate
+          }}</span>
+        </div>
+      </div>
+      }
+
+      <!-- ошибки при замене (перечень) -->
+      @if (resultType == 'logs-error' && resultType) {
+      <div>
+        <div class="notificationOrange borderOrange flexContentColumn4">
+          <span>{{
+            "trading.tradersTable.replaceResult" | translate : resultData
+          }}</span>
+          @if (resultData.totalOffersSell > 0) {
+          <li class="mt-2 ml-3">
+            {{ "trading.tradersTable.saleOffers" | translate : resultData }}
+          </li>
+          } @if (resultData.totalOffersBuy > 0) {
+          <li class="ml-3">
+            {{ "trading.tradersTable.buyOffers" | translate : resultData }}
+          </li>
+          } @if (resultData.totalRegsSell > 0) {
+          <li class="ml-3">
+            {{ "trading.tradersTable.saleRegs" | translate : resultData }}
+          </li>
+          } @if (resultData.totalRegsBuy > 0) {
+          <li class="ml-3">
+            {{ "trading.tradersTable.buyRegs" | translate : resultData }}
+          </li>
+          }
+        </div>
+
+        <div class="flexContentColumn24 mt-3">
+          <!-- Проверка выбранных для переноса заявок -->
+          @if (resultData.logFilterSelected.length > 0) {
+          <div class="flexContentColumn8">
+            <div
+              class="flexContent4 jc-sb"
+              (click)="logFilterSelectedHidden = !logFilterSelectedHidden"
+            >
+              <span class="font-w600">{{
+                "trading.tradersTable.checkingSelected" | translate
+              }}</span>
+              <div
+                class="filtersArrow"
+                [class.tr-rt180]="logFilterSelectedHidden"
+              ></div>
+            </div>
+
+            <div [hidden]="logFilterSelectedHidden">
+              <div class="flexContentColumn8">
+                @for (message of resultData.logFilterSelected; track message) {
+                <div class="resultMessage errorMessage borderRed h-auto">
+                  <span class="message">
+                    <span>{{ message }}</span>
+                  </span>
+                </div>
+                }
+              </div>
+            </div>
+          </div>
+          }
+
+          <!-- Проверка документов и структурных подразделений -->
+          @if (resultData.logPreprocessing.length > 0) {
+          <div class="flexContentColumn8">
+            <div
+              class="flexContent4 jc-sb"
+              (click)="logPreprocessingHidden = !logPreprocessingHidden"
+            >
+              <span class="font-w600">{{
+                "trading.tradersTable.checkingDocuments" | translate
+              }}</span>
+              <div
+                class="filtersArrow"
+                [class.tr-rt180]="logPreprocessingHidden"
+              ></div>
+            </div>
+
+            <div [hidden]="logPreprocessingHidden">
+              <div class="flexContentColumn8">
+                @for (message of resultData.logPreprocessing; track message) {
+                <div class="resultMessage errorMessage borderRed h-auto">
+                  <span class="message">
+                    <span>{{ message }}</span>
+                  </span>
+                </div>
+                }
+              </div>
+            </div>
+          </div>
+          }
+
+          <!-- Проверка наличия заявок и регистраций у принимающего трейдера -->
+          @if (resultData.logExecution.length > 0) {
+          <div class="flexContentColumn8">
+            <div
+              class="flexContent4 jc-sb"
+              (click)="logExecutionHidden = !logExecutionHidden"
+            >
+              <span class="font-w600">{{
+                "trading.tradersTable.checkingRegistrations" | translate
+              }}</span>
+              <div
+                class="filtersArrow"
+                [class.tr-rt180]="logExecutionHidden"
+              ></div>
+            </div>
+
+            <div [hidden]="logExecutionHidden">
+              <div class="flexContentColumn8">
+                @for (message of resultData.logExecution; track message) {
+                <div class="resultMessage errorMessage borderRed h-auto">
+                  <span class="message">
+                    <span>{{ message }}</span>
+                  </span>
+                </div>
+                }
+              </div>
+            </div>
+          </div>
+          }
+        </div>
+
+        <div class="buttons flexContent24 buttonsClass mt-4">
+          <button class="btn btn-primary submit w-50" (click)="print()">
+            {{ "btns.print" | translate }}
+          </button>
+          <button
+            class="btn btn-outline-primary w-50"
+            (click)="resultPopup = false; getData()"
+          >
+            {{ "btns.close" | translate }}
+          </button>
+        </div>
+      </div>
+      }
+    </div>
+    }
+  </div>
+</dx-popup>
+
+@if (popupIsActivatedTransferToBids) {
+<app-check-activation-mode
+  [tradeTypeId]="this.sessionInfo.idAuctionType"
+  [title]="'trading.tradersTable.replace' | translate"
+  (onContinue)="
+    $event ? onOpenReplace(this.replaceData) : null;
+    this.popupIsActivatedTransferToBids = false
+  "
+/>
+}

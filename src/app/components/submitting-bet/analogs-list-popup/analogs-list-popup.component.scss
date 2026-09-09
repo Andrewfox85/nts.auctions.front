@@ -1,0 +1,15 @@
+
+
+.form {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 16px; 
+    width: 100%;
+}
+  
+.form-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0; 
+}

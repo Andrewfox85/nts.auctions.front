@@ -1,0 +1,96 @@
+<dx-popup
+  contentTemplate="approvePopup"
+  [hideOnOutsideClick]="false"
+  [visible]="approvePopup"
+  [showTitle]="true"
+  title="{{ 'trading.directOffersTab.approveOffersTitle' | translate}}"
+  width="760"
+  height="auto"
+  [showCloseButton]="true"
+  (onShowing)="onShowing($event)"
+  (onHiding)="closePopup()"
+>
+  <dxo-animation [show]="{easing: 'ease-in-out', type:'fadeIn', duration: 150}"></dxo-animation>
+  <div *dxTemplate="let data of 'approvePopup'"> 
+    <div class="flexContentColumn16">
+
+        <div>
+           <span>{{ 'trading.offersTable.chooseOffers' | translate }} {{choosenOffers}}</span>
+        </div>
+
+        <div>
+            <div class="borderBlue notificationBlue h-auto p-2">
+              <span class="message flexContent8 center">
+                  <span class="font-s14 l-h16">{{ 'trading.directOffersTab.indSettingMess' | translate }}</span>
+                </span>
+            </div>
+        </div>
+
+        <form [formGroup]="approveForm">
+
+            <div class="flexContent16 w-100">
+                <!-- продавец -->
+                <div class="border w-100">
+
+                    <h3 class="pl-3 pr-3 pt-3 pb-0">{{'trading.dealsTab.seller' | translate}}</h3>
+
+                    <div class="pb-3 pl-3 pr-3 pt-0 flexContent8 jc-sb">
+                    <span>{{'trading.regsTable.violationsControl' | translate}}</span>
+                        <div>
+                        <dx-switch switchedOffText="" switchedOnText="" formControlName="violationsControlSeller"></dx-switch>
+                        </div>
+                    </div>
+
+                    <div class="pb-3 pl-3 pr-3 pt-0 flexContent8 jc-sb">
+                    <span >{{'trading.regsTable.depositControl' | translate}}</span><!--[ngClass]="{'disabled': disabledDepositControlSeller}" [disabled]="disabledDepositControlSeller" -->
+                        <div>
+                        <dx-switch switchedOffText="" switchedOnText="" formControlName="depositControlSeller"  (onValueChanged)="onChangeControlSwitcher($event, 'depositControlSeller')"></dx-switch>
+                        </div>
+                    </div>
+
+                    <div class="pb-3 pl-3 pr-3 pt-0 flexContent8 jc-sb">
+                    <span>{{'trading.offersTable.depositCalculation' | translate}}</span><!--  [ngClass]="{'disabled': disabledDepositCalculationSeller}" -->
+                        <div>
+                        <dx-switch switchedOffText="" switchedOnText="" formControlName="depositCalculationSeller"></dx-switch><!--  [disabled]="disabledDepositCalculationSeller" -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- покупатель -->
+                <div class="border w-100">
+
+                    <h3 class="pl-3 pr-3 pt-3 pb-0">{{'trading.dealsTab.buyer' | translate}}</h3>
+
+                    <div class="pb-3 pl-3 pr-3 pt-0 flexContent8 jc-sb">
+                    <span>{{'trading.regsTable.violationsControl' | translate}}</span>
+                        <div>
+                        <dx-switch switchedOffText="" switchedOnText="" formControlName="violationsControlBuyer"></dx-switch>
+                        </div>
+                    </div>
+
+                    <div class="pb-3 pl-3 pr-3 pt-0 flexContent8 jc-sb">
+                    <span >{{'trading.regsTable.depositControl' | translate}}</span><!-- [ngClass]="{'disabled': disabledDepositControlBuyer}" [disabled]="disabledDepositControlBuyer" -->
+                        <div>
+                        <dx-switch switchedOffText="" switchedOnText="" formControlName="depositControlBuyer" (onValueChanged)="onChangeControlSwitcher($event, 'depositControlBuyer')"></dx-switch>
+                        </div>
+                    </div>
+
+                    <div class="pb-3 pl-3 pr-3 pt-0 flexContent8 jc-sb">
+                    <span >{{'trading.offersTable.depositCalculation' | translate}}</span><!-- [ngClass]="{'disabled': disabledDepositCalculationBuyer}" -->
+                        <div>
+                        <dx-switch switchedOffText="" switchedOnText="" formControlName="depositCalculationBuyer"></dx-switch><!--  [disabled]="disabledDepositCalculationBuyer" -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+           
+            <div class="buttons flexContent24 buttonsClass">
+              <button class="btn btn-primary submit w-50"  [disabled]="!approveForm.valid" (click)="approveOffer()">{{'trading.directOffersTab.approveOffers' | translate}}</button>
+              <button class="btn btn-outline-primary w-50" (click)="closePopup()">{{'btns.close' | translate}}</button>
+           </div>
+        </form>
+    </div>
+  </div>
+</dx-popup>
+

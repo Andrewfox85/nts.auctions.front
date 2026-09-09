@@ -1,0 +1,65 @@
+/* To learn more about this file see: https://angular.io/config/tsconfig. */
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "outDir": "./dist/out-tsc",
+    "forceConsistentCasingInFileNames": true,
+    "strict": false,
+    "strictPropertyInitialization": false,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": false,
+    "noFallthroughCasesInSwitch": true,
+    "sourceMap": true,
+    "declaration": false,
+    "experimentalDecorators": true,
+    "moduleResolution": "node",
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "es2020",
+    "lib": [
+      "es2020",
+      "dom"
+    ],
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "useDefineForClassFields": false,
+    "baseUrl": "./",
+    "paths": {
+      "@app": ["src/app/*"],
+      "@store": ["src/app/store/index.ts"],
+      "@features": ["src/app/features/index.ts"],
+      "@trading-v2": ["src/app/features/trading-v2/index.ts"],
+      "@components": ["src/app/components/index.ts"],
+      "@services": ["src/app/services/index.ts"],
+      "@shared-services": ["src/app/shared/services/index.ts"],
+      "@helpers": ["src/app/shared/helpers/index.ts"],
+      "@views": ["src/app/views/index.ts"],
+      "@guards": ["src/app/shared/guards/index.ts"],
+      "@interceptors": ["src/app/shared/interceptors/index.ts"],
+      "@directives": ["src/app/shared/directives/index.ts"],
+      "@constants": ["src/app/shared/constants/index.ts"],
+      "@classes": ["src/app/shared/classes/index.ts"],
+      "@pipes": ["src/app/shared/pipes/index.ts"],
+      "@enums": ["src/app/shared/enums/index.ts"],
+      "@resolvers": ["src/app/shared/resolvers/index.ts"],
+      "@interfaces": ["src/app/shared/interfaces/index.ts"],
+      "@homepage-store": ["src/app/views/homepage/store/index.ts"],
+      "@ru-translate": ["src/assets/i18n/RU.json"],
+      "@en-translate": ["src/assets/i18n/EN.json"],
+      "@styles/*": ["src/styles/*"]
+    }
+  },
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true,
+    "skipLibCheck": true,
+    "extendedDiagnostics": {
+      "checks": {
+        "optionalChainNotNullable": "suppress"
+      }
+    }
+  }
+}

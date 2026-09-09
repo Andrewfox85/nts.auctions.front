@@ -1,0 +1,93 @@
+@if (fullInfo) {
+  <dx-tab-panel [(selectedIndex)]="tabIndex">
+    <!-- Общая инф-ция -->
+    <dxi-item
+      id="registerCounterOffer"
+      title="{{ 'viewOffer.mainInfo' | translate }}"
+    >
+      <div *dxTemplate class="tab-content flexContentColumn8">
+        <div class="mt-3">
+          <app-counter-offers
+            [fullInfo]="fullInfo"
+            [isMine]="isMine"
+            [idOffer]="idOffer"
+            [deliveryConditions]="deliveryConditions"
+            [goodsOriginal]="goodsOriginal"
+            [editRulesIntersections]="editRulesIntersections"
+            [uniqueDeliveryScopes]="uniqueDeliveryScopes"
+            [idDemandOffer]="idDemandOffer"
+            [isAllowAnalog]="isAllowAnalog"
+            (counterInfo)="conterInfo = $event"
+            [sessionIds]="{
+                         sectionId: dataForReq.sectionId,
+                         sessionId: dataForReq.sessionId,
+                         session: dataForReq
+                       }"
+          ></app-counter-offers>
+        </div>
+      </div>
+    </dxi-item>
+
+    <!-- Базисы -->
+    @if (fullInfo.deliveryConditions?.length > 0) {
+      <dxi-item
+        id="deliveryRegisterBasesCounter"
+        title="{{ 'viewOffer.deliveryBases' | translate }}"
+      >
+        <div *dxTemplate class="tab-content flexContentColumn8">
+          <div class="mt-3">
+            <app-basis-info
+              [deliveryBases]="fullInfo.deliveryConditions"
+              [goods]="fullInfo.goods"
+              [pricingTypeId]="fullInfo.generalInfo.pricingTypeId"
+            ></app-basis-info>
+          </div>
+        </div>
+      </dxi-item>
+    }
+
+    <!-- График поставки -->
+    @if (fullInfo.delivSchPeriods?.length > 0) {
+      <dxi-item
+        id="deliveryScheduleRegisterCounter"
+        title="{{ 'viewOffer.deliverySchedule' | translate }}"
+      >
+        <div *dxTemplate class="tab-content flexContentColumn8">
+          <div class="mt-3">
+            <app-delivery-schedule-info
+              [type]="'counterRegister'"
+              [deliverySch]="fullInfo.delivSchPeriods"
+              [goods]="fullInfo.goods"
+              [concatedStringDeliveryTerm]="fullInfo.generalInfo.concatedDeliveryPeriod"
+            ></app-delivery-schedule-info>
+          </div>
+        </div>
+      </dxi-item>
+    }
+
+    <!-- Грузоотправители/Грузополучатели -->
+    @if (fullInfo?.deliveryScopes?.length > 1) {
+      <dxi-item
+        id="consignorsRegisterCounter"
+        title="{{
+                fullInfo?.generalInfo?.directionId === IdDirection.sale
+                  ? ('viewOffer.consignors' | translate)
+                  : ('viewOffer.consignees' | translate)
+              }}"
+      >
+        <div *dxTemplate class="tab-content flexContentColumn8">
+          <div class="mt-3">
+            <app-delivery-scope
+              [type]="'counterRegister'"
+              [deletedScope]="deletedScope"
+              [deliveryScopes]="fullInfo?.deliveryScopes"
+              [goods]="fullInfo.goods"
+              [idSection]="dataForReq.sectionId"
+              [conterGoodsInfo]="conterInfo.goods"
+            ></app-delivery-scope>
+          </div>
+        </div>
+      </dxi-item>
+    }
+  </dx-tab-panel>
+}

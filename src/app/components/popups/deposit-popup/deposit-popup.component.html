@@ -1,0 +1,98 @@
+<dx-popup
+  contentTemplate="depositPopup"
+  [hideOnOutsideClick]="false"
+  [visible]="depositPopup"
+  [showTitle]="true"
+  title="{{ 'trading.offersTable.depositPopupTitle' | translate }} {{
+    depositRowData?.demandOfferInfo?.lotNumber
+      ? depositRowData?.demandOfferInfo?.lotNumber
+      : depositRowData?.lotNumber
+  }}"
+  width="580"
+  height="auto"
+  [showCloseButton]="true"
+  (onShowing)="onShowing()"
+  (onHiding)="closePopup()"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  />
+
+  <div *dxTemplate="let data of 'depositPopup'">
+    @if (detailsDepositOffer) {
+    <div class="flexContentColumn24">
+      <div class="flexContentColumn12">
+        @if (user?.IsWorker) {
+        <div class="flexContent8 center">
+          <span class="font-s12 secondTextColor w-112px"
+            >{{ "trading.tradersTable.participant" | translate }}:</span
+          >
+          <span class="font-s14"
+            >{{ detailsDepositOffer?.firmRegNumber }} -
+            {{ detailsDepositOffer?.firmNameShort }}</span
+          >
+        </div>
+        } @if (detailsDepositOffer?.clientRegNumber) {
+        <div class="flexContent8 center">
+          <span class="font-s12 secondTextColor w-112px"
+            >{{ "filters.brokerClient" | translate }}:</span
+          >
+          <span class="font-s14"
+            >{{ detailsDepositOffer?.clientRegNumber }} -
+            {{ detailsDepositOffer?.clientNameShort }}</span
+          >
+        </div>
+        }
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th class="text-align-right w-260px">
+              {{
+                isAdmissionFinished
+                  ? ("trading.offersTable.currBlockedDeposit" | translate)
+                  : ("trading.offersTable.calcOfDeposit" | translate)
+              }}
+            </th>
+            <th class="text-align-right w-260px">
+              {{ "trading.offersTable.currentFreeDeposit" | translate }}
+            </th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td class="date-roboto-mono">
+              {{
+                detailsDepositOffer?.depositSumCalc
+                  | ruNumberFormat
+                    : detailsDepositOffer.currencyPrecision
+                    : detailsDepositOffer.currencyPrecision
+              }}
+              {{ detailsDepositOffer?.currencyName }}
+            </td>
+
+            <td
+              class="date-roboto-mono"
+              [class.redColor]="
+                !isAdmissionFinished &&
+                detailsDepositOffer?.depositSumFree <
+                  detailsDepositOffer?.depositSumCalc
+              "
+            >
+              {{
+                detailsDepositOffer?.depositSumFree
+                  | ruNumberFormat
+                    : detailsDepositOffer.currencyPrecision
+                    : detailsDepositOffer.currencyPrecision
+              }}
+              {{ detailsDepositOffer?.currencyName }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    }
+  </div>
+</dx-popup>
