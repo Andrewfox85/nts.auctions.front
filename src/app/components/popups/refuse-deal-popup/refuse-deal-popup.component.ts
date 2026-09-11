@@ -79,6 +79,7 @@ export class RefuseDealPopupComponent {
   public dealNumberForRes: { dealNumber: string };
 
   public refuseReason = EMPTY_STRING;
+  private pendingResultPopup = false;
 
   public refuseDeal(): void {
     const body: TransactionTerminateBody = this.buildTerminationBody();
@@ -97,6 +98,15 @@ export class RefuseDealPopupComponent {
   public closeResultPopup(): void {
     this.resultPopup.set(false);
     this.closeRes.emit(false);
+  }
+
+  public onRefusePopupHidden(): void {
+    if (!this.pendingResultPopup) {
+      return;
+    }
+
+    this.pendingResultPopup = false;
+    this.resultPopup.set(true);
   }
 
   private buildTerminationBody(): TransactionTerminateBody {
@@ -135,9 +145,9 @@ export class RefuseDealPopupComponent {
         this.choosenDeals()?.[0]?.transactionInfo?.transactionNumber ??
         EMPTY_STRING,
     };
+    this.pendingResultPopup = true;
     this.closePopup();
     this.transactionService.triggerEdit();
-    setTimeout(() => this.resultPopup.set(true));
   }
 
   private processFormValue(): IRefuseForm {

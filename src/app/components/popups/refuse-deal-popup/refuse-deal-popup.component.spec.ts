@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, fakeAsync, flush } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { TransactionService } from '@services';
@@ -44,19 +44,29 @@ describe('RefuseDealPopupComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should refresh deals grid immediately after successful termination', fakeAsync(() => {
+  it('should refresh deals grid immediately after successful termination', () => {
     const closeResSpy = jasmine.createSpy('closeRes');
     component.closeRes.subscribe(closeResSpy);
     component.refuseForm.patchValue({ reason: 'test reason' });
 
     component.refuseDeal();
-    flush();
 
     expect(transactionService.triggerEdit).toHaveBeenCalled();
-    expect(component.resultPopup()).toBe(true);
+    expect(component.resultPopup()).toBe(false);
     expect(component.dealNumberForRes).toEqual({ dealNumber: 'D-42' });
     expect(closeResSpy).not.toHaveBeenCalled();
-  }));
+
+    component.onRefusePopupHidden();
+
+    expect(component.resultPopup()).toBe(true);
+    expect(closeResSpy).not.toHaveBeenCalled();
+  });
+
+  it('should not open the result popup when the refuse form is closed without a terminate', () => {
+    component.onRefusePopupHidden();
+
+    expect(component.resultPopup()).toBe(false);
+  });
 
   it('should emit closeRes only when the result popup is closed', () => {
     const closeResSpy = jasmine.createSpy('closeRes');

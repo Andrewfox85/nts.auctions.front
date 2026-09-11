@@ -8,6 +8,7 @@
   height="auto"
   [showCloseButton]="true"
   (onHiding)="closePopup()"
+  (onHidden)="onRefusePopupHidden()"
 >
   <dxo-animation
     [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
