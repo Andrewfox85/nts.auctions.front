@@ -8,6 +8,7 @@
   height="auto"
   [showCloseButton]="true"
   (onHiding)="closePopup()"
+  (onHidden)="onRefusePopupHidden()"
 >
   <dxo-animation
     [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
@@ -162,7 +163,7 @@
 <dx-popup
   contentTemplate="resultPopup"
   [hideOnOutsideClick]="false"
-  [visible]="resultPopup"
+  [visible]="resultPopup()"
   [showTitle]="true"
   title="{{ 'trading.dealsTab.refusePopupTitle' | translate }}"
   [width]="450"
@@ -208,6 +209,15 @@
             <span>{{ "trading.dealsTab.refusalReason" | translate }}: </span
             ><span class="font-w500">{{ resultData?.reason }}</span>
           </div>
+        </div>
+
+        <div class="buttons flexContent24 buttonsClass">
+          <button
+            class="btn btn-outline-primary w-100"
+            (click)="closeResultPopup()"
+          >
+            {{ "btns.close" | translate }}
+          </button>
         </div>
       </div>
     </div>

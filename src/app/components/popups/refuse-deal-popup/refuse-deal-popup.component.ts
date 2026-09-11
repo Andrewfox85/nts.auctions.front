@@ -3,6 +3,7 @@ import {
   inject,
   output,
   input,
+  signal,
   ChangeDetectionStrategy,
   computed,
 } from '@angular/core';
@@ -73,11 +74,12 @@ export class RefuseDealPopupComponent {
     (): number => +this.sessionIds()?.sessionId
   );
 
-  public resultPopup = false;
+  public readonly resultPopup = signal(false);
   public resultData: IRefuseForm;
   public dealNumberForRes: { dealNumber: string };
 
   public refuseReason = EMPTY_STRING;
+  private pendingResultPopup = false;
 
   public refuseDeal(): void {
     const body: TransactionTerminateBody = this.buildTerminationBody();
@@ -94,8 +96,17 @@ export class RefuseDealPopupComponent {
   }
 
   public closeResultPopup(): void {
-    this.resultPopup = false;
+    this.resultPopup.set(false);
     this.closeRes.emit(false);
+  }
+
+  public onRefusePopupHidden(): void {
+    if (!this.pendingResultPopup) {
+      return;
+    }
+
+    this.pendingResultPopup = false;
+    this.resultPopup.set(true);
   }
 
   private buildTerminationBody(): TransactionTerminateBody {
@@ -128,14 +139,15 @@ export class RefuseDealPopupComponent {
   }
 
   private handleTerminationResult(): void {
-    this.resultPopup = true;
     this.resultData = this.refuseForm?.getRawValue();
     this.dealNumberForRes = {
       dealNumber:
-        this.choosenDeals[0]?.transactionInfo?.transactionNumber ??
+        this.choosenDeals()?.[0]?.transactionInfo?.transactionNumber ??
         EMPTY_STRING,
     };
+    this.pendingResultPopup = true;
     this.closePopup();
+    this.transactionService.triggerEdit();
   }
 
   private processFormValue(): IRefuseForm {
