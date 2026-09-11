@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, flush } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { TransactionService } from '@services';
@@ -50,7 +50,7 @@ describe('RefuseDealPopupComponent', () => {
     component.refuseForm.patchValue({ reason: 'test reason' });
 
     component.refuseDeal();
-    tick();
+    flush();
 
     expect(transactionService.triggerEdit).toHaveBeenCalled();
     expect(component.resultPopup()).toBe(true);
