@@ -3,6 +3,7 @@ import {
   inject,
   output,
   input,
+  signal,
   ChangeDetectionStrategy,
   computed,
 } from '@angular/core';
@@ -73,7 +74,7 @@ export class RefuseDealPopupComponent {
     (): number => +this.sessionIds()?.sessionId
   );
 
-  public resultPopup = false;
+  public readonly resultPopup = signal(false);
   public resultData: IRefuseForm;
   public dealNumberForRes: { dealNumber: string };
 
@@ -94,7 +95,7 @@ export class RefuseDealPopupComponent {
   }
 
   public closeResultPopup(): void {
-    this.resultPopup = false;
+    this.resultPopup.set(false);
     this.closeRes.emit(false);
   }
 
@@ -128,14 +129,15 @@ export class RefuseDealPopupComponent {
   }
 
   private handleTerminationResult(): void {
-    this.resultPopup = true;
     this.resultData = this.refuseForm?.getRawValue();
     this.dealNumberForRes = {
       dealNumber:
-        this.choosenDeals[0]?.transactionInfo?.transactionNumber ??
+        this.choosenDeals()?.[0]?.transactionInfo?.transactionNumber ??
         EMPTY_STRING,
     };
     this.closePopup();
+    this.transactionService.triggerEdit();
+    setTimeout(() => this.resultPopup.set(true));
   }
 
   private processFormValue(): IRefuseForm {
